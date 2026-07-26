@@ -8,6 +8,7 @@ import ChatRoom from './pages/ChatRoom'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import About from './pages/About'
+import Privacy from './pages/Privacy'
 import Auth from './pages/Auth'
 import Layout from './components/layout/Layout'
 
@@ -25,6 +26,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
           </Route>
         </Routes>
       </AuthProvider>

@@ -12,9 +12,6 @@ export default {
                 turquoise: '#00CED1',
                 sunflower: '#FFB800',
             },
-            maxWidth: {
-                'mobile': '450px',
-            }
         },
     },
     plugins: [],

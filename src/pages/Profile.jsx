@@ -216,7 +216,7 @@ export default function Profile() {
     if (loading) return <div className="p-10 text-center">Loading Profile...</div>
 
     return (
-        <div className="p-6 pb-24 relative">
+        <div className="p-6 max-w-2xl mx-auto relative">
             {/* Toast Notification */}
             {toast && (
                 <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-lg font-medium text-white animate-in slide-in-from-top-5 ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'

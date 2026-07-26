@@ -32,11 +32,11 @@ export default function TownFooter() {
     if (isChatPage || towns.length === 0) return null
 
     return (
-        <footer className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 shadow-lg transition-colors duration-500">
-            <div className="max-w-[450px] mx-auto px-2 py-3">
+        <footer className="sticky bottom-0 z-50 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 shadow-lg transition-colors duration-500">
+            <div className="px-2 py-3">
                 {/* Horizontal scrollable town list - shows ~4 towns at a time */}
                 <div
-                    className="flex overflow-x-auto gap-2 scrollbar-hide pb-1"
+                    className="flex overflow-x-auto gap-2 scrollbar-hide pb-1 md:justify-center"
                     style={{
                         scrollSnapType: 'x mandatory',
                         WebkitOverflowScrolling: 'touch'
@@ -49,7 +49,7 @@ export default function TownFooter() {
                             className="flex-shrink-0 flex flex-col items-center gap-1 px-3 py-2 bg-gray-50 dark:bg-slate-700 hover:bg-turquoise/10 dark:hover:bg-turquoise/20 rounded-xl transition-colors"
                             style={{
                                 scrollSnapAlign: 'start',
-                                minWidth: 'calc(25% - 6px)' // ~4 towns visible at a time
+                                minWidth: '92px'
                             }}
                         >
                             <MapPin size={18} className="text-turquoise" />

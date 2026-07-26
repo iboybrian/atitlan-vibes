@@ -42,9 +42,7 @@ export default function Header({ onMenuClick }) {
             </button>
 
             <Link to="/" className="flex items-center justify-center h-full py-2">
-                <span className={`font-black text-xl tracking-tight transition-all duration-[1500ms] ${textColor}`}>
-                    Atitlán Vibes
-                </span>
+                <img src="/logo.png" alt="Atitlán Vibes" className="h-full w-auto object-contain" />
             </Link>
 
             <div style={{ width: 40 }}></div> {/* Spacer to balance menu button */}

@@ -227,7 +227,7 @@ export default function TownDetail() {
                                             </span>
                                             <div className="flex-1 h-px bg-gradient-to-r from-sunflower/50 to-transparent ml-2"></div>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                             {featuredEvents.map(event => (
                                                 <Link to={`/event/${event.id}`} key={event.id} className="block group">
                                                     <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
@@ -273,7 +273,7 @@ export default function TownDetail() {
                                                 <div className="flex-1 h-px bg-gray-300 dark:bg-slate-600 ml-2"></div>
                                             </div>
                                         )}
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                             {regularEvents.map(event => (
                                                 <Link to={`/event/${event.id}`} key={event.id} className="block group">
                                                     <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
@@ -317,15 +317,17 @@ export default function TownDetail() {
                 />
             )}
 
-            {/* Floating Chat Button (logged-in users only) - positioned above footer */}
+            {/* Floating Chat Button (logged-in users only) - sticks to the shell's right edge, above the footer */}
             {user && (
-                <Link
-                    to={`/town/${id}/chat`}
-                    className="fixed bottom-24 right-4 w-14 h-14 bg-turquoise text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all flex items-center justify-center z-40"
-                    title="Town Chat"
-                >
-                    <MessageCircle size={24} />
-                </Link>
+                <div className="sticky bottom-24 z-40 flex justify-end h-0 pointer-events-none">
+                    <Link
+                        to={`/town/${id}/chat`}
+                        className="pointer-events-auto w-14 h-14 -translate-y-full bg-turquoise text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all flex items-center justify-center"
+                        title="Town Chat"
+                    >
+                        <MessageCircle size={24} />
+                    </Link>
+                </div>
             )}
         </div>
     )

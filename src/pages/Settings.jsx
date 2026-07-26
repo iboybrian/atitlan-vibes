@@ -71,7 +71,7 @@ export default function Settings() {
     }
 
     return (
-        <div className="px-4 py-6 pb-20">
+        <div className="px-4 py-6 max-w-2xl mx-auto">
             {/* Header */}
             <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 rounded-full bg-turquoise/10 flex items-center justify-center">

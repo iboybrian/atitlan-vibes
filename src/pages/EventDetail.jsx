@@ -121,7 +121,7 @@ export default function EventDetail() {
     }
 
     return (
-        <div className="bg-[#F5F5F0] min-h-screen pb-20 relative">
+        <div className="bg-[#F5F5F0] min-h-screen max-w-2xl mx-auto relative">
 
             {/* 1. Hero Image (Full Width) */}
             <div className="relative w-full aspect-square md:aspect-[4/3] bg-gray-200">

@@ -215,9 +215,10 @@ export default function ChatRoom() {
 
         console.log('Fetching user info for:', newIds)
 
+        // public_profiles view — the users table's RLS restricts SELECT to your own row
         const { data, error } = await supabase
-            .from('users')
-            .select('id, name, email')
+            .from('public_profiles')
+            .select('id, name')
             .in('id', newIds)
 
         if (error) {
@@ -225,7 +226,7 @@ export default function ChatRoom() {
             // Even on error, mark these users as attempted so we don't keep retrying
             const fallbackUsers = {}
             newIds.forEach(id => {
-                fallbackUsers[id] = { id, name: null, email: null }
+                fallbackUsers[id] = { id, name: null }
             })
             setUsers(prev => ({ ...prev, ...fallbackUsers }))
             return
@@ -244,7 +245,7 @@ export default function ChatRoom() {
         // For any IDs not found in users table, create placeholder entries
         newIds.forEach(id => {
             if (!foundUsers[id]) {
-                foundUsers[id] = { id, name: null, email: null }
+                foundUsers[id] = { id, name: null }
             }
         })
 
@@ -308,11 +309,7 @@ export default function ChatRoom() {
 
     const getDisplayName = (userId) => {
         const u = users[userId]
-        // If user not found yet, show truncated ID
-        if (!u) return `Traveler`
-        // Return name if available, otherwise email prefix, otherwise Traveler
-        if (u.name && u.name.trim()) return u.name.trim()
-        if (u.email) return u.email.split('@')[0]
+        if (u?.name?.trim()) return u.name.trim()
         return 'Traveler'
     }
 
@@ -339,7 +336,7 @@ export default function ChatRoom() {
     }
 
     return (
-        <div className="flex flex-col h-screen bg-[#F5F5F0]">
+        <div className="flex flex-col h-[calc(100dvh-60px)] bg-[#F5F5F0]">
             {/* Header - No message counter */}
             <div className="bg-white shadow-sm px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
                 <button onClick={() => navigate(`/town/${townId}`)} className="p-2 hover:bg-gray-100 rounded-full">

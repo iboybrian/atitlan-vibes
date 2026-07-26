@@ -29,7 +29,7 @@ export default function TopVillageMenu() {
 
     return (
         <div className="w-full">
-            <div className="flex flex-col space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                 {loading ? (
                     // Skeleton loader for vertical list
                     [1, 2, 3].map(i => (

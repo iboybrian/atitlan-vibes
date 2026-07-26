@@ -1,5 +1,5 @@
 
-import { X, User, Settings, Info, MapPin, LogIn, LogOut } from 'lucide-react'
+import { X, User, Settings, Info, MapPin, LogIn, LogOut, Shield } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
@@ -80,6 +80,10 @@ export default function Sidebar({ isOpen, onClose }) {
                         <Link to="/about" onClick={onClose} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer text-gray-900">
                             <Info size={20} className="text-gray-500" />
                             <span className="font-medium">About Vibes</span>
+                        </Link>
+                        <Link to="/privacy" onClick={onClose} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer text-gray-900">
+                            <Shield size={20} className="text-gray-500" />
+                            <span className="font-medium">Privacy Policy</span>
                         </Link>
 
                         {user && (

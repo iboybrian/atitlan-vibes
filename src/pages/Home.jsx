@@ -169,7 +169,7 @@ export default function Home() {
                                     </span>
                                     <div className="flex-1 h-px bg-gradient-to-r from-sunflower/50 to-transparent ml-2"></div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                     {featuredEvents.map(event => (
                                         <EventCard key={event.id} event={event} />
                                     ))}
@@ -188,7 +188,7 @@ export default function Home() {
                                         <div className="flex-1 h-px bg-gray-300 dark:bg-slate-600 ml-2"></div>
                                     </div>
                                 )}
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                     {regularEvents.map(event => (
                                         <EventCard key={event.id} event={event} />
                                     ))}

@@ -64,7 +64,6 @@ export const PHONE_CODES = [
     { code: "+30", country: "GR", flag: "🇬🇷" },
     { code: "+32", country: "BE", flag: "🇧🇪" },
     { code: "+36", country: "HU", flag: "🇭🇺" },
-    { code: "+39", country: "IT", flag: "🇮🇹" },
     { code: "+40", country: "RO", flag: "🇷🇴" },
     { code: "+43", country: "AT", flag: "🇦🇹" },
     { code: "+45", country: "DK", flag: "🇩🇰" },
