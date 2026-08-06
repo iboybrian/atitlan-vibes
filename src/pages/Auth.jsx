@@ -2,12 +2,15 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
+import { PHONE_CODES } from '../data/constants'
 
 export default function Auth() {
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+    const [phoneCode, setPhoneCode] = useState('+502')
+    const [phoneNumber, setPhoneNumber] = useState('')
     const [isSignUp, setIsSignUp] = useState(false)
     const [error, setError] = useState(null)
     const navigate = useNavigate()
@@ -28,6 +31,12 @@ export default function Auth() {
                 const { error } = await supabase.auth.signUp({
                     email,
                     password,
+                    // Goes to auth.users.raw_user_meta_data. Written here rather than to
+                    // public.users because with email confirmation on there is no session
+                    // yet, so an insert would be blocked by RLS.
+                    options: {
+                        data: { phone: `${phoneCode} ${phoneNumber.trim()}` }
+                    }
                 })
                 if (error) throw error
                 alert('Check your email for the login link!')
@@ -102,7 +111,7 @@ export default function Auth() {
                     </div>
 
                     {isSignUp && (
-                        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-4">
                             <input
                                 type="password"
                                 placeholder="Confirm Password"
@@ -111,6 +120,31 @@ export default function Auth() {
                                 className="w-full p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
                                 required
                             />
+
+                            {/* Phone is only collected here — OAuth sign-ups never see this form */}
+                            <div className="flex gap-3">
+                                <select
+                                    value={phoneCode}
+                                    onChange={(e) => setPhoneCode(e.target.value)}
+                                    className="w-[110px] p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors appearance-none cursor-pointer"
+                                >
+                                    {PHONE_CODES.map(c => (
+                                        <option key={c.code} value={c.code}>
+                                            {c.flag} {c.code}
+                                        </option>
+                                    ))}
+                                </select>
+                                <input
+                                    type="tel"
+                                    placeholder="Phone Number"
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    pattern="[0-9\s\-]{6,15}"
+                                    title="6-15 digits"
+                                    className="flex-1 min-w-0 p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
+                                    required
+                                />
+                            </div>
                         </div>
                     )}
 
@@ -133,11 +167,11 @@ export default function Auth() {
                         </div>
                     </div>
 
-                    <div className="mt-6 grid grid-cols-2 gap-3">
+                    <div className="mt-6">
                         <button
                             onClick={() => handleSocialLogin('google')}
                             type="button"
-                            className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors shadow-sm text-sm font-medium text-gray-600"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors shadow-sm text-sm font-medium text-gray-600"
                         >
                             {/* Google Icon SVG */}
                             <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -147,17 +181,6 @@ export default function Auth() {
                                 <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.965 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill-rule="evenodd" fill-opacity="1" fill="#EA4335" stroke="none"></path>
                             </svg>
                             Google
-                        </button>
-                        <button
-                            onClick={() => handleSocialLogin('apple')}
-                            type="button"
-                            className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors shadow-sm text-sm font-medium text-gray-600"
-                        >
-                            {/* Apple Icon SVG */}
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M17.5 12.625c0 2.604 2.276 3.475 2.375 3.518-.01.034-.37.962-1.22 1.954-.741.867-1.512 1.733-2.73 1.751-1.19.019-1.572-.519-2.936-.519-1.363 0-1.791.537-2.946.574-1.181.037-2.083-.981-2.836-1.808-1.545-1.693-2.73-4.805-1.141-6.721.787-.951 2.204-1.554 3.737-1.573 1.162-.019 2.259.599 2.969.599.71 0 2.05-.739 3.449-.63 1.173.092 2.063.385 2.721 1.127-.066.037-1.626.7-1.626 2.802.184-.074-.536-2.586.999-3.955.91-.806 2.454-1.345 2.454-1.345s.176 1.198-.999 2.586c-.848 1.006-2.222 1.345-2.454 1.37z" />
-                            </svg>
-                            Apple
                         </button>
                     </div>
                 </div>
