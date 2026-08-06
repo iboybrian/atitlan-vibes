@@ -13,12 +13,16 @@ export default function Auth() {
     const [phoneNumber, setPhoneNumber] = useState('')
     const [isSignUp, setIsSignUp] = useState(false)
     const [error, setError] = useState(null)
+    const [notice, setNotice] = useState(null)
+    const [needsVerify, setNeedsVerify] = useState(false)
     const navigate = useNavigate()
 
     const handleAuth = async (e) => {
         e.preventDefault()
         setLoading(true)
         setError(null)
+        setNotice(null)
+        setNeedsVerify(false)
 
         if (isSignUp && password !== confirmPassword) {
             setError("Passwords do not match!")
@@ -35,11 +39,14 @@ export default function Auth() {
                     // public.users because with email confirmation on there is no session
                     // yet, so an insert would be blocked by RLS.
                     options: {
+                        // Without this the link always points at the dashboard Site URL,
+                        // which sends local dev signups to production.
+                        emailRedirectTo: window.location.origin,
                         data: { phone: `${phoneCode} ${phoneNumber.trim()}` }
                     }
                 })
                 if (error) throw error
-                alert('Check your email for the login link!')
+                setNotice(`Almost there — we sent a confirmation link to ${email}. Confirm it, then log in.`)
             } else {
                 const { error } = await supabase.auth.signInWithPassword({
                     email,
@@ -49,10 +56,35 @@ export default function Auth() {
                 navigate('/')
             }
         } catch (error) {
-            setError(error.message)
+            // Supabase issues no session until the address is confirmed. Its own wording
+            // ("Email not confirmed") reads like a bug report, so say it plainly and
+            // offer the way out — the link expires and the address can't be reused.
+            if (error.code === 'email_not_confirmed' || error.message === 'Email not confirmed') {
+                setError('Confirm your email first. Check your inbox for the link we sent.')
+                setNeedsVerify(true)
+            } else {
+                setError(error.message)
+            }
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleResend = async () => {
+        setLoading(true)
+        setError(null)
+
+        const { error } = await supabase.auth.resend({
+            type: 'signup',
+            email,
+            options: { emailRedirectTo: window.location.origin }
+        })
+
+        setLoading(false)
+        if (error) return setError(error.message)
+
+        setNeedsVerify(false)
+        setNotice('Verification email sent. Check your inbox.')
     }
 
     const handleSocialLogin = async (provider) => {
@@ -82,9 +114,25 @@ export default function Auth() {
                     </p>
                 </div>
 
+                {notice && (
+                    <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm mb-6 text-center border border-green-100">
+                        {notice}
+                    </div>
+                )}
+
                 {error && (
                     <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm mb-6 text-center border border-red-100">
                         {error}
+                        {needsVerify && (
+                            <button
+                                type="button"
+                                onClick={handleResend}
+                                disabled={loading}
+                                className="block w-full mt-2 font-bold underline underline-offset-2 disabled:opacity-50"
+                            >
+                                Resend verification email
+                            </button>
+                        )}
                     </div>
                 )}
 
@@ -190,6 +238,8 @@ export default function Auth() {
                         onClick={() => {
                             setIsSignUp(!isSignUp)
                             setError(null)
+                            setNotice(null)
+                            setNeedsVerify(false)
                         }}
                         className="text-gray-500 hover:text-turquoise font-medium text-sm"
                     >
