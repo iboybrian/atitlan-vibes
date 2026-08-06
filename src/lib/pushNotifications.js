@@ -1,16 +1,17 @@
 /**
- * Push Notification Service
- * 
- * This service handles push notifications for both:
- * - Web browsers (using Web Push API)
- * - Mobile apps (when wrapped with Capacitor)
- * 
- * For App Store/Play Store deployment, install Capacitor:
- * npm install @capacitor/core @capacitor/push-notifications
- * npx cap init
+ * Push Notification Service — native (Capacitor/Android) only.
+ *
+ * FCM delivers the message, Supabase stores the device token on users.push_token.
+ * Web push is deliberately off: isPushSupported() is false in a browser, so the
+ * soft prompt never shows and no tokens get written. public/sw.js is left in
+ * place for whenever web push is worth doing properly (real VAPID keys + a sender).
  */
 
+import { PushNotifications } from '@capacitor/push-notifications'
 import { supabase } from './supabase'
+
+// Play Services can hang; don't leave the modal spinning forever
+const REGISTER_TIMEOUT_MS = 10000
 
 // Check if we're running in a Capacitor native app
 const isNative = () => {
@@ -33,13 +34,7 @@ const isAndroid = () => {
 /**
  * Check if push notifications are supported
  */
-export const isPushSupported = () => {
-    // Native Capacitor app
-    if (isNative()) return true
-
-    // Web browser
-    return 'Notification' in window && 'serviceWorker' in navigator
-}
+export const isPushSupported = () => isNative()
 
 /**
  * Get current permission status
@@ -48,14 +43,42 @@ export const isPushSupported = () => {
 export const getPermissionStatus = async () => {
     if (!isPushSupported()) return 'unsupported'
 
-    if (isNative()) {
-        // For Capacitor - would use PushNotifications.checkPermissions()
-        // Placeholder for when Capacitor is installed
-        return 'default'
+    try {
+        const { receive } = await PushNotifications.checkPermissions()
+        return receive === 'granted' || receive === 'denied' ? receive : 'default'
+    } catch (err) {
+        console.error('Push permission check error:', err)
+        return 'unsupported'
     }
+}
 
-    // Web browser
-    return Notification.permission
+/**
+ * Register with FCM and wait for the token.
+ * register() resolves before the token exists — it arrives on the 'registration'
+ * event — so listeners are attached first and the promise settles from there.
+ */
+const registerForToken = async () => {
+    let finish
+    const token = new Promise((resolve) => { finish = resolve })
+
+    const handles = await Promise.all([
+        PushNotifications.addListener('registration', (t) =>
+            finish({ success: true, token: t.value })),
+        PushNotifications.addListener('registrationError', (e) =>
+            finish({ success: false, error: e.error || 'Could not register for notifications' }))
+    ])
+
+    const timer = setTimeout(() =>
+        finish({ success: false, error: 'Timed out getting a notification token. Check your connection.' }),
+        REGISTER_TIMEOUT_MS)
+
+    try {
+        await PushNotifications.register()
+        return await token
+    } finally {
+        clearTimeout(timer)
+        await Promise.all(handles.map((h) => h.remove()))
+    }
 }
 
 /**
@@ -64,58 +87,20 @@ export const getPermissionStatus = async () => {
  */
 export const requestPushPermission = async () => {
     if (!isPushSupported()) {
-        return { success: false, error: 'Push notifications not supported on this device' }
+        return { success: false, error: 'Push notifications are only available in the mobile app' }
     }
 
     try {
-        if (isNative()) {
-            // Capacitor native implementation
-            // This code will work when Capacitor is installed
-            console.log('Native push: Would use Capacitor PushNotifications plugin')
+        const { receive } = await PushNotifications.requestPermissions()
 
-            // Placeholder - actual implementation:
-            // import { PushNotifications } from '@capacitor/push-notifications'
-            // const permission = await PushNotifications.requestPermissions()
-            // if (permission.receive === 'granted') {
-            //     await PushNotifications.register()
-            //     // Token comes from 'registration' event listener
-            // }
-
-            return { success: false, error: 'Install Capacitor for native push' }
+        if (receive === 'denied') {
+            return { success: false, error: 'denied', message: getSettingsMessage() }
         }
-
-        // Web Push implementation
-        const permission = await Notification.requestPermission()
-
-        if (permission === 'granted') {
-            // Register service worker for web push
-            const registration = await navigator.serviceWorker.ready
-
-            // Get push subscription (you'll need a VAPID key for production)
-            // For now, we'll use a placeholder token
-            const subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                // Replace with your VAPID public key for production
-                applicationServerKey: urlBase64ToUint8Array(
-                    'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U'
-                )
-            }).catch(() => null)
-
-            // Use subscription endpoint as token (or generate a unique ID)
-            const token = subscription?.endpoint || `web_${crypto.randomUUID()}`
-
-            console.log('Web Push Token Captured:', token)
-
-            return { success: true, token }
-        } else if (permission === 'denied') {
-            return {
-                success: false,
-                error: 'denied',
-                message: getSettingsMessage()
-            }
-        } else {
+        if (receive !== 'granted') {
             return { success: false, error: 'Permission dismissed' }
         }
+
+        return await registerForToken()
     } catch (err) {
         console.error('Push permission error:', err)
         return { success: false, error: err.message }
@@ -140,7 +125,6 @@ export const savePushToken = async (userId, token) => {
             return false
         }
 
-        console.log('Push token saved for user:', userId)
         return true
     } catch (err) {
         console.error('Save token error:', err)
@@ -173,6 +157,54 @@ export const disablePushNotifications = async (userId) => {
 }
 
 /**
+ * Flip the user's push preference end to end.
+ * ON asks for permission and stores a fresh token, OFF just clears the flag.
+ * Returns the same shape as requestPushPermission so callers can show the reason.
+ */
+export const setPushPreference = async (userId, enabled) => {
+    if (!enabled) {
+        const ok = await disablePushNotifications(userId)
+        return ok ? { success: true } : { success: false, error: 'Could not save your preferences' }
+    }
+
+    const result = await requestPushPermission()
+    if (!result.success) return result
+
+    const saved = await savePushToken(userId, result.token)
+    return saved ? { success: true } : { success: false, error: 'Could not save your preferences' }
+}
+
+/**
+ * FCM rotates tokens, so a token captured once goes stale and delivery silently
+ * stops. Call on launch: re-registers and refreshes the stored token without
+ * showing any dialog. No-op unless the user already granted and opted in.
+ */
+export const refreshPushToken = async (userId) => {
+    if (!userId || !isPushSupported()) return
+    if (await getPermissionStatus() !== 'granted') return
+
+    const { data } = await supabase
+        .from('users')
+        .select('push_enabled')
+        .eq('id', userId)
+        .single()
+
+    if (!data?.push_enabled) return
+
+    const result = await registerForToken()
+    if (!result.success) return
+
+    // push_token only — savePushToken would flip push_enabled back on
+    const { error } = await supabase
+        .from('users')
+        .update({ push_token: result.token })
+        .eq('id', userId)
+
+    // Silent failure here means pushes stop arriving with no symptom. Say something.
+    if (error) console.error('Push token refresh failed to save:', error)
+}
+
+/**
  * Check if we should show the soft prompt
  */
 export const shouldShowPushPrompt = () => {
@@ -201,26 +233,14 @@ const getSettingsMessage = () => {
     }
 }
 
-/**
- * Helper to convert VAPID key
- */
-function urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4)
-    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
-    const rawData = window.atob(base64)
-    const outputArray = new Uint8Array(rawData.length)
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i)
-    }
-    return outputArray
-}
-
 export default {
     isPushSupported,
     getPermissionStatus,
     requestPushPermission,
     savePushToken,
     disablePushNotifications,
+    setPushPreference,
+    refreshPushToken,
     shouldShowPushPrompt,
     markPushPromptShown
 }

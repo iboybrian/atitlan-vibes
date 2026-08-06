@@ -4,11 +4,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import { User, Bell, Moon, Sun, ChevronRight, Settings as SettingsIcon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { setPushPreference, isPushSupported } from '../lib/pushNotifications'
 
 export default function Settings() {
     const { user, darkMode, toggleDarkMode } = useAuth()
     const navigate = useNavigate()
     const [pushEnabled, setPushEnabled] = useState(true)
+    const [pushError, setPushError] = useState('')
 
     // Load push_enabled state from database
     useEffect(() => {
@@ -24,14 +26,17 @@ export default function Settings() {
         }
     }, [user])
 
-    // Toggle push notifications
+    // Toggle push notifications — asks the OS for permission and stores a token
     const handlePushToggle = async (enabled) => {
+        if (!user) return
+
         setPushEnabled(enabled)
-        if (user) {
-            await supabase
-                .from('users')
-                .update({ push_enabled: enabled })
-                .eq('id', user.id)
+        setPushError('')
+
+        const result = await setPushPreference(user.id, enabled)
+        if (!result.success) {
+            setPushEnabled(!enabled) // OS denied or the save failed — don't lie to the user
+            setPushError(result.message || result.error)
         }
     }
 
@@ -96,14 +101,21 @@ export default function Settings() {
                 rightElement={<Toggle enabled={darkMode} onChange={toggleDarkMode} />}
             />
 
-            {/* Notifications */}
-            <SectionHeader>Notifications</SectionHeader>
-            <MenuItem
-                icon={Bell}
-                label="Push Notifications"
-                onClick={() => handlePushToggle(!pushEnabled)}
-                rightElement={<Toggle enabled={pushEnabled} onChange={handlePushToggle} />}
-            />
+            {/* Notifications — mobile app only, nothing delivers to the browser */}
+            {isPushSupported() && (
+                <>
+                    <SectionHeader>Notifications</SectionHeader>
+                    {/* No row onClick: the Toggle's click bubbles here and fires the handler twice */}
+                    <MenuItem
+                        icon={Bell}
+                        label="Push Notifications"
+                        rightElement={<Toggle enabled={pushEnabled} onChange={handlePushToggle} />}
+                    />
+                    {pushError && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 px-1 mb-2">{pushError}</p>
+                    )}
+                </>
+            )}
 
             {/* App Info */}
             <div className="mt-10 text-center text-xs text-gray-400">

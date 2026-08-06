@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Firebase service-account keys — server credentials, never in the repo.
+# (android/app/google-services.json is NOT one of these: it is client config
+# and must stay committed or the Gradle plugin skips and push dies.)
+*-service-account*.json
+serviceAccountKey*.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

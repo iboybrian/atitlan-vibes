@@ -41,6 +41,7 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
         } else {
             setStatus('error')
             setErrorMessage(result.error || 'Something went wrong')
+            markPushPromptShown() // don't re-prompt on every login after a failure
         }
     }
 

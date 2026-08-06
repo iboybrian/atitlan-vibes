@@ -5,6 +5,7 @@ import { Plus, Star } from 'lucide-react'
 import TopVillageMenu from '../components/layout/TownNav'
 import AddEventModal from '../components/ui/AddEventModal'
 import FlipCard from '../components/ui/FlipCard'
+import TownPicker from '../components/ui/TownPicker'
 import { supabase } from '../lib/supabase'
 import { getDirectImageUrl } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
@@ -131,6 +132,9 @@ export default function Home() {
                 <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">
                     Explore by Town
                 </h2>
+
+                <TownPicker />
+
                 <TopVillageMenu />
             </section>
 

@@ -31,8 +31,9 @@ export default function Header({ onMenuClick }) {
         : 'text-black dark:text-white'
 
     return (
+        // pt = status bar height, so the tap targets below clear the notification bar
         <header
-            className={`sticky top-0 z-40 px-4 h-[60px] flex items-center justify-between transition-all duration-[1500ms] ease-in-out ${bgColor}`}
+            className={`sticky top-0 z-40 px-4 h-[60px] box-content pt-[env(safe-area-inset-top)] flex items-center justify-between transition-all duration-[1500ms] ease-in-out ${bgColor}`}
         >
             <button
                 onClick={onMenuClick}

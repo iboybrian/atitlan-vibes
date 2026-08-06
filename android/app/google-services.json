@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "418550494171",
+    "project_id": "atitlan-vibes",
+    "storage_bucket": "atitlan-vibes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418550494171:android:fc3ee86b5f7fa1c01d2dfe",
+        "android_client_info": {
+          "package_name": "com.atitlanvibes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeGBOg_Om97l_PsEb24zPd2q0kHfE-0Fs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418550494171:android:89e6a5c59b73eab11d2dfe",
+        "android_client_info": {
+          "package_name": "com.atitlanvibes.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeGBOg_Om97l_PsEb24zPd2q0kHfE-0Fs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

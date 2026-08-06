@@ -25,3 +25,23 @@ export function getDirectImageUrl(url) {
 
     return url;
 }
+
+const CURRENT_TOWN_KEY = 'current_town';
+
+/**
+ * The town the user picked in TownPicker — their "where I am" without asking for GPS.
+ * Device-local mirror of users.current_town_id so it also works logged out.
+ * @returns {{id: number, name: string} | null}
+ */
+export function getCurrentTown() {
+    try {
+        return JSON.parse(localStorage.getItem(CURRENT_TOWN_KEY));
+    } catch {
+        return null; // a corrupt value shouldn't take the page down
+    }
+}
+
+export function setCurrentTown(town) {
+    if (!town?.id) return;
+    localStorage.setItem(CURRENT_TOWN_KEY, JSON.stringify({ id: town.id, name: town.name }));
+}

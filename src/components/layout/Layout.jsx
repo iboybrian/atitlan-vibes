@@ -6,7 +6,7 @@ import Sidebar from './Sidebar'
 import TownFooter from './TownFooter'
 import PushPromptModal from '../ui/PushPromptModal'
 import { useAuth } from '../../context/AuthContext'
-import { shouldShowPushPrompt, isPushSupported } from '../../lib/pushNotifications'
+import { shouldShowPushPrompt, isPushSupported, refreshPushToken } from '../../lib/pushNotifications'
 
 export default function Layout() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -15,7 +15,12 @@ export default function Layout() {
 
     // Show push prompt after first login
     useEffect(() => {
-        if (user && shouldShowPushPrompt() && isPushSupported()) {
+        if (!user) return
+
+        // Silent no-op unless already opted in — FCM tokens rotate
+        refreshPushToken(user.id)
+
+        if (shouldShowPushPrompt() && isPushSupported()) {
             // Delay slightly so user sees the app first
             const timer = setTimeout(() => {
                 setShowPushPrompt(true)

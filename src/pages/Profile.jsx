@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Save, Camera, Check, Instagram, LogOut } from 'lucide-react'
 import SearchableSelect from '../components/ui/SearchableSelect'
 import { COUNTRIES } from '../data/constants'
+import { setPushPreference, isPushSupported } from '../lib/pushNotifications'
 
 // Hogwarts Houses with colors
 const HOUSES = [
@@ -185,7 +186,6 @@ export default function Profile() {
                     name: formData.name,
                     last_name: formData.last_name,
                     country: formData.country,
-                    push_enabled: formData.push_enabled,
                     avatar_url: formData.avatar_url,
                     instagram_handle: cleanHandle,
                     house_affinity: formData.house_affinity,
@@ -194,9 +194,20 @@ export default function Profile() {
                 .eq('id', user.id)
 
             if (error) throw error
-            showToast('Profile saved successfully! ✨', 'success')
             // Refresh profile in context to update header color
             refreshProfile()
+
+            // push_enabled is not a plain column write — it needs OS permission and a token
+            if (isPushSupported()) {
+                const push = await setPushPreference(user.id, formData.push_enabled)
+                if (!push.success) {
+                    setFormData(prev => ({ ...prev, push_enabled: false }))
+                    showToast(push.message || push.error, 'error')
+                    return
+                }
+            }
+
+            showToast('Profile saved successfully! ✨', 'success')
         } catch (err) {
             console.error("Error saving profile", err)
             showToast('Failed to save profile', 'error')
@@ -399,8 +410,8 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* Push Notifications Toggle */}
-                <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-gray-100">
+                {/* Push Notifications Toggle — mobile app only */}
+                <div className={`flex items-center justify-between bg-white p-4 rounded-xl border border-gray-100 ${isPushSupported() ? '' : 'hidden'}`}>
                     <div>
                         <div className="font-bold text-sm">Push Notifications</div>
                         <div className="text-xs text-gray-400">Receive event updates</div>

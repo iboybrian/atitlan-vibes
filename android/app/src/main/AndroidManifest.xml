@@ -24,6 +24,12 @@
 
         </activity>
 
+        <!-- FCM: without this the tray icon renders as a white square on some launchers.
+             Swap for a monochrome silhouette drawable if the masked launcher icon looks bad. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -38,4 +44,6 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Required from Android 13 (targetSdk 33+) or the permission dialog never shows -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 </manifest>

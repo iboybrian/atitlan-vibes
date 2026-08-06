@@ -80,7 +80,7 @@ npx cap open android
 ## 🔧 Configuración
 
 - **App Name**: Atitlan Vibes
-- **Bundle ID**: `com.atitlanvibes.app`
+- **Bundle ID**: `com.atitlanvibes`
 - **Web Dir**: `dist/`
 
 ## 📝 Archivos a compartir

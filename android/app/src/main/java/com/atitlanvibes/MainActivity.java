@@ -1,4 +1,4 @@
-package com.atitlanvibes.app;
+package com.atitlanvibes;
 
 import com.getcapacitor.BridgeActivity;
 
