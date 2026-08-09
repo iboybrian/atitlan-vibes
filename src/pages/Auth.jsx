@@ -1,10 +1,12 @@
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import { PHONE_CODES } from '../data/constants'
+import { useAuth } from '../context/AuthContext'
 
 export default function Auth() {
+    const { user } = useAuth()
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -16,6 +18,11 @@ export default function Auth() {
     const [notice, setNotice] = useState(null)
     const [needsVerify, setNeedsVerify] = useState(false)
     const navigate = useNavigate()
+
+    // Landing here already signed in (back button, stale tab) — bounce home
+    useEffect(() => {
+        if (user) navigate('/')
+    }, [user, navigate])
 
     const handleAuth = async (e) => {
         e.preventDefault()

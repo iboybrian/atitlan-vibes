@@ -1,0 +1,80 @@
+<!--
+  Supabase → Authentication → Emails → Confirm signup.
+  Paste the whole thing into the dashboard; this copy is just so it lives in git.
+
+  Email HTML rules, not web HTML: tables for layout, inline styles only, no flex,
+  no grid, no external CSS. Outlook ignores border-radius — the card goes square
+  there, which is fine.
+-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F5F0;padding:32px 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;background-color:#ffffff;border-radius:16px;overflow:hidden;">
+
+        <tr>
+          <td style="background-color:#00CED1;height:6px;line-height:6px;font-size:0;">&nbsp;</td>
+        </tr>
+
+        <tr>
+          <td align="center" style="padding:36px 32px 0 32px;">
+            <img src="https://app.atitlanvibes.com/logo.png" width="64" height="64" alt="Atitlán Vibes" style="display:block;border:0;border-radius:16px;" />
+          </td>
+        </tr>
+
+        <tr>
+          <td align="center" style="padding:24px 32px 0 32px;">
+            <h1 style="margin:0;font-size:24px;line-height:32px;font-weight:800;color:#111827;">
+              Welcome to Atitlán Vibes
+            </h1>
+            <p style="margin:12px 0 0 0;font-size:15px;line-height:23px;color:#6b7280;">
+              One tap and you're in — confirm your email to start posting vibes around the lake.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Bulletproof-ish button: padded table cell, so it survives clients that
+             drop padding on <a>. No VML, so Outlook desktop renders it square. -->
+        <tr>
+          <td align="center" style="padding:28px 32px 0 32px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="center" bgcolor="#00CED1" style="border-radius:12px;">
+                  <a href="{{ .ConfirmationURL }}"
+                     style="display:inline-block;padding:15px 40px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:12px;">
+                    Confirm my email
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:28px 32px 0 32px;">
+            <p style="margin:0;font-size:12px;line-height:18px;color:#9ca3af;">
+              Button not working? Paste this into your browser:
+            </p>
+            <p style="margin:6px 0 0 0;font-size:12px;line-height:18px;word-break:break-all;">
+              <a href="{{ .ConfirmationURL }}" style="color:#00CED1;">{{ .ConfirmationURL }}</a>
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:24px 32px 32px 32px;">
+            <div style="border-top:1px solid #f0f0eb;padding-top:16px;">
+              <p style="margin:0;font-size:12px;line-height:18px;color:#9ca3af;">
+                This link expires in 24 hours. If you didn't sign up for Atitlán Vibes, ignore this email — no account will be created.
+              </p>
+            </div>
+          </td>
+        </tr>
+
+      </table>
+
+      <p style="margin:20px 0 0 0;font-size:11px;color:#b0b0a8;">
+        Atitlán Vibes · Lake Atitlán, Guatemala
+      </p>
+    </td>
+  </tr>
+</table>

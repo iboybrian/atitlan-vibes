@@ -28,7 +28,7 @@
              Swap for a monochrome silhouette drawable if the masked launcher icon looks bad. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@mipmap/ic_launcher" />
+            android:resource="@drawable/ic_stat_notify" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
