@@ -25,14 +25,28 @@ Requires `.env` with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Read via 
 
 ## Architecture
 
-Routing is flat in [src/App.jsx](src/App.jsx): all routes nest under one `<Layout>` (`/`, `/town/:id`, `/town/:townId/chat`, `/event/:id`, `/auth`, `/profile`, `/settings`, `/about`). Deployed as an SPA — [vercel.json](vercel.json) rewrites all paths to `index.html`.
+Routing is flat in [src/App.jsx](src/App.jsx): all routes nest under one `<Layout>` (`/`, `/town/:id`, `/town/:townId/chat`, `/event/:id`, `/auth`, `/profile`, `/settings`, `/about`, `/privacy`). Deployed as an SPA — [vercel.json](vercel.json) rewrites all paths to `index.html`.
+
+**Every route is wrapped in `RequireAuth` except `/auth` and `/privacy`** — no session redirects to `/auth`. `/privacy` stays public on purpose: Play Store review has to reach the policy without an account. Any new public page needs the same exemption.
 
 **Auth & global state** live in a single React context, [src/context/AuthContext.jsx](src/context/AuthContext.jsx) (`useAuth()`). It owns the Supabase session, the joined `userProfile` row, and dark mode. Two things to know:
 - `AuthProvider` renders `{!loading && children}` — the whole app is gated on the initial `getSession()` resolving. A broken/missing Supabase env means nothing paints.
-- `session` (auth) and `userProfile` (the `users` table row) are separate. After editing the profile, call `refreshProfile()` or the header/avatar goes stale.
+- `session` (auth) and `userProfile` are separate. `userProfile` is *not* the whole `users` row — the context selects only `name, house_affinity, avatar_url`. Anything else (phone, `current_town_id`, push fields) has to be queried by the page that needs it. After editing the profile, call `refreshProfile()` or the header/avatar goes stale.
 - Dark mode is a `dark` class on `<html>` persisted to `localStorage`, matching Tailwind's `darkMode: 'class'`.
 
-**Data layer** is direct Supabase calls from components/pages — no API layer, no data-fetching library. Each page does its own `supabase.from(...)` in a `useEffect`. Tables in use: `users`, `towns`, `events`, `chats`, `messages`, `message_reactions`. Events are gated on `is_approved` and (on Home) `is_feature`. Storage buckets: `avatars` (profile pics), `logo`. RLS lives in Supabase, not this repo — only the one migration under [supabase/migrations/](supabase/migrations/) is versioned here.
+**Auth redirects (OAuth + password reset)** — the client runs on `flowType: 'pkce'` ([supabase.js](src/lib/supabase.js)), so every redirect comes back as a one-shot `?code=` instead of tokens in the URL. Three consequences worth knowing before touching any of it:
+
+- **Native can't use `window.location.origin`.** In the APK that's `https://localhost`, which isn't in Supabase's Redirect URLs, so Supabase silently falls back to the dashboard Site URL and the user lands on the web app. Native redirects go to the `com.atitlanvibes://auth` deep link instead — declared in [AndroidManifest.xml](android/app/src/main/AndroidManifest.xml), listed in the dashboard allow list, and branched on `isNative()` at the call site.
+- **The deep link is handled in [main.jsx](src/main.jsx), not in React.** Capacitor kicks Google out to the system browser; the intent comes back through `appUrlOpen`, never through the WebView's URL, so `detectSessionInUrl` can't see it and the listener calls `exchangeCodeForSession()` by hand. It's registered at module scope on purpose — a cold start from the intent would outrun a `useEffect`.
+- **`PASSWORD_RECOVERY` is never emitted under PKCE.** Recovery and Google login both notify `SIGNED_IN`; the only thing telling them apart is `data.redirectType === 'PASSWORD_RECOVERY'` off the exchange call, which is why native forwards to `/reset-password` itself. On web that field comes back null and the path *is* the signal — hence `redirectTo` pointing at `/reset-password` there. Never gate recovery UI on the event.
+
+PKCE also ties the reset link to the browser that requested it (the `code_verifier` lives in its storage), so the copy tells users to open it on the same device. Email *confirmation* is unaffected: Supabase confirms the address server-side before redirecting, and the sign-up copy already says to log in manually afterwards.
+
+**Data layer** is direct Supabase calls from components/pages — no API layer, no data-fetching library. Each page does its own `supabase.from(...)` in a `useEffect`. Tables in use: `users`, `towns`, `events`, `chats`, `messages`, `message_reactions`. Events are gated on `is_approved` and (on Home) `is_feature`. Storage buckets: `avatars` (profile pics), `logo`. RLS lives in Supabase, not this repo — only the two migrations under [supabase/migrations/](supabase/migrations/) are versioned here.
+
+**The `users` row is created by a Postgres trigger, not by the client.** `handle_new_user()` ([20260805000000_add_phone.sql](supabase/migrations/20260805000000_add_phone.sql)) fires on `auth.users` insert and copies name/phone out of `raw_user_meta_data`. It has to work that way: with email confirmation on, `signUp()` returns no session, so the client cannot insert into `public.users` itself. Adding a sign-up field means passing it in `signUp({ options: { data } })` *and* editing that function in a new migration. Google sign-ups never see the email form, so `phone` stays null for them.
+
+Supabase's confirm-signup email template is mirrored at [supabase/templates/confirm-signup.html](supabase/templates/confirm-signup.html) — git copy only, nothing reads it. Editing it does nothing until it's pasted into Authentication → Emails in the dashboard.
 
 **"Current town"** is the single explicit choice the user makes ([TownPicker.jsx](src/components/ui/TownPicker.jsx), on Home). It writes two places: `localStorage.current_town` via `getCurrentTown()`/`setCurrentTown()` in [src/lib/utils.js](src/lib/utils.js) — so it works logged out — and `users.current_town_id` when signed in, which is what the push backend targets. Read the local mirror, not the DB, for UI. The footer highlight prefers the `/town/:id` route over the picked town.
 

@@ -1,7 +1,7 @@
 {
-  "name": "project-demo",
+  "name": "atitlan-vibes",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.5.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@capacitor/android": "^8.0.2",
+    "@capacitor/app": "^8.1.1",
     "@capacitor/cli": "^8.0.2",
     "@capacitor/core": "^8.0.2",
     "@capacitor/push-notifications": "^8.1.2",

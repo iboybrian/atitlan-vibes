@@ -10,6 +10,7 @@ import Settings from './pages/Settings'
 import About from './pages/About'
 import Privacy from './pages/Privacy'
 import Auth from './pages/Auth'
+import ResetPassword from './pages/ResetPassword'
 import Layout from './components/layout/Layout'
 
 // Everything except /auth and /privacy requires a session — Privacy stays
@@ -30,6 +31,10 @@ function App() {
             <Route path="/town/:townId/chat" element={<RequireAuth><ChatRoom /></RequireAuth>} />
             <Route path="/event/:id" element={<RequireAuth><EventDetail /></RequireAuth>} />
             <Route path="/auth" element={<Auth />} />
+            {/* Public: the recovery session may not be in place the instant this
+                renders, and RequireAuth would bounce the user to /auth. The page
+                handles the no-session case itself. */}
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
             <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
             <Route path="/about" element={<RequireAuth><About /></RequireAuth>} />

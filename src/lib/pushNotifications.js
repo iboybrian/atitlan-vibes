@@ -14,7 +14,7 @@ import { supabase } from './supabase'
 const REGISTER_TIMEOUT_MS = 10000
 
 // Check if we're running in a Capacitor native app
-const isNative = () => {
+export const isNative = () => {
     return typeof window !== 'undefined' &&
         window.Capacitor !== undefined &&
         window.Capacitor.isNativePlatform()

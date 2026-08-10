@@ -22,6 +22,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Google sign-in runs in the system browser (Capacitor kicks external
+                 navigation out of the WebView). This scheme is how the browser hands
+                 the session back — Supabase redirects to com.atitlanvibes://auth and
+                 Android routes it here. Must match redirectTo in Auth.jsx and the
+                 Redirect URLs allow list in the Supabase dashboard. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.atitlanvibes" />
+            </intent-filter>
+
         </activity>
 
         <!-- FCM: without this the tray icon renders as a white square on some launchers.

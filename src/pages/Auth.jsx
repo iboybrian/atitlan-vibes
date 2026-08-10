@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import { PHONE_CODES } from '../data/constants'
 import { useAuth } from '../context/AuthContext'
+import { isNative } from '../lib/pushNotifications'
 
 export default function Auth() {
     const { user } = useAuth()
@@ -94,12 +95,41 @@ export default function Auth() {
         setNotice('Verification email sent. Check your inbox.')
     }
 
+    const handleForgotPassword = async () => {
+        if (!email) return setError('Enter your email first, then tap this again.')
+
+        setLoading(true)
+        setError(null)
+        setNotice(null)
+
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            // Native reuses the OAuth deep link — main.jsx tells the two apart by
+            // redirectType and forwards to /reset-password. On web the path itself
+            // is the signal, since detectSessionInUrl drops redirectType.
+            redirectTo: isNative()
+                ? 'com.atitlanvibes://auth'
+                : `${window.location.origin}/reset-password`
+        })
+
+        setLoading(false)
+        if (error) return setError(error.message)
+
+        // PKCE keeps the code_verifier in the browser that asked, so the link only
+        // works on this device — say so or people open it on a laptop and it dies.
+        setNotice(`Reset link sent to ${email}. Open it on this device.`)
+    }
+
     const handleSocialLogin = async (provider) => {
         try {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: provider,
                 options: {
-                    redirectTo: window.location.origin // Redirects back to app
+                    // In the APK window.location.origin is https://localhost, which is
+                    // not in Supabase's Redirect URLs — Supabase silently falls back to
+                    // the Site URL and the user lands on the web app instead of coming
+                    // back. The custom scheme deep-links into the app; main.jsx picks
+                    // the tokens up from there.
+                    redirectTo: isNative() ? 'com.atitlanvibes://auth' : window.location.origin
                 }
             })
             if (error) throw error
@@ -210,6 +240,17 @@ export default function Auth() {
                     >
                         {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Log In'}
                     </button>
+
+                    {!isSignUp && (
+                        <button
+                            type="button"
+                            onClick={handleForgotPassword}
+                            disabled={loading}
+                            className="w-full text-center text-sm text-gray-500 hover:text-turquoise font-medium disabled:opacity-50"
+                        >
+                            Forgot password?
+                        </button>
+                    )}
                 </form>
 
                 <div className="mt-8">
