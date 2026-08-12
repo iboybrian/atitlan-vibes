@@ -3,11 +3,13 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ArrowLeft, Send, Reply, X } from 'lucide-react'
+import { useT } from '../lib/i18n'
 
 // Common emoji reactions
 const EMOJI_OPTIONS = ['👍', '❤️', '😂', '😮', '😢', '🔥', '🎉', '👏']
 
 export default function ChatRoom() {
+    const t = useT()
     const { townId } = useParams()
     const navigate = useNavigate()
     const messagesEndRef = useRef(null)
@@ -272,7 +274,7 @@ export default function ChatRoom() {
 
             if (error) {
                 console.error('Send error:', error)
-                alert('Failed to send: ' + error.message)
+                alert(t('chat.sendFailed', { msg: error.message }))
                 return
             }
 
@@ -310,7 +312,7 @@ export default function ChatRoom() {
     const getDisplayName = (userId) => {
         const u = users[userId]
         if (u?.name?.trim()) return u.name.trim()
-        return 'Traveler'
+        return t('chat.traveler')
     }
 
     const getRepliedMessage = (replyToId) => messages.find(m => m.id === replyToId)
@@ -329,8 +331,8 @@ export default function ChatRoom() {
     if (!currentUser) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-[#F5F5F0]">
-                <p className="text-gray-500 mb-4">You need to be logged in to access the chat.</p>
-                <Link to="/auth" className="text-turquoise font-bold">Log In</Link>
+                <p className="text-gray-500 mb-4">{t('chat.needLogin')}</p>
+                <Link to="/auth" className="text-turquoise font-bold">{t('common.logIn')}</Link>
             </div>
         )
     }
@@ -342,17 +344,17 @@ export default function ChatRoom() {
                 <button onClick={() => navigate(`/town/${townId}`)} className="p-2 hover:bg-gray-100 rounded-full">
                     <ArrowLeft size={24} />
                 </button>
-                <h1 className="font-bold text-lg">{town?.name || 'Town'} Chat</h1>
+                <h1 className="font-bold text-lg">{t('chat.title', { town: town?.name || '' })}</h1>
             </div>
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
                 {loading ? (
-                    <div className="text-center text-gray-400 py-10">Loading messages...</div>
+                    <div className="text-center text-gray-400 py-10">{t('chat.loading')}</div>
                 ) : messages.length === 0 ? (
                     <div className="text-center text-gray-400 py-10">
-                        <p className="mb-2">No messages yet!</p>
-                        <p className="text-sm">Be the first to say something 👋</p>
+                        <p className="mb-2">{t('chat.empty')}</p>
+                        <p className="text-sm">{t('chat.beFirst')}</p>
                     </div>
                 ) : (
                     messages.map((msg) => {
@@ -441,7 +443,7 @@ export default function ChatRoom() {
                     <div className="flex items-center gap-2 text-sm">
                         <Reply size={16} className="text-turquoise" />
                         <div>
-                            <span className="font-bold text-turquoise">Replying to {getDisplayName(replyingTo.sender_id)}</span>
+                            <span className="font-bold text-turquoise">{t('chat.replyingTo', { name: getDisplayName(replyingTo.sender_id) })}</span>
                             <p className="text-gray-500 text-xs truncate max-w-[200px]">{replyingTo.text}</p>
                         </div>
                     </div>
@@ -458,7 +460,7 @@ export default function ChatRoom() {
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type a message..."
+                    placeholder={t('chat.placeholder')}
                     className="flex-1 bg-gray-100 rounded-full px-4 py-2 outline-none focus:ring-2 focus:ring-turquoise/20"
                 />
                 <button

@@ -6,8 +6,10 @@ import { getDirectImageUrl } from '../lib/utils'
 import { MapPin, Calendar, Clock, ArrowLeft, Globe, Instagram, ExternalLink } from 'lucide-react'
 import InstagramGradient from '../components/icons/InstagramGradient'
 import WhatsAppIcon from '../components/icons/WhatsAppIcon'
+import { useT } from '../lib/i18n'
 
 export default function EventDetail() {
+    const t = useT()
     const { id } = useParams()
     const [event, setEvent] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -33,8 +35,8 @@ export default function EventDetail() {
         if (id) fetchEvent()
     }, [id])
 
-    if (loading) return <div className="p-10 text-center text-gray-400">Loading details...</div>
-    if (!event) return <div className="p-10 text-center text-gray-500">Event not found.</div>
+    if (loading) return <div className="p-10 text-center text-gray-400">{t('event.loading')}</div>
+    if (!event) return <div className="p-10 text-center text-gray-500">{t('event.notFound')}</div>
 
     // Contact Logic
     const handleWhatsApp = () => {
@@ -113,7 +115,7 @@ export default function EventDetail() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-12 h-12 rounded-full bg-sunflower text-black flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95"
-                aria-label={isInstagram ? "View on Instagram" : "Visit Website"}
+                aria-label={isInstagram ? t('event.instagram') : t('event.website')}
             >
                 {isInstagram ? <Instagram size={24} /> : <Globe size={24} />}
             </a>
@@ -145,7 +147,7 @@ export default function EventDetail() {
                         <button
                             onClick={handleWhatsApp}
                             className="w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95"
-                            aria-label="Contact via WhatsApp"
+                            aria-label={t('event.whatsapp')}
                         >
                             <WhatsAppIcon size={24} />
                         </button>
@@ -157,7 +159,7 @@ export default function EventDetail() {
                             onClick={handleWebLink}
                             className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95 ${isInstagram ? 'bg-white' : 'bg-sunflower text-black'
                                 }`}
-                            aria-label="Visit Website"
+                            aria-label={t('event.website')}
                         >
                             {isInstagram ? <InstagramGradient size={28} /> : <Globe size={24} />}
                         </button>
@@ -194,16 +196,21 @@ export default function EventDetail() {
                             <MapPin size={20} />
                         </div>
                         <div>
-                            <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Venue</div>
-                            <div className="font-bold text-gray-900">{event.venue || 'TBA'}</div>
+                            <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">{t('event.venue')}</div>
+                            <div className="font-bold text-gray-900">{event.venue || t('event.tba')}</div>
                         </div>
                     </div>
 
                     <div className="text-right">
-                        <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Cost</div>
+                        <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">{t('event.cost')}</div>
                         <div className={`font-bold text-lg ${event.cost && (event.cost === 'Free' || event.cost === 'GTQ 0') ? 'text-[#4ADE80]' : 'text-black'
                             }`}>
-                            {event.cost || 'Free'}
+                            {/* cost is stored as English text ('Free', 'Contact Venue', 'GTQ 50') */}
+                            {!event.cost || event.cost === 'Free'
+                                ? t('event.free')
+                                : event.cost === 'Contact Venue'
+                                    ? t('addEvent.contactVenue')
+                                    : event.cost}
                         </div>
                     </div>
                 </div>

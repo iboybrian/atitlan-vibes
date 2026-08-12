@@ -5,8 +5,10 @@ import { useNavigate } from 'react-router-dom'
 import { PHONE_CODES } from '../data/constants'
 import { useAuth } from '../context/AuthContext'
 import { isNative } from '../lib/pushNotifications'
+import { useT } from '../lib/i18n'
 
 export default function Auth() {
+    const t = useT()
     const { user } = useAuth()
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState('')
@@ -33,7 +35,7 @@ export default function Auth() {
         setNeedsVerify(false)
 
         if (isSignUp && password !== confirmPassword) {
-            setError("Passwords do not match!")
+            setError(t('auth.passwordsMismatch'))
             setLoading(false)
             return
         }
@@ -54,7 +56,7 @@ export default function Auth() {
                     }
                 })
                 if (error) throw error
-                setNotice(`Almost there — we sent a confirmation link to ${email}. Confirm it, then log in.`)
+                setNotice(t('auth.confirmSent', { email }))
             } else {
                 const { error } = await supabase.auth.signInWithPassword({
                     email,
@@ -68,7 +70,7 @@ export default function Auth() {
             // ("Email not confirmed") reads like a bug report, so say it plainly and
             // offer the way out — the link expires and the address can't be reused.
             if (error.code === 'email_not_confirmed' || error.message === 'Email not confirmed') {
-                setError('Confirm your email first. Check your inbox for the link we sent.')
+                setError(t('auth.confirmFirst'))
                 setNeedsVerify(true)
             } else {
                 setError(error.message)
@@ -92,11 +94,11 @@ export default function Auth() {
         if (error) return setError(error.message)
 
         setNeedsVerify(false)
-        setNotice('Verification email sent. Check your inbox.')
+        setNotice(t('auth.verificationSent'))
     }
 
     const handleForgotPassword = async () => {
-        if (!email) return setError('Enter your email first, then tap this again.')
+        if (!email) return setError(t('auth.emailFirst'))
 
         setLoading(true)
         setError(null)
@@ -116,7 +118,7 @@ export default function Auth() {
 
         // PKCE keeps the code_verifier in the browser that asked, so the link only
         // works on this device — say so or people open it on a laptop and it dies.
-        setNotice(`Reset link sent to ${email}. Open it on this device.`)
+        setNotice(t('auth.resetSent', { email }))
     }
 
     const handleSocialLogin = async (provider) => {
@@ -144,10 +146,10 @@ export default function Auth() {
             <div className="w-full max-w-sm">
                 <div className="text-center mb-10">
                     <h1 className="text-3xl font-black mb-2">
-                        {isSignUp ? "Create Account" : "Welcome Back"}
+                        {isSignUp ? t('auth.createAccount') : t('auth.welcomeBack')}
                     </h1>
                     <p className="text-gray-500">
-                        {isSignUp ? "Join the community to post vibes." : "Sign in to start posting."}
+                        {isSignUp ? t('auth.joinCommunity') : t('auth.signInToPost')}
                     </p>
                 </div>
 
@@ -167,7 +169,7 @@ export default function Auth() {
                                 disabled={loading}
                                 className="block w-full mt-2 font-bold underline underline-offset-2 disabled:opacity-50"
                             >
-                                Resend verification email
+                                {t('auth.resend')}
                             </button>
                         )}
                     </div>
@@ -177,7 +179,7 @@ export default function Auth() {
                     <div>
                         <input
                             type="email"
-                            placeholder="Email"
+                            placeholder={t('auth.email')}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
@@ -187,7 +189,7 @@ export default function Auth() {
                     <div>
                         <input
                             type="password"
-                            placeholder="Password"
+                            placeholder={t('auth.password')}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
@@ -199,7 +201,7 @@ export default function Auth() {
                         <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-4">
                             <input
                                 type="password"
-                                placeholder="Confirm Password"
+                                placeholder={t('auth.confirmPassword')}
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 className="w-full p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
@@ -221,11 +223,11 @@ export default function Auth() {
                                 </select>
                                 <input
                                     type="tel"
-                                    placeholder="Phone Number"
+                                    placeholder={t('auth.phoneNumber')}
                                     value={phoneNumber}
                                     onChange={(e) => setPhoneNumber(e.target.value)}
                                     pattern="[0-9\s\-]{6,15}"
-                                    title="6-15 digits"
+                                    title={t('auth.phoneHint')}
                                     className="flex-1 min-w-0 p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
                                     required
                                 />
@@ -238,7 +240,7 @@ export default function Auth() {
                         disabled={loading}
                         className="w-full bg-turquoise text-white font-bold p-4 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95 disabled:opacity-50"
                     >
-                        {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Log In'}
+                        {loading ? t('auth.processing') : isSignUp ? t('common.signUp') : t('common.logIn')}
                     </button>
 
                     {!isSignUp && (
@@ -248,7 +250,7 @@ export default function Auth() {
                             disabled={loading}
                             className="w-full text-center text-sm text-gray-500 hover:text-turquoise font-medium disabled:opacity-50"
                         >
-                            Forgot password?
+                            {t('auth.forgotPassword')}
                         </button>
                     )}
                 </form>
@@ -259,7 +261,7 @@ export default function Auth() {
                             <div className="w-full border-t border-gray-200"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-[#F5F5F0] text-gray-400">Or continue with</span>
+                            <span className="px-2 bg-[#F5F5F0] text-gray-400">{t('auth.orContinue')}</span>
                         </div>
                     </div>
 
@@ -291,9 +293,7 @@ export default function Auth() {
                         }}
                         className="text-gray-500 hover:text-turquoise font-medium text-sm"
                     >
-                        {isSignUp
-                            ? 'Already have an account? Log In'
-                            : "Don't have an account? Sign Up"}
+                        {isSignUp ? t('auth.haveAccount') : t('auth.noAccount')}
                     </button>
                 </div>
             </div>

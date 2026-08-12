@@ -1,12 +1,14 @@
 
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, Bell, Moon, Sun, ChevronRight, Settings as SettingsIcon } from 'lucide-react'
+import { User, Bell, Moon, Sun, ChevronRight, Languages, Settings as SettingsIcon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { setPushPreference, isPushSupported } from '../lib/pushNotifications'
+import { useT, getLang, setLang } from '../lib/i18n'
 
 export default function Settings() {
+    const t = useT()
     const { user, darkMode, toggleDarkMode } = useAuth()
     const navigate = useNavigate()
     const [pushEnabled, setPushEnabled] = useState(true)
@@ -50,6 +52,24 @@ export default function Settings() {
         </button>
     )
 
+    // Language switch — two states, so a segmented pair beats a dropdown
+    const LangSwitch = () => (
+        <div className="flex bg-gray-100 dark:bg-gray-700 rounded-full p-1">
+            {['es', 'en'].map(code => (
+                <button
+                    key={code}
+                    onClick={() => setLang(code)}
+                    className={`px-3 py-1 text-xs font-bold rounded-full transition-colors ${getLang() === code
+                        ? 'bg-turquoise text-white shadow-sm'
+                        : 'text-gray-500 dark:text-gray-300'
+                        }`}
+                >
+                    {code.toUpperCase()}
+                </button>
+            ))}
+        </div>
+    )
+
     // Section Header
     const SectionHeader = ({ children }) => (
         <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-3 px-1">{children}</h3>
@@ -83,32 +103,40 @@ export default function Settings() {
                     <SettingsIcon size={24} className="text-turquoise" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-black text-gray-900 dark:text-white">Settings</h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Manage your preferences</p>
+                    <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('settings.title')}</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('settings.subtitle')}</p>
                 </div>
             </div>
 
             {/* Profile Settings */}
-            <SectionHeader>Profile</SectionHeader>
-            <MenuItem icon={User} label="Edit Profile" to="/profile" />
+            <SectionHeader>{t('settings.profile')}</SectionHeader>
+            <MenuItem icon={User} label={t('settings.editProfile')} to="/profile" />
 
             {/* Appearance */}
-            <SectionHeader>Appearance</SectionHeader>
+            <SectionHeader>{t('settings.appearance')}</SectionHeader>
             <MenuItem
                 icon={darkMode ? Moon : Sun}
-                label={darkMode ? "Dark Mode" : "Light Mode"}
+                label={darkMode ? t('settings.darkMode') : t('settings.lightMode')}
                 onClick={toggleDarkMode}
                 rightElement={<Toggle enabled={darkMode} onChange={toggleDarkMode} />}
+            />
+
+            {/* Language — no row onClick, the switch handles its own clicks */}
+            <SectionHeader>{t('settings.language')}</SectionHeader>
+            <MenuItem
+                icon={Languages}
+                label={t('settings.languageLabel')}
+                rightElement={<LangSwitch />}
             />
 
             {/* Notifications — mobile app only, nothing delivers to the browser */}
             {isPushSupported() && (
                 <>
-                    <SectionHeader>Notifications</SectionHeader>
+                    <SectionHeader>{t('settings.notifications')}</SectionHeader>
                     {/* No row onClick: the Toggle's click bubbles here and fires the handler twice */}
                     <MenuItem
                         icon={Bell}
-                        label="Push Notifications"
+                        label={t('settings.push')}
                         rightElement={<Toggle enabled={pushEnabled} onChange={handlePushToggle} />}
                     />
                     {pushError && (
@@ -120,7 +148,7 @@ export default function Settings() {
             {/* App Info */}
             <div className="mt-10 text-center text-xs text-gray-400">
                 <p>Atitlán Vibes v1.0.0</p>
-                <p className="mt-1">Made with 🌋 in Lake Atitlán</p>
+                <p className="mt-1">{t('common.madeWith')}</p>
             </div>
         </div>
     )

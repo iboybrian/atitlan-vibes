@@ -9,6 +9,7 @@
 
 import { PushNotifications } from '@capacitor/push-notifications'
 import { supabase } from './supabase'
+import { t } from './i18n'
 
 // Play Services can hang; don't leave the modal spinning forever
 const REGISTER_TIMEOUT_MS = 10000
@@ -65,11 +66,11 @@ const registerForToken = async () => {
         PushNotifications.addListener('registration', (t) =>
             finish({ success: true, token: t.value })),
         PushNotifications.addListener('registrationError', (e) =>
-            finish({ success: false, error: e.error || 'Could not register for notifications' }))
+            finish({ success: false, error: e.error || t('push.registerFailed') }))
     ])
 
     const timer = setTimeout(() =>
-        finish({ success: false, error: 'Timed out getting a notification token. Check your connection.' }),
+        finish({ success: false, error: t('push.timeout') }),
         REGISTER_TIMEOUT_MS)
 
     try {
@@ -87,7 +88,7 @@ const registerForToken = async () => {
  */
 export const requestPushPermission = async () => {
     if (!isPushSupported()) {
-        return { success: false, error: 'Push notifications are only available in the mobile app' }
+        return { success: false, error: t('push.nativeOnly') }
     }
 
     try {
@@ -97,7 +98,7 @@ export const requestPushPermission = async () => {
             return { success: false, error: 'denied', message: getSettingsMessage() }
         }
         if (receive !== 'granted') {
-            return { success: false, error: 'Permission dismissed' }
+            return { success: false, error: t('push.dismissed') }
         }
 
         return await registerForToken()
@@ -164,14 +165,14 @@ export const disablePushNotifications = async (userId) => {
 export const setPushPreference = async (userId, enabled) => {
     if (!enabled) {
         const ok = await disablePushNotifications(userId)
-        return ok ? { success: true } : { success: false, error: 'Could not save your preferences' }
+        return ok ? { success: true } : { success: false, error: t('push.savePrefs') }
     }
 
     const result = await requestPushPermission()
     if (!result.success) return result
 
     const saved = await savePushToken(userId, result.token)
-    return saved ? { success: true } : { success: false, error: 'Could not save your preferences' }
+    return saved ? { success: true } : { success: false, error: t('push.savePrefs') }
 }
 
 /**
@@ -224,13 +225,9 @@ export const markPushPromptShown = () => {
  * Get platform-specific settings message
  */
 const getSettingsMessage = () => {
-    if (isIOS()) {
-        return 'To enable notifications, go to Settings → Atitlán Vibes → Notifications → Allow Notifications'
-    } else if (isAndroid()) {
-        return 'To enable notifications, go to Settings → Apps → Atitlán Vibes → Notifications → Enable'
-    } else {
-        return 'To enable notifications, click the lock icon in your browser address bar and allow notifications for this site.'
-    }
+    if (isIOS()) return t('push.settingsIOS')
+    if (isAndroid()) return t('push.settingsAndroid')
+    return t('push.settingsWeb')
 }
 
 export default {

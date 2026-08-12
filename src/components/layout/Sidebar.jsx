@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
+import { useT } from '../../lib/i18n'
 
 export default function Sidebar({ isOpen, onClose }) {
+    const t = useT()
     const [towns, setTowns] = useState([])
     const { user } = useAuth()
     const navigate = useNavigate()
@@ -40,7 +42,7 @@ export default function Sidebar({ isOpen, onClose }) {
             {/* Drawer */}
             <div className={`absolute top-0 left-0 bottom-0 w-3/4 max-w-xs bg-white z-50 transform transition-transform duration-300 ease-out shadow-2xl ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="p-4 flex justify-between items-center border-b border-gray-100">
-                    <span className="font-bold text-lg">Menu</span>
+                    <span className="font-bold text-lg">{t('sidebar.menu')}</span>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
                         <X size={24} />
                     </button>
@@ -51,18 +53,18 @@ export default function Sidebar({ isOpen, onClose }) {
                     {/* Auth State */}
                     {user ? (
                         <div className="bg-gray-50 p-4 rounded-xl mb-2">
-                            <div className="text-xs text-gray-400 font-bold uppercase mb-1">Signed in as</div>
+                            <div className="text-xs text-gray-400 font-bold uppercase mb-1">{t('sidebar.signedInAs')}</div>
                             <div className="text-sm font-medium truncate">{user.email}</div>
                         </div>
                     ) : (
                         <div className="bg-turquoise/10 p-4 rounded-xl mb-2">
-                            <p className="text-sm text-turquoise font-medium mb-3">Join the community to post events!</p>
+                            <p className="text-sm text-turquoise font-medium mb-3">{t('sidebar.joinPrompt')}</p>
                             <Link
                                 to="/auth"
                                 onClick={onClose}
                                 className="block w-full text-center bg-turquoise text-white font-bold py-2 rounded-lg text-sm shadow-sm"
                             >
-                                Log In / Sign Up
+                                {t('sidebar.logInSignUp')}
                             </Link>
                         </div>
                     )}
@@ -71,19 +73,19 @@ export default function Sidebar({ isOpen, onClose }) {
                     <div className="space-y-4">
                         <Link to="/profile" onClick={onClose} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer text-gray-900">
                             <User size={20} className="text-gray-500" />
-                            <span className="font-medium">Profile</span>
+                            <span className="font-medium">{t('sidebar.profile')}</span>
                         </Link>
                         <Link to="/settings" onClick={onClose} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer text-gray-900">
                             <Settings size={20} className="text-gray-500" />
-                            <span className="font-medium">Settings</span>
+                            <span className="font-medium">{t('sidebar.settings')}</span>
                         </Link>
                         <Link to="/about" onClick={onClose} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer text-gray-900">
                             <Info size={20} className="text-gray-500" />
-                            <span className="font-medium">About Vibes</span>
+                            <span className="font-medium">{t('sidebar.about')}</span>
                         </Link>
                         <Link to="/privacy" onClick={onClose} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer text-gray-900">
                             <Shield size={20} className="text-gray-500" />
-                            <span className="font-medium">Privacy Policy</span>
+                            <span className="font-medium">{t('sidebar.privacy')}</span>
                         </Link>
 
                         {user && (
@@ -92,7 +94,7 @@ export default function Sidebar({ isOpen, onClose }) {
                                 className="w-full flex items-center gap-3 p-3 hover:bg-red-50 text-red-500 rounded-xl cursor-pointer text-left"
                             >
                                 <LogOut size={20} />
-                                <span className="font-medium">Log Out</span>
+                                <span className="font-medium">{t('sidebar.logOut')}</span>
                             </button>
                         )}
                     </div>
@@ -102,7 +104,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     {/* Browse Towns */}
                     <div>
                         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">
-                            Browse Towns
+                            {t('sidebar.browseTowns')}
                         </h3>
                         <div className="space-y-1">
                             {towns.map(town => (

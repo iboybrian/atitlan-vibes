@@ -1,6 +1,7 @@
 
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Shield } from 'lucide-react'
+import { useT } from '../lib/i18n'
 
 function Section({ title, children }) {
     return (
@@ -14,6 +15,7 @@ function Section({ title, children }) {
 }
 
 export default function Privacy() {
+    const t = useT()
     return (
         <div className="px-4 py-6 max-w-2xl mx-auto">
             {/* Header */}
@@ -26,78 +28,64 @@ export default function Privacy() {
                         <Shield size={24} className="text-turquoise" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-gray-900 dark:text-white">Privacy Policy</h1>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Last updated: July 25, 2026</p>
+                        <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('privacy.title')}</h1>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('privacy.updated')}</p>
                     </div>
                 </div>
             </div>
 
-            <Section title="Overview">
+            <Section title={t('privacy.overview')}>
+                <p>{t('privacy.overviewBody')}</p>
+            </Section>
+
+            <Section title={t('privacy.provide')}>
+                <p><strong>{t('privacy.accountLabel')}</strong> {t('privacy.accountBody')}</p>
+                <p><strong>{t('privacy.profileLabel')}</strong> {t('privacy.profileBody')}</p>
+                <p><strong>{t('privacy.contentLabel')}</strong> {t('privacy.contentBody')}</p>
+            </Section>
+
+            <Section title={t('privacy.automatic')}>
+                <p><strong>{t('privacy.tokenLabel')}</strong> {t('privacy.tokenBody')}</p>
+                <p>{t('privacy.noTracking')}</p>
+            </Section>
+
+            <Section title={t('privacy.howWeUse')}>
+                <p>{t('privacy.howWeUseBody')}</p>
+            </Section>
+
+            <Section title={t('privacy.whoSees')}>
+                <p>{t('privacy.whoSeesBody')}</p>
+            </Section>
+
+            <Section title={t('privacy.thirdParty')}>
                 <p>
-                    Atitlán Vibes ("we", "our", "the app") is a community events app for the towns
-                    around Lake Atitlán, Guatemala. This policy explains what information we collect
-                    when you use the app, why we collect it, and the choices you have.
+                    {t('privacy.thirdPartyA')}<strong>Supabase</strong>
+                    {t('privacy.thirdPartyB')}<strong>Capacitor</strong>
+                    {t('privacy.thirdPartyC')}
                 </p>
             </Section>
 
-            <Section title="Information you provide">
-                <p><strong>Account.</strong> Email and password, or your name, email, and profile photo if you sign in with Google or Apple.</p>
-                <p><strong>Profile.</strong> First and last name, country, avatar photo, Instagram handle, house affinity, and traveler type — all optional, set on the Profile screen.</p>
-                <p><strong>Content you post.</strong> Events you submit (name, description, dates, venue, cost, contact phone/link, cover photo) and messages you send in town chat rooms, including read receipts on reactions.</p>
+            <Section title={t('privacy.retention')}>
+                <p>{t('privacy.retentionBody')}</p>
             </Section>
 
-            <Section title="Information collected automatically">
-                <p><strong>Push notification token.</strong> If you enable push notifications, a device or browser token is stored so we can send you notifications. You can turn this off anytime in Settings.</p>
-                <p>
-                    We do not use analytics, advertising, or tracking SDKs of any kind. We do not
-                    sell your data.
-                </p>
+            <Section title={t('privacy.children')}>
+                <p>{t('privacy.childrenBody')}</p>
             </Section>
 
-            <Section title="How we use your information">
-                <p>To create and secure your account, show your profile and posts to other users, run the town chat rooms, moderate submitted events before they go live, and — if enabled — send you push notifications.</p>
+            <Section title={t('privacy.changes')}>
+                <p>{t('privacy.changesBody')}</p>
             </Section>
 
-            <Section title="Who can see your information">
-                <p>Your display name, avatar, and house affinity are visible to other signed-in users, since the app is a shared community space. Events you post are public once approved. Chat messages are visible to other members of that town's chat. Your email and phone number are never shown to other users.</p>
-            </Section>
-
-            <Section title="Third-party services">
-                <p>
-                    We use <strong>Supabase</strong> to host our database, authentication, and file
-                    storage (profile photos and event images) — your data is processed on their
-                    infrastructure. If you sign in with Google or Apple, they process your sign-in
-                    per their own privacy policies. The Android app is packaged with{' '}
-                    <strong>Capacitor</strong>, which does not itself collect or transmit data.
-                </p>
-            </Section>
-
-            <Section title="Data retention & deletion">
-                <p>
-                    We keep your account and content for as long as your account is active. To
-                    delete your account and associated data, contact us using the details below —
-                    we do not currently offer automatic in-app deletion, but will process your
-                    request promptly.
-                </p>
-            </Section>
-
-            <Section title="Children's privacy">
-                <p>Atitlán Vibes is not directed at children under 13, and we do not knowingly collect information from them.</p>
-            </Section>
-
-            <Section title="Changes to this policy">
-                <p>We may update this policy as the app changes. Material changes will be reflected by updating the date above.</p>
-            </Section>
-
-            <Section title="Contact us">
-                <p>Questions about this policy or your data:</p>
+            <Section title={t('privacy.contact')}>
+                <p>{t('privacy.contactBody')}</p>
                 <a
                     href="https://wa.me/50253638941"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 mt-2 bg-green-500 text-white font-bold py-2 px-4 rounded-xl shadow-sm hover:shadow-md hover:bg-green-600 transition-all"
                 >
-                    Contact us on WhatsApp
+                    {t('common.contactWhatsApp')}
                 </a>
             </Section>
         </div>

@@ -1,8 +1,10 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown, Search, Check } from 'lucide-react'
+import { useT } from '../../lib/i18n'
 
-export default function SearchableSelect({ options, value, onChange, placeholder = "Select...", label }) {
+export default function SearchableSelect({ options, value, onChange, placeholder, label }) {
+    const t = useT()
     const [isOpen, setIsOpen] = useState(false)
     const [search, setSearch] = useState('')
     const containerRef = useRef(null)
@@ -35,7 +37,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
                 className="w-full p-3 bg-white rounded-xl border border-gray-200 focus:border-turquoise outline-none flex items-center justify-between text-left"
             >
                 <span className={value ? "text-black" : "text-gray-400"}>
-                    {value || placeholder}
+                    {value || placeholder || t('common.select')}
                 </span>
                 <ChevronDown size={16} className="text-gray-400" />
             </button>
@@ -49,7 +51,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
                             <input
                                 autoFocus
                                 className="bg-transparent w-full text-sm outline-none placeholder:text-gray-400"
-                                placeholder="Search..."
+                                placeholder={t('common.search')}
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
                             />
@@ -66,7 +68,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
                                     {value === opt && <Check size={14} />}
                                 </button>
                             )) : (
-                                <div className="p-3 text-xs text-gray-400 text-center">No results</div>
+                                <div className="p-3 text-xs text-gray-400 text-center">{t('common.noResults')}</div>
                             )}
                         </div>
                     </div>

@@ -4,6 +4,7 @@ import { MapPin, ChevronDown, Check, Bell } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { getCurrentTown, setCurrentTown } from '../../lib/utils'
+import { useT } from '../../lib/i18n'
 
 /**
  * "Which town are you in" — the one explicit choice the user makes.
@@ -11,6 +12,7 @@ import { getCurrentTown, setCurrentTown } from '../../lib/utils'
  * when a new event is approved in that town (users.current_town_id).
  */
 export default function TownPicker() {
+    const t = useT()
     const { user } = useAuth()
     const [towns, setTowns] = useState([])
     const [selected, setSelected] = useState(getCurrentTown)
@@ -69,7 +71,7 @@ export default function TownPicker() {
                 <span className="flex items-center gap-2 min-w-0">
                     <MapPin size={18} className="text-turquoise flex-shrink-0" />
                     <span className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
-                        {selected ? selected.name : "Where are you? Pick your town"}
+                        {selected ? selected.name : t('picker.prompt')}
                     </span>
                 </span>
                 <ChevronDown
@@ -102,7 +104,7 @@ export default function TownPicker() {
             {selected && !open && (
                 <p className="flex items-center gap-1.5 mt-2 px-1 text-xs text-gray-500 dark:text-gray-400">
                     <Bell size={12} className="flex-shrink-0" />
-                    We'll notify you about new events in {selected.name}. Tap to change.
+                    {t('picker.notice', { town: selected.name })}
                 </p>
             )}
         </div>

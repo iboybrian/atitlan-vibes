@@ -9,9 +9,11 @@ import TownPicker from '../components/ui/TownPicker'
 import { supabase } from '../lib/supabase'
 import { getDirectImageUrl } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
+import { useT } from '../lib/i18n'
 
 // Reusable Event Card Component
 function EventCard({ event }) {
+    const t = useT()
     return (
         <Link to={`/event/${event.id}`} className="block group">
             <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md transition-all duration-300 relative aspect-[4/5]">
@@ -26,7 +28,7 @@ function EventCard({ event }) {
                 {event.is_feature && (
                     <div className="absolute top-2 left-2 bg-sunflower text-black px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
                         <Star size={12} fill="currentColor" />
-                        Featured
+                        {t('common.featured')}
                     </div>
                 )}
 
@@ -46,10 +48,11 @@ export default function Home() {
     const [isAddEventOpen, setIsAddEventOpen] = useState(false)
     const { user } = useAuth()
     const navigate = useNavigate()
+    const t = useT()
 
     const handleAddEvent = () => {
         if (!user) {
-            if (confirm("You need to be logged in to post an event. Go to login?")) {
+            if (confirm(t('common.loginToPost'))) {
                 navigate('/auth')
             }
         } else {
@@ -118,10 +121,10 @@ export default function Home() {
                     back={
                         <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
                             <p className="mb-4">
-                                Welcome to <span className="font-bold text-turquoise">Atitlán Vibes</span>,
-                                getting together all kind of travelers, to all kind of events.
+                                {t('home.welcome')} <span className="font-bold text-turquoise">Atitlán Vibes</span>
+                                {t('home.welcomeRest')}
                             </p>
-                            <p className="text-xl font-black text-turquoise">Find your Vibes ✨</p>
+                            <p className="text-xl font-black text-turquoise">{t('home.findVibes')}</p>
                         </div>
                     }
                 />
@@ -130,7 +133,7 @@ export default function Home() {
             {/* 2. Vertical Town Menu (Now in Body) */}
             <section>
                 <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">
-                    Explore by Town
+                    {t('home.exploreByTown')}
                 </h2>
 
                 <TownPicker />
@@ -141,8 +144,8 @@ export default function Home() {
             {/* 3. Events Section */}
             <section>
                 <div className="flex items-center justify-between mb-4 px-1">
-                    <h2 className="text-xl font-bold text-black dark:text-white">Next Events in the Lake</h2>
-                    <span className="text-xs font-bold text-turquoise uppercase tracking-wide">See All</span>
+                    <h2 className="text-xl font-bold text-black dark:text-white">{t('home.nextEvents')}</h2>
+                    <span className="text-xs font-bold text-turquoise uppercase tracking-wide">{t('home.seeAll')}</span>
                 </div>
 
                 {/* Inline Add Event Button */}
@@ -152,14 +155,14 @@ export default function Home() {
                     style={{ opacity: user ? 1 : 0.6 }}
                 >
                     <Plus size={20} strokeWidth={3} />
-                    <span>Post Your Vibe</span>
+                    <span>{t('common.postVibe')}</span>
                 </button>
 
                 {loading ? (
-                    <div className="text-center py-10 text-gray-400">Loading vibes...</div>
+                    <div className="text-center py-10 text-gray-400">{t('home.loadingVibes')}</div>
                 ) : (featuredEvents.length === 0 && regularEvents.length === 0) ? (
                     <div className="p-6 bg-white dark:bg-slate-800 rounded-2xl text-center text-gray-500 shadow-sm">
-                        No upcoming events found.
+                        {t('home.noEvents')}
                     </div>
                 ) : (
                     <div className="space-y-6">
@@ -169,7 +172,7 @@ export default function Home() {
                                 <div className="flex items-center gap-2 mb-3 px-1">
                                     <Star size={16} className="text-sunflower" fill="#FFB800" />
                                     <span className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
-                                        Featured Events
+                                        {t('common.featuredEvents')}
                                     </span>
                                     <div className="flex-1 h-px bg-gradient-to-r from-sunflower/50 to-transparent ml-2"></div>
                                 </div>
@@ -187,7 +190,7 @@ export default function Home() {
                                 {featuredEvents.length > 0 && (
                                     <div className="flex items-center gap-2 mb-3 px-1">
                                         <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                                            More Events
+                                            {t('common.moreEvents')}
                                         </span>
                                         <div className="flex-1 h-px bg-gray-300 dark:bg-slate-600 ml-2"></div>
                                     </div>

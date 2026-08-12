@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { PHONE_CODES } from '../../data/constants'
+import { useT } from '../../lib/i18n'
 
 export default function AddEventModal({ isOpen, onClose }) {
+    const t = useT()
     const { user } = useAuth()
     const [loading, setLoading] = useState(false)
     const [uploading, setUploading] = useState(false)
@@ -83,7 +85,7 @@ export default function AddEventModal({ isOpen, onClose }) {
             return publicUrl
         } catch (error) {
             console.error("Storage Error:", error)
-            throw new Error("Failed to upload image: " + error.message)
+            throw new Error(t('addEvent.uploadFailed', { msg: error.message }))
         } finally {
             setUploading(false)
         }
@@ -91,11 +93,11 @@ export default function AddEventModal({ isOpen, onClose }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        if (!user) return alert("You must be logged in")
+        if (!user) return alert(t('addEvent.mustLogin'))
 
         // Basic validation
         if (!formData.name || !formData.town_id || !formData.calendar_date || !formData.start_time || !formData.venue || !formData.event_date_label) {
-            return alert("Please fill in ALL required fields (Name, Town, Date, Time, Venue, Label)")
+            return alert(t('addEvent.fillRequired'))
         }
 
         setLoading(true)
@@ -142,7 +144,7 @@ export default function AddEventModal({ isOpen, onClose }) {
 
             if (error) throw error
 
-            alert("Success! Your event is pending admin approval.")
+            alert(t('addEvent.success'))
             onClose()
 
             // Reset
@@ -157,7 +159,7 @@ export default function AddEventModal({ isOpen, onClose }) {
         } catch (error) {
             console.error("Submit error:", error)
             console.log("Full error object:", JSON.stringify(error, null, 2))
-            alert("Error submitting event. See console for details.")
+            alert(t('addEvent.error'))
         } finally {
             setLoading(false)
         }
@@ -172,7 +174,7 @@ export default function AddEventModal({ isOpen, onClose }) {
             <div className="bg-white w-full max-w-md h-[90vh] sm:h-auto sm:max-h-[90vh] sm:rounded-3xl rounded-t-3xl shadow-xl z-50 pointer-events-auto flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
 
                 <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
-                    <h2 className="text-xl font-black">Post Vibes</h2>
+                    <h2 className="text-xl font-black">{t('addEvent.title')}</h2>
                     <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"><X size={20} /></button>
                 </div>
 
@@ -181,14 +183,14 @@ export default function AddEventModal({ isOpen, onClose }) {
 
                         {/* Image Upload with Preview */}
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-bold uppercase text-gray-400">Cover Image</label>
+                            <label className="text-xs font-bold uppercase text-gray-400">{t('addEvent.coverImage')}</label>
                             <div className="w-full aspect-video bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center relative overflow-hidden group hover:border-turquoise transition-colors">
                                 {previewUrl ? (
                                     <img src={previewUrl} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="flex flex-col items-center text-gray-400">
                                         <Upload size={24} className="mb-2" />
-                                        <span className="text-xs">Click to select photo</span>
+                                        <span className="text-xs">{t('addEvent.selectPhoto')}</span>
                                     </div>
                                 )}
                                 <input type="file" accept="image/*" onChange={handleFileSelect} className="absolute inset-0 opacity-0 cursor-pointer" />
@@ -196,29 +198,29 @@ export default function AddEventModal({ isOpen, onClose }) {
                         </div>
 
                         {/* Basic Info */}
-                        <input name="name" placeholder="Event Name" required value={formData.name} onChange={handleChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 font-bold text-lg" />
+                        <input name="name" placeholder={t('addEvent.name')} required value={formData.name} onChange={handleChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 font-bold text-lg" />
 
                         <div className="grid grid-cols-2 gap-3">
                             <select name="town_id" required value={formData.town_id} onChange={handleChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm">
-                                <option value="">Select Town</option>
+                                <option value="">{t('addEvent.selectTown')}</option>
                                 {towns.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                             </select>
 
                             <div className="relative">
                                 <MapPin size={16} className="absolute left-3 top-3.5 text-gray-400" />
-                                <input name="venue" required placeholder="Venue Name" value={formData.venue} onChange={handleChange} className="w-full p-3 pl-9 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm" />
+                                <input name="venue" required placeholder={t('addEvent.venue')} value={formData.venue} onChange={handleChange} className="w-full p-3 pl-9 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm" />
                             </div>
                         </div>
 
                         {/* Dates */}
                         <div className="grid grid-cols-2 gap-3">
                             <div className="flex flex-col gap-1">
-                                <label className="text-[10px] font-bold uppercase text-gray-400">Exact Date</label>
+                                <label className="text-[10px] font-bold uppercase text-gray-400">{t('addEvent.exactDate')}</label>
                                 <input type="date" name="calendar_date" required value={formData.calendar_date} onChange={handleChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm" />
                             </div>
                             <div className="flex flex-col gap-1">
-                                <label className="text-[10px] font-bold uppercase text-gray-400">Display Label</label>
-                                <input name="event_date_label" placeholder="e.g. Every Friday" required value={formData.event_date_label} onChange={handleChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm" />
+                                <label className="text-[10px] font-bold uppercase text-gray-400">{t('addEvent.displayLabel')}</label>
+                                <input name="event_date_label" placeholder={t('addEvent.labelExample')} required value={formData.event_date_label} onChange={handleChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm" />
                             </div>
                         </div>
 
@@ -228,19 +230,19 @@ export default function AddEventModal({ isOpen, onClose }) {
 
                         {/* Cost Logic */}
                         <div className="bg-gray-50 p-3 rounded-xl">
-                            <label className="text-[10px] font-bold uppercase text-gray-400 mb-2 block">Cost</label>
+                            <label className="text-[10px] font-bold uppercase text-gray-400 mb-2 block">{t('addEvent.cost')}</label>
                             <div className="flex gap-4 mb-3">
                                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                                     <input type="radio" checked={costType === 'gtq'} onChange={() => setCostType('gtq')} className="text-turquoise focus:ring-turquoise" />
-                                    <span>Price</span>
+                                    <span>{t('addEvent.price')}</span>
                                 </label>
                                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                                     <input type="radio" checked={costType === 'free'} onChange={() => setCostType('free')} className="text-turquoise focus:ring-turquoise" />
-                                    <span className="text-green-500 font-bold">Free</span>
+                                    <span className="text-green-500 font-bold">{t('addEvent.free')}</span>
                                 </label>
                                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                                     <input type="radio" checked={costType === 'contact'} onChange={() => setCostType('contact')} className="text-turquoise focus:ring-turquoise" />
-                                    <span>Contact Venue</span>
+                                    <span>{t('addEvent.contactVenue')}</span>
                                 </label>
                             </div>
                             {costType === 'gtq' && (
@@ -251,7 +253,7 @@ export default function AddEventModal({ isOpen, onClose }) {
                             )}
                         </div>
 
-                        <textarea name="description" placeholder="What's the vibe?" rows={3} value={formData.description} onChange={handleChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm resize-none" />
+                        <textarea name="description" placeholder={t('addEvent.description')} rows={3} value={formData.description} onChange={handleChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm resize-none" />
 
                         {/* Advanced: Phone & Contact Link */}
                         <div className="flex gap-3">
@@ -270,7 +272,7 @@ export default function AddEventModal({ isOpen, onClose }) {
                                     ))}
                                 </select>
                             </div>
-                            <input name="phone_number" type="tel" placeholder="Phone Number" value={formData.phone_number} onChange={handleChange} className="flex-1 p-3 bg-gray-50 rounded-xl border-none text-sm" />
+                            <input name="phone_number" type="tel" placeholder={t('addEvent.phoneNumber')} value={formData.phone_number} onChange={handleChange} className="flex-1 p-3 bg-gray-50 rounded-xl border-none text-sm" />
                         </div>
 
                         {/* Contact Link Input (Moved Up) */}
@@ -278,7 +280,7 @@ export default function AddEventModal({ isOpen, onClose }) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-3 top-3.5 text-gray-400"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                             <input
                                 name="contact_link"
-                                placeholder="Instagram handle or Website"
+                                placeholder={t('addEvent.contactLink')}
                                 value={formData.contact_link}
                                 onChange={handleChange}
                                 className="w-full p-3 pl-9 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm"
@@ -288,7 +290,7 @@ export default function AddEventModal({ isOpen, onClose }) {
                         {/* Tags (Moved Down) */}
                         <div className="relative">
                             <Tag size={16} className="absolute left-3 top-3.5 text-gray-400" />
-                            <input name="tags" placeholder="Tags (comma separated)... #party, #yoga" value={formData.tags} onChange={handleChange} className="w-full p-3 pl-9 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm" />
+                            <input name="tags" placeholder={t('addEvent.tags')} value={formData.tags} onChange={handleChange} className="w-full p-3 pl-9 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm" />
                         </div>
 
                     </form>
@@ -300,7 +302,7 @@ export default function AddEventModal({ isOpen, onClose }) {
                         disabled={loading || uploading}
                         className="w-full bg-turquoise text-white font-bold p-4 rounded-xl shadow-lg hover:shadow-xl hover:bg-turquoise/90 transition-all active:scale-95 disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2"
                     >
-                        {loading || uploading ? 'Processing...' : 'Submit Event'}
+                        {loading || uploading ? t('addEvent.processing') : t('addEvent.submit')}
                     </button>
                 </div>
 

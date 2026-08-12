@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { useT } from '../lib/i18n'
 
 /**
  * Where the password-recovery link lands. Getting here means the code from the
@@ -12,6 +13,7 @@ import { useAuth } from '../context/AuthContext'
  * the browser that made the request).
  */
 export default function ResetPassword() {
+    const t = useT()
     const { user } = useAuth()
     const navigate = useNavigate()
     const [password, setPassword] = useState('')
@@ -23,8 +25,8 @@ export default function ResetPassword() {
         e.preventDefault()
         setError(null)
 
-        if (password !== confirmPassword) return setError('Passwords do not match!')
-        if (password.length < 6) return setError('Password must be at least 6 characters.')
+        if (password !== confirmPassword) return setError(t('auth.passwordsMismatch'))
+        if (password.length < 6) return setError(t('reset.tooShort'))
 
         setLoading(true)
         const { error } = await supabase.auth.updateUser({ password })
@@ -38,16 +40,13 @@ export default function ResetPassword() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[80vh] px-6">
                 <div className="w-full max-w-sm text-center">
-                    <h1 className="text-3xl font-black mb-2">Link expired</h1>
-                    <p className="text-gray-500 mb-8">
-                        This reset link is no longer valid. Open it on the same device you
-                        requested it from, or ask for a new one.
-                    </p>
+                    <h1 className="text-3xl font-black mb-2">{t('reset.expiredTitle')}</h1>
+                    <p className="text-gray-500 mb-8">{t('reset.expiredBody')}</p>
                     <button
                         onClick={() => navigate('/auth', { replace: true })}
                         className="w-full bg-turquoise text-white font-bold p-4 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95"
                     >
-                        Back to Log In
+                        {t('reset.backToLogin')}
                     </button>
                 </div>
             </div>
@@ -58,8 +57,8 @@ export default function ResetPassword() {
         <div className="flex flex-col items-center justify-center min-h-[80vh] px-6">
             <div className="w-full max-w-sm">
                 <div className="text-center mb-10">
-                    <h1 className="text-3xl font-black mb-2">New Password</h1>
-                    <p className="text-gray-500">Pick something you'll remember this time.</p>
+                    <h1 className="text-3xl font-black mb-2">{t('reset.title')}</h1>
+                    <p className="text-gray-500">{t('reset.subtitle')}</p>
                 </div>
 
                 {error && (
@@ -71,7 +70,7 @@ export default function ResetPassword() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         type="password"
-                        placeholder="New Password"
+                        placeholder={t('reset.newPassword')}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
@@ -79,7 +78,7 @@ export default function ResetPassword() {
                     />
                     <input
                         type="password"
-                        placeholder="Confirm New Password"
+                        placeholder={t('reset.confirmNew')}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         className="w-full p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
@@ -90,7 +89,7 @@ export default function ResetPassword() {
                         disabled={loading}
                         className="w-full bg-turquoise text-white font-bold p-4 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95 disabled:opacity-50"
                     >
-                        {loading ? 'Saving...' : 'Save Password'}
+                        {loading ? t('reset.saving') : t('reset.save')}
                     </button>
                 </form>
             </div>

@@ -1,6 +1,7 @@
 
 import { useState } from 'react'
 import { ChevronDown, MessageCircle, Info } from 'lucide-react'
+import { useT } from '../lib/i18n'
 
 // Accordion Component
 function Accordion({ label, children, defaultOpen = false }) {
@@ -31,6 +32,7 @@ function Accordion({ label, children, defaultOpen = false }) {
 }
 
 export default function About() {
+    const t = useT()
     return (
         <div className="px-4 py-6 max-w-2xl mx-auto">
             {/* Header */}
@@ -39,64 +41,39 @@ export default function About() {
                     <Info size={24} className="text-turquoise" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-black text-gray-900">About</h1>
-                    <p className="text-sm text-gray-500">Learn more about Atitlán Vibes</p>
+                    <h1 className="text-2xl font-black text-gray-900">{t('about.title')}</h1>
+                    <p className="text-sm text-gray-500">{t('about.subtitle')}</p>
                 </div>
             </div>
 
             {/* Section 1: About Atitlán Vibes */}
-            <Accordion label="About Atitlán Vibes" defaultOpen={true}>
+            <Accordion label={t('about.section1')} defaultOpen={true}>
                 <div className="pt-4 space-y-4">
                     <h2 className="text-xl font-black text-gray-900 leading-tight">
-                        Atitlán Vibes — Know What's Happening
+                        {t('about.heading')}
                     </h2>
 
-                    <p className="text-gray-600 leading-relaxed">
-                        Atitlán Vibes is the pulse of the lake. It's a community-powered map that shows you exactly what's happening right now and this weekend in every town around the water.
-                    </p>
+                    <p className="text-gray-600 leading-relaxed">{t('about.intro')}</p>
 
                     <div className="pt-2">
-                        <h3 className="font-bold text-gray-800 mb-3">Why you'll love it:</h3>
+                        <h3 className="font-bold text-gray-800 mb-3">{t('about.whyLove')}</h3>
 
                         <div className="space-y-4">
-                            <div className="bg-gray-50 p-4 rounded-xl">
-                                <h4 className="font-bold text-turquoise mb-1">🔍 The 'Vibe' Search</h4>
-                                <p className="text-sm text-gray-600">
-                                    Whether you want a wild night in San Pedro or a quiet yoga workshop in San Marcos, you can filter by town and find your flow in seconds.
-                                </p>
-                            </div>
-
-                            <div className="bg-gray-50 p-4 rounded-xl">
-                                <h4 className="font-bold text-turquoise mb-1">🔇 Zero Noise</h4>
-                                <p className="text-sm text-gray-600">
-                                    No more 'Good morning' messages or random chat clutter. Just high-quality posters, times, prices, and direct links to the organizers' Instagrams or WhatsApps.
-                                </p>
-                            </div>
-
-                            <div className="bg-gray-50 p-4 rounded-xl">
-                                <h4 className="font-bold text-turquoise mb-1">🎨 Be the Creator</h4>
-                                <p className="text-sm text-gray-600">
-                                    If you're hosting a jam session at your house or a workshop at your hostel, you can upload it in 30 seconds. You don't need to be a promoter; you just need a vibe to share.
-                                </p>
-                            </div>
-
-                            <div className="bg-gray-50 p-4 rounded-xl">
-                                <h4 className="font-bold text-turquoise mb-1">🌋 The 'Inside' Track</h4>
-                                <p className="text-sm text-gray-600">
-                                    It's built by people who live here for people who love it here. It's the easiest way to make sure you never miss that 'one legendary night' everyone talks about the next morning.
-                                </p>
-                            </div>
+                            {['vibeSearch', 'zeroNoise', 'creator', 'inside'].map(key => (
+                                <div key={key} className="bg-gray-50 p-4 rounded-xl">
+                                    <h4 className="font-bold text-turquoise mb-1">{t(`about.${key}`)}</h4>
+                                    <p className="text-sm text-gray-600">{t(`about.${key}Body`)}</p>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
             </Accordion>
 
             {/* Section 2: Contact Us */}
-            <Accordion label="Contact Us">
+            <Accordion label={t('about.contact')}>
                 <div className="pt-4">
-                    <p className="text-gray-600 mb-4">
-                        Have questions, feedback, or want to collaborate? We'd love to hear from you!
-                    </p>
+                    <p className="text-gray-600 mb-4">{t('about.contactBody')}</p>
                     <a
                         href="https://wa.me/50253638941"
                         target="_blank"
@@ -104,7 +81,7 @@ export default function About() {
                         className="inline-flex items-center gap-2 bg-green-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg hover:bg-green-600 transition-all active:scale-[0.98]"
                     >
                         <MessageCircle size={20} />
-                        <span>Contact us on WhatsApp</span>
+                        <span>{t('common.contactWhatsApp')}</span>
                     </a>
                 </div>
             </Accordion>
@@ -112,7 +89,7 @@ export default function About() {
             {/* App Info */}
             <div className="mt-10 text-center text-xs text-gray-400">
                 <p>Atitlán Vibes v1.0.0</p>
-                <p className="mt-1">Made with 🌋 in Lake Atitlán</p>
+                <p className="mt-1">{t('common.madeWith')}</p>
             </div>
         </div>
     )

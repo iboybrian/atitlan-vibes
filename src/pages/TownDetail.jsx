@@ -6,6 +6,7 @@ import { Clock, Plus, ChevronDown, Ship, MessageCircle, Search, X, Star } from '
 import { getDirectImageUrl } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import AddEventModal from '../components/ui/AddEventModal'
+import { useT } from '../lib/i18n'
 
 // Accordion Component
 function Accordion({ label, icon: Icon, children, defaultOpen = false }) {
@@ -47,10 +48,11 @@ export default function TownDetail() {
     const [searchQuery, setSearchQuery] = useState('')
     const { user } = useAuth()
     const navigate = useNavigate()
+    const t = useT()
 
     const handleAddEvent = () => {
         if (!user) {
-            if (confirm("You need to be logged in to post an event. Go to login?")) {
+            if (confirm(t('common.loginToPost'))) {
                 navigate('/auth')
             }
         } else {
@@ -121,9 +123,9 @@ export default function TownDetail() {
         return false
     })
 
-    if (loading) return <div className="p-8 text-center text-gray-400">Loading...</div>
+    if (loading) return <div className="p-8 text-center text-gray-400">{t('common.loading')}</div>
 
-    if (!town) return <div className="p-8 text-center text-gray-500">Select a town to view details</div>
+    if (!town) return <div className="p-8 text-center text-gray-500">{t('town.selectPrompt')}</div>
 
     return (
         <div className="px-4 py-6">
@@ -142,15 +144,15 @@ export default function TownDetail() {
             </div>
 
             {/* 3. About Town Accordion */}
-            <Accordion label="About Town" defaultOpen={true}>
+            <Accordion label={t('town.about')} defaultOpen={true}>
                 <p className="pt-4 text-gray-600 leading-relaxed">
-                    {town.description || "Welcome to " + town.name}
+                    {town.description || t('town.welcomeTo', { town: town.name })}
                 </p>
             </Accordion>
 
             {/* 4. Boat Schedules Accordion (only if data exists) */}
             {town.boat_schedules && (
-                <Accordion label="See boat/shuttle schedules" icon={Ship}>
+                <Accordion label={t('town.boatSchedules')} icon={Ship}>
                     <div className="pt-4 text-gray-600 leading-relaxed whitespace-pre-wrap">
                         {town.boat_schedules}
                     </div>
@@ -159,7 +161,7 @@ export default function TownDetail() {
 
             {/* 5. Events Section */}
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 pl-2">
-                <span className="text-black">Events</span>
+                <span className="text-black">{t('town.events')}</span>
                 {events.length > 0 && (
                     <span className="text-sm font-normal text-gray-400">({filteredEvents.length})</span>
                 )}
@@ -173,7 +175,7 @@ export default function TownDetail() {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search events..."
+                        placeholder={t('town.searchEvents')}
                         className="w-full pl-11 pr-10 py-3 bg-white rounded-xl border-2 border-turquoise/20 focus:border-turquoise outline-none shadow-sm transition-colors placeholder:text-gray-400"
                     />
                     {searchQuery && (
@@ -194,19 +196,19 @@ export default function TownDetail() {
                 style={{ opacity: user ? 1 : 0.6 }}
             >
                 <Plus size={20} strokeWidth={3} />
-                <span>Post Your Vibe</span>
+                <span>{t('common.postVibe')}</span>
             </button>
 
             {/* Events Grid or Empty States */}
             {events.length === 0 ? (
                 <div className="text-center py-10 bg-white rounded-3xl border-2 border-dashed border-gray-200">
-                    <p className="text-gray-400 font-medium">No approved events yet</p>
+                    <p className="text-gray-400 font-medium">{t('town.noApproved')}</p>
                 </div>
             ) : filteredEvents.length === 0 ? (
                 <div className="text-center py-10 bg-white rounded-3xl border-2 border-dashed border-turquoise/30">
                     <div className="text-4xl mb-3">🔍</div>
-                    <p className="text-gray-500 font-medium">No events found matching your search</p>
-                    <p className="text-gray-400 text-sm mt-1">Try another vibe!</p>
+                    <p className="text-gray-500 font-medium">{t('town.noMatches')}</p>
+                    <p className="text-gray-400 text-sm mt-1">{t('town.tryAnother')}</p>
                 </div>
             ) : (
                 <div className="space-y-6">
@@ -223,7 +225,7 @@ export default function TownDetail() {
                                         <div className="flex items-center gap-2 mb-3 px-1">
                                             <Star size={16} className="text-sunflower" fill="#FFB800" />
                                             <span className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
-                                                Featured Events
+                                                {t('common.featuredEvents')}
                                             </span>
                                             <div className="flex-1 h-px bg-gradient-to-r from-sunflower/50 to-transparent ml-2"></div>
                                         </div>
@@ -241,7 +243,7 @@ export default function TownDetail() {
                                                             )}
                                                             <div className="absolute top-2 left-2 bg-sunflower text-black px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
                                                                 <Star size={10} fill="currentColor" />
-                                                                Featured
+                                                                {t('common.featured')}
                                                             </div>
                                                             <div className="absolute top-2 right-2 bg-white/95 backdrop-blur px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
                                                                 {event.event_date_label}
@@ -268,7 +270,7 @@ export default function TownDetail() {
                                         {featuredEvents.length > 0 && (
                                             <div className="flex items-center gap-2 mb-3 px-1">
                                                 <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                                                    More Events
+                                                    {t('common.moreEvents')}
                                                 </span>
                                                 <div className="flex-1 h-px bg-gray-300 dark:bg-slate-600 ml-2"></div>
                                             </div>
@@ -323,7 +325,7 @@ export default function TownDetail() {
                     <Link
                         to={`/town/${id}/chat`}
                         className="pointer-events-auto w-14 h-14 -translate-y-full bg-turquoise text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all flex items-center justify-center"
-                        title="Town Chat"
+                        title={t('town.chat')}
                     >
                         <MessageCircle size={24} />
                     </Link>

@@ -7,8 +7,10 @@ import {
     markPushPromptShown,
     isPushSupported
 } from '../../lib/pushNotifications'
+import { useT } from '../../lib/i18n'
 
 export default function PushPromptModal({ isOpen, onClose, userId }) {
+    const t = useT()
     const [status, setStatus] = useState('idle') // idle, loading, success, denied, error
     const [errorMessage, setErrorMessage] = useState('')
 
@@ -32,7 +34,7 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
                 setTimeout(() => onClose(), 2000)
             } else {
                 setStatus('error')
-                setErrorMessage('Could not save your preferences. Please try again.')
+                setErrorMessage(t('push.savePrefsFailed'))
             }
         } else if (result.error === 'denied') {
             setStatus('denied')
@@ -40,7 +42,7 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
             markPushPromptShown()
         } else {
             setStatus('error')
-            setErrorMessage(result.error || 'Something went wrong')
+            setErrorMessage(result.error || t('push.wrong'))
             markPushPromptShown() // don't re-prompt on every login after a failure
         }
     }
@@ -59,7 +61,7 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
                     <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Bell size={32} className="text-white" />
                     </div>
-                    <h2 className="text-xl font-black">Stay Connected to the Lake!</h2>
+                    <h2 className="text-xl font-black">{t('push.title')}</h2>
                 </div>
 
                 {/* Body */}
@@ -67,14 +69,14 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
                     {status === 'idle' && (
                         <>
                             <p className="text-gray-600 text-center mb-6 leading-relaxed">
-                                Enable notifications for <span className="font-bold">live boat updates</span>,
-                                <span className="font-bold"> event reminders</span>, and
-                                <span className="font-bold"> community chat replies</span>.
+                                {t('push.bodyStart')}<span className="font-bold">{t('push.boat')}</span>,{' '}
+                                <span className="font-bold">{t('push.reminders')}</span>,{' '}
+                                <span className="font-bold">{t('push.replies')}</span>.
                             </p>
 
                             {!isPushSupported() && (
                                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-sm text-amber-700">
-                                    Push notifications may not be fully supported on this browser/device.
+                                    {t('push.unsupported')}
                                 </div>
                             )}
 
@@ -82,14 +84,14 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
                                 onClick={handleEnable}
                                 className="w-full py-3 bg-turquoise text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98] mb-3"
                             >
-                                Enable Notifications
+                                {t('push.enable')}
                             </button>
 
                             <button
                                 onClick={handleSkip}
                                 className="w-full py-2 text-gray-400 font-medium text-sm hover:text-gray-600 transition-colors"
                             >
-                                Maybe Later
+                                {t('push.later')}
                             </button>
                         </>
                     )}
@@ -97,7 +99,7 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
                     {status === 'loading' && (
                         <div className="text-center py-6">
                             <div className="w-12 h-12 border-4 border-turquoise border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="text-gray-600">Requesting permission...</p>
+                            <p className="text-gray-600">{t('push.requesting')}</p>
                         </div>
                     )}
 
@@ -106,8 +108,8 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
                             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Bell size={32} className="text-green-500" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">You're all set! 🎉</h3>
-                            <p className="text-gray-500 text-sm">You'll now receive updates about the lake.</p>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">{t('push.allSet')}</h3>
+                            <p className="text-gray-500 text-sm">{t('push.allSetBody')}</p>
                         </div>
                     )}
 
@@ -116,19 +118,19 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
                             <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <BellOff size={32} className="text-amber-500" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">Notifications Blocked</h3>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">{t('push.blocked')}</h3>
                             <p className="text-gray-500 text-sm mb-4">{errorMessage}</p>
 
                             <div className="flex items-center justify-center gap-2 text-xs text-gray-400 bg-gray-50 p-3 rounded-xl">
                                 <Settings size={14} />
-                                <span>You can change this in your device settings</span>
+                                <span>{t('push.deviceSettings')}</span>
                             </div>
 
                             <button
                                 onClick={onClose}
                                 className="mt-4 px-6 py-2 text-gray-500 font-medium text-sm hover:text-gray-700"
                             >
-                                Got it
+                                {t('push.gotIt')}
                             </button>
                         </div>
                     )}
@@ -138,14 +140,14 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
                             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <X size={32} className="text-red-500" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">Something went wrong</h3>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">{t('push.wrong')}</h3>
                             <p className="text-gray-500 text-sm mb-4">{errorMessage}</p>
 
                             <button
                                 onClick={() => setStatus('idle')}
                                 className="px-6 py-2 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200"
                             >
-                                Try Again
+                                {t('push.tryAgain')}
                             </button>
                         </div>
                     )}
