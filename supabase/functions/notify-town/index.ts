@@ -22,6 +22,15 @@ interface ServiceAccount {
 
 const FCM_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging'
 
+// Push copy. users.lang is written by the client (src/lib/i18n.js) precisely so
+// this function can pick — nothing else here knows what the user is looking at.
+// The event name itself stays as the organizer typed it.
+const TITLE = {
+    en: (town: string) => `New event in ${town}`,
+    es: (town: string) => `Nuevo evento en ${town}`
+}
+const FALLBACK_TOWN = { en: 'your town', es: 'tu pueblo' }
+
 function pemToBinary(pem: string): ArrayBuffer {
     const body = pem
         .replace('-----BEGIN PRIVATE KEY-----', '')
@@ -102,7 +111,7 @@ Deno.serve(async (req) => {
 
     const { data: recipients, error } = await supabase
         .from('users')
-        .select('id, push_token')
+        .select('id, push_token, lang')
         .eq('current_town_id', event.town_id)
         .eq('push_enabled', true)
         .not('push_token', 'is', null)
@@ -127,6 +136,7 @@ Deno.serve(async (req) => {
     let sent = 0
 
     await Promise.all(recipients.map(async (r) => {
+        const lang = r.lang === 'es' ? 'es' : 'en'
         const res = await fetch(endpoint, {
             method: 'POST',
             headers: {
@@ -137,7 +147,7 @@ Deno.serve(async (req) => {
                 message: {
                     token: r.push_token,
                     notification: {
-                        title: `New event in ${town?.name ?? 'your town'}`,
+                        title: TITLE[lang](town?.name ?? FALLBACK_TOWN[lang]),
                         body: event.name
                     },
                     data: { eventId: String(event.id) },

@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { dict } from './locales'
+import { supabase } from './supabase'
 
 // Language lives here, not in AuthContext: pushNotifications.js needs t() outside
 // React, and a plain module read works there while a context hook would not.
@@ -22,6 +23,19 @@ export const setLang = (next) => {
     localStorage.setItem('lang', next)
     document.documentElement.lang = next
     subs.forEach(fn => fn())
+    supabase.auth.getUser().then(({ data }) => syncLang(data.user?.id))
+}
+
+/**
+ * Mirror the language onto the account. notify-town reads users.lang to pick the
+ * push title — the client is not running when that fires, so the DB has to know.
+ * Called on every Layout mount too, so a fresh install lands the detected value.
+ */
+export const syncLang = async (userId) => {
+    if (!userId) return
+    const { error } = await supabase.from('users').update({ lang }).eq('id', userId)
+    // Local pick still works; only the push copy would be in the wrong language
+    if (error) console.error('Could not save language for notifications:', error)
 }
 
 /** t('home.postVibe') — falls back to English, then to the key itself. */

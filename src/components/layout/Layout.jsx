@@ -7,6 +7,7 @@ import TownFooter from './TownFooter'
 import PushPromptModal from '../ui/PushPromptModal'
 import { useAuth } from '../../context/AuthContext'
 import { shouldShowPushPrompt, isPushSupported, refreshPushToken } from '../../lib/pushNotifications'
+import { syncLang } from '../../lib/i18n'
 
 export default function Layout() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -19,6 +20,10 @@ export default function Layout() {
 
         // Silent no-op unless already opted in — FCM tokens rotate
         refreshPushToken(user.id)
+
+        // First login never passes through Settings, so the detected language
+        // would otherwise never reach the row notify-town reads.
+        syncLang(user.id)
 
         if (shouldShowPushPrompt() && isPushSupported()) {
             // Delay slightly so user sees the app first

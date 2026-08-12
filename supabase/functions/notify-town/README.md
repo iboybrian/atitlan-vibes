@@ -3,10 +3,12 @@
 Manda un push a todos los usuarios que eligieron una town, cada vez que un evento
 de esa town pasa a `is_approved = true`.
 
-## 1. Columna en la base
+## 1. Columnas en la base
 
-Corre [la migración](../../migrations/20260802000000_add_current_town_id.sql) en
-Supabase → SQL Editor.
+Corre estas dos migraciones en Supabase → SQL Editor:
+
+- [`current_town_id`](../../migrations/20260802000000_add_current_town_id.sql) — a quién se le manda.
+- [`lang`](../../migrations/20260811000000_add_lang.sql) — en qué idioma va el título.
 
 ## 2. Llave de servicio de Firebase
 
