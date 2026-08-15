@@ -338,7 +338,10 @@ export default function ChatRoom() {
     }
 
     return (
-        <div className="flex flex-col h-[calc(100dvh-60px)] bg-[#F5F5F0]">
+        // Header is 60px *plus* the status-bar inset (box-content pt-[env(...)]),
+        // so subtracting only 60 leaves the column taller than the space it has and
+        // pushes the input off-screen. Both terms have to come off.
+        <div className="flex flex-col h-[calc(100dvh-60px-env(safe-area-inset-top))] bg-[#F5F5F0]">
             {/* Header - No message counter */}
             <div className="bg-white shadow-sm px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
                 <button onClick={() => navigate(`/town/${townId}`)} className="p-2 hover:bg-gray-100 rounded-full">
@@ -454,7 +457,9 @@ export default function ChatRoom() {
             )}
 
             {/* Message Input Form */}
-            <form onSubmit={handleSendMessage} className="bg-white border-t border-gray-100 px-4 py-3 flex items-center gap-3">
+            {/* Same safe-area pattern as TownFooter — Android 15 draws the WebView
+                under the gesture bar, so the last row has to pad itself clear of it. */}
+            <form onSubmit={handleSendMessage} className="bg-white border-t border-gray-100 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex items-center gap-3">
                 <input
                     ref={inputRef}
                     type="text"

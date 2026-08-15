@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { getDirectImageUrl } from '../lib/utils'
 import { MapPin, Calendar, Clock, ArrowLeft, Globe, Instagram, ExternalLink } from 'lucide-react'
@@ -11,8 +11,16 @@ import { useT } from '../lib/i18n'
 export default function EventDetail() {
     const t = useT()
     const { id } = useParams()
+    const navigate = useNavigate()
+    const location = useLocation()
     const [event, setEvent] = useState(null)
     const [loading, setLoading] = useState(true)
+
+    // Back to wherever you came from — a town page, Home, anywhere. A hardcoded
+    // destination is what sent everyone to Home. key === 'default' means this is
+    // the first entry in the session (deep link, push notification): nothing to
+    // go back to, so Home is the honest fallback.
+    const goBack = () => location.key === 'default' ? navigate('/') : navigate(-1)
 
     useEffect(() => {
         async function fetchEvent() {
@@ -127,9 +135,9 @@ export default function EventDetail() {
 
             {/* 1. Hero Image (Full Width) */}
             <div className="relative w-full aspect-square md:aspect-[4/3] bg-gray-200">
-                <Link to="/" className="absolute top-4 left-4 z-20 bg-white/90 p-2 rounded-full shadow-md hover:bg-white transition-colors">
+                <button onClick={goBack} className="absolute top-4 left-4 z-20 bg-white/90 p-2 rounded-full shadow-md hover:bg-white transition-colors">
                     <ArrowLeft size={24} className="text-black" />
-                </Link>
+                </button>
 
                 <img
                     src={getDirectImageUrl(event.cover_image)}

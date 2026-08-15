@@ -144,7 +144,7 @@ export default function TownDetail() {
             </div>
 
             {/* 3. About Town Accordion */}
-            <Accordion label={t('town.about')} defaultOpen={true}>
+            <Accordion label={t('town.about')}>
                 <p className="pt-4 text-gray-600 leading-relaxed">
                     {town.description || t('town.welcomeTo', { town: town.name })}
                 </p>
