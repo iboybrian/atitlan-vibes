@@ -5,8 +5,15 @@
     <link rel="icon" type="image/png" href="/logo.png" />
     <!-- viewport-fit=cover is what makes env(safe-area-inset-*) report real values.
          Android 15 (targetSdk 36) forces edge-to-edge, so the WebView draws under the
-         status bar and gesture bar; the chrome pads itself with those insets. -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+         status bar and gesture bar; the chrome pads itself with those insets.
+
+         interactive-widget=resizes-content makes the layout viewport (and 100dvh) shrink
+         when the keyboard opens. Without it the default is resizes-visual: nothing
+         reflows, so the chat composer — the last flex child of a 100dvh column — stays
+         pinned behind the keyboard and can't be reached.
+         ponytail: if a device still hides it, escalate to @capacitor/keyboard with
+         resize: 'native' rather than adding JS visualViewport math here. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
     <title>Atitlan Vibes</title>
   </head>
   <body>

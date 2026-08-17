@@ -40,8 +40,8 @@ export default function ResetPassword() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[80vh] px-6">
                 <div className="w-full max-w-sm text-center">
-                    <h1 className="text-3xl font-black mb-2">{t('reset.expiredTitle')}</h1>
-                    <p className="text-gray-500 mb-8">{t('reset.expiredBody')}</p>
+                    <h1 className="text-3xl font-black mb-2 text-gray-900 dark:text-white">{t('reset.expiredTitle')}</h1>
+                    <p className="text-gray-500 dark:text-gray-400 mb-8">{t('reset.expiredBody')}</p>
                     <button
                         onClick={() => navigate('/auth', { replace: true })}
                         className="w-full bg-turquoise text-white font-bold p-4 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95"
@@ -57,12 +57,12 @@ export default function ResetPassword() {
         <div className="flex flex-col items-center justify-center min-h-[80vh] px-6">
             <div className="w-full max-w-sm">
                 <div className="text-center mb-10">
-                    <h1 className="text-3xl font-black mb-2">{t('reset.title')}</h1>
-                    <p className="text-gray-500">{t('reset.subtitle')}</p>
+                    <h1 className="text-3xl font-black mb-2 text-gray-900 dark:text-white">{t('reset.title')}</h1>
+                    <p className="text-gray-500 dark:text-gray-400">{t('reset.subtitle')}</p>
                 </div>
 
                 {error && (
-                    <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm mb-6 text-center border border-red-100">
+                    <div className="bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-300 p-3 rounded-lg text-sm mb-6 text-center border border-red-100 dark:border-red-700/50">
                         {error}
                     </div>
                 )}
@@ -73,7 +73,7 @@ export default function ResetPassword() {
                         placeholder={t('reset.newPassword')}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
+                        className="w-full p-4 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border border-gray-100 dark:border-slate-700 focus:border-turquoise outline-none transition-colors"
                         required
                     />
                     <input
@@ -81,7 +81,7 @@ export default function ResetPassword() {
                         placeholder={t('reset.confirmNew')}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
+                        className="w-full p-4 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border border-gray-100 dark:border-slate-700 focus:border-turquoise outline-none transition-colors"
                         required
                     />
                     <button

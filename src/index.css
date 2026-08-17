@@ -12,9 +12,19 @@
 
 body {
   background-color: var(--color-bg);
+  color: #111827; /* gray-900 — without this, unclassed text falls to the UA black */
   min-height: 100vh;
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* The shell paints its own dark background, but the body still shows through on
+   overscroll, behind the safe areas, and anywhere the shell doesn't reach. The
+   color matters just as much: plenty of text carries no color class at all and
+   would otherwise stay black on a dark page. */
+.dark body {
+  background-color: #0f172a; /* slate-900, same as the Layout shell */
+  color: #e5e7eb; /* gray-200 */
 }
 
 #root {

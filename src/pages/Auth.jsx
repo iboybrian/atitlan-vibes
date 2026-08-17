@@ -145,22 +145,22 @@ export default function Auth() {
         <div className="flex flex-col items-center justify-center min-h-[80vh] px-6">
             <div className="w-full max-w-sm">
                 <div className="text-center mb-10">
-                    <h1 className="text-3xl font-black mb-2">
+                    <h1 className="text-3xl font-black mb-2 text-gray-900 dark:text-white">
                         {isSignUp ? t('auth.createAccount') : t('auth.welcomeBack')}
                     </h1>
-                    <p className="text-gray-500">
+                    <p className="text-gray-500 dark:text-gray-400">
                         {isSignUp ? t('auth.joinCommunity') : t('auth.signInToPost')}
                     </p>
                 </div>
 
                 {notice && (
-                    <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm mb-6 text-center border border-green-100">
+                    <div className="bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 p-3 rounded-lg text-sm mb-6 text-center border border-green-100 dark:border-green-700/50">
                         {notice}
                     </div>
                 )}
 
                 {error && (
-                    <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm mb-6 text-center border border-red-100">
+                    <div className="bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-300 p-3 rounded-lg text-sm mb-6 text-center border border-red-100 dark:border-red-700/50">
                         {error}
                         {needsVerify && (
                             <button
@@ -182,7 +182,7 @@ export default function Auth() {
                             placeholder={t('auth.email')}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
+                            className="w-full p-4 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border border-gray-100 dark:border-slate-700 focus:border-turquoise outline-none transition-colors"
                             required
                         />
                     </div>
@@ -192,7 +192,7 @@ export default function Auth() {
                             placeholder={t('auth.password')}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
+                            className="w-full p-4 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border border-gray-100 dark:border-slate-700 focus:border-turquoise outline-none transition-colors"
                             required
                         />
                     </div>
@@ -204,7 +204,7 @@ export default function Auth() {
                                 placeholder={t('auth.confirmPassword')}
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
+                                className="w-full p-4 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border border-gray-100 dark:border-slate-700 focus:border-turquoise outline-none transition-colors"
                                 required
                             />
 
@@ -213,7 +213,7 @@ export default function Auth() {
                                 <select
                                     value={phoneCode}
                                     onChange={(e) => setPhoneCode(e.target.value)}
-                                    className="w-[110px] p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors appearance-none cursor-pointer"
+                                    className="w-[110px] p-4 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border border-gray-100 dark:border-slate-700 focus:border-turquoise outline-none transition-colors appearance-none cursor-pointer"
                                 >
                                     {PHONE_CODES.map(c => (
                                         <option key={c.code} value={c.code}>
@@ -228,7 +228,7 @@ export default function Auth() {
                                     onChange={(e) => setPhoneNumber(e.target.value)}
                                     pattern="[0-9\s\-]{6,15}"
                                     title={t('auth.phoneHint')}
-                                    className="flex-1 min-w-0 p-4 bg-white rounded-xl border border-gray-100 focus:border-turquoise outline-none transition-colors"
+                                    className="flex-1 min-w-0 p-4 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border border-gray-100 dark:border-slate-700 focus:border-turquoise outline-none transition-colors"
                                     required
                                 />
                             </div>
@@ -248,7 +248,7 @@ export default function Auth() {
                             type="button"
                             onClick={handleForgotPassword}
                             disabled={loading}
-                            className="w-full text-center text-sm text-gray-500 hover:text-turquoise font-medium disabled:opacity-50"
+                            className="w-full text-center text-sm text-gray-500 dark:text-gray-400 hover:text-turquoise font-medium disabled:opacity-50"
                         >
                             {t('auth.forgotPassword')}
                         </button>
@@ -258,10 +258,11 @@ export default function Auth() {
                 <div className="mt-8">
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-200"></div>
+                            <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-[#F5F5F0] text-gray-400">{t('auth.orContinue')}</span>
+                            {/* The background has to match the page, not the card — it's masking the rule behind it */}
+                            <span className="px-2 bg-[#F5F5F0] dark:bg-slate-900 text-gray-400 dark:text-gray-500">{t('auth.orContinue')}</span>
                         </div>
                     </div>
 
@@ -269,7 +270,7 @@ export default function Auth() {
                         <button
                             onClick={() => handleSocialLogin('google')}
                             type="button"
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors shadow-sm text-sm font-medium text-gray-600"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm text-sm font-medium text-gray-600 dark:text-gray-200"
                         >
                             {/* Google Icon SVG */}
                             <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -291,7 +292,7 @@ export default function Auth() {
                             setNotice(null)
                             setNeedsVerify(false)
                         }}
-                        className="text-gray-500 hover:text-turquoise font-medium text-sm"
+                        className="text-gray-500 dark:text-gray-400 hover:text-turquoise font-medium text-sm"
                     >
                         {isSignUp ? t('auth.haveAccount') : t('auth.noAccount')}
                     </button>

@@ -7,6 +7,7 @@ import EventDetail from './pages/EventDetail'
 import ChatRoom from './pages/ChatRoom'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
+import Favorites from './pages/Favorites'
 import About from './pages/About'
 import Privacy from './pages/Privacy'
 import Auth from './pages/Auth'
@@ -37,6 +38,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
             <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+            <Route path="/favorites" element={<RequireAuth><Favorites /></RequireAuth>} />
             <Route path="/about" element={<RequireAuth><About /></RequireAuth>} />
             <Route path="/privacy" element={<Privacy />} />
           </Route>

@@ -5,16 +5,23 @@ import Header from './Header'
 import Sidebar from './Sidebar'
 import TownFooter from './TownFooter'
 import PushPromptModal from '../ui/PushPromptModal'
+import Tour from '../ui/Tour'
 import { useAuth } from '../../context/AuthContext'
 import { shouldShowPushPrompt, isPushSupported, refreshPushToken } from '../../lib/pushNotifications'
+import { shouldShowTour } from '../../lib/utils'
 import { syncLang } from '../../lib/i18n'
 
 export default function Layout() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [showPushPrompt, setShowPushPrompt] = useState(false)
+    const [showTour, setShowTour] = useState(false)
     const { user } = useAuth()
 
-    // Show push prompt after first login
+    const maybeShowPushPrompt = () => {
+        if (shouldShowPushPrompt() && isPushSupported()) setShowPushPrompt(true)
+    }
+
+    // Show the tour, then the push prompt after first login
     useEffect(() => {
         if (!user) return
 
@@ -25,13 +32,13 @@ export default function Layout() {
         // would otherwise never reach the row notify-town reads.
         syncLang(user.id)
 
-        if (shouldShowPushPrompt() && isPushSupported()) {
-            // Delay slightly so user sees the app first
-            const timer = setTimeout(() => {
-                setShowPushPrompt(true)
-            }, 2000)
-            return () => clearTimeout(timer)
-        }
+        // Both are first-login only, so they'd otherwise stack on top of each
+        // other. The tour goes first; the push prompt waits for it to end.
+        const timer = setTimeout(() => {
+            if (shouldShowTour()) setShowTour(true)
+            else maybeShowPushPrompt()
+        }, 2000)
+        return () => clearTimeout(timer)
     }, [user])
 
     return (
@@ -61,6 +68,15 @@ export default function Layout() {
 
                 {/* Persistent Town Footer */}
                 <TownFooter />
+
+                {/* First-run guided tour — last so it sits above the footer it points at */}
+                <Tour
+                    isOpen={showTour}
+                    onClose={() => {
+                        setShowTour(false)
+                        maybeShowPushPrompt()
+                    }}
+                />
 
             </div>
         </div>

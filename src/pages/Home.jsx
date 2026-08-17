@@ -132,7 +132,7 @@ export default function Home() {
 
             {/* 2. Vertical Town Menu (Now in Body) */}
             <section>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">
+                <h2 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4 text-center">
                     {t('home.exploreByTown')}
                 </h2>
 
@@ -159,9 +159,9 @@ export default function Home() {
                 </button>
 
                 {loading ? (
-                    <div className="text-center py-10 text-gray-400">{t('home.loadingVibes')}</div>
+                    <div className="text-center py-10 text-gray-400 dark:text-gray-500">{t('home.loadingVibes')}</div>
                 ) : (featuredEvents.length === 0 && regularEvents.length === 0) ? (
-                    <div className="p-6 bg-white dark:bg-slate-800 rounded-2xl text-center text-gray-500 shadow-sm">
+                    <div className="p-6 bg-white dark:bg-slate-800 rounded-2xl text-center text-gray-500 dark:text-gray-400 shadow-sm">
                         {t('home.noEvents')}
                     </div>
                 ) : (

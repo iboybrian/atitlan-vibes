@@ -54,7 +54,7 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
 
                 {/* Header with icon */}
                 <div className="bg-gradient-to-br from-turquoise to-turquoise/80 p-6 text-center text-white">
@@ -68,14 +68,14 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
                 <div className="p-6">
                     {status === 'idle' && (
                         <>
-                            <p className="text-gray-600 text-center mb-6 leading-relaxed">
+                            <p className="text-gray-600 dark:text-gray-300 text-center mb-6 leading-relaxed">
                                 {t('push.bodyStart')}<span className="font-bold">{t('push.boat')}</span>,{' '}
                                 <span className="font-bold">{t('push.reminders')}</span>,{' '}
                                 <span className="font-bold">{t('push.replies')}</span>.
                             </p>
 
                             {!isPushSupported() && (
-                                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-sm text-amber-700">
+                                <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/50 rounded-xl p-3 mb-4 text-sm text-amber-700 dark:text-amber-300">
                                     {t('push.unsupported')}
                                 </div>
                             )}
@@ -89,7 +89,7 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
 
                             <button
                                 onClick={handleSkip}
-                                className="w-full py-2 text-gray-400 font-medium text-sm hover:text-gray-600 transition-colors"
+                                className="w-full py-2 text-gray-400 dark:text-gray-500 font-medium text-sm hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                             >
                                 {t('push.later')}
                             </button>
@@ -99,36 +99,36 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
                     {status === 'loading' && (
                         <div className="text-center py-6">
                             <div className="w-12 h-12 border-4 border-turquoise border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="text-gray-600">{t('push.requesting')}</p>
+                            <p className="text-gray-600 dark:text-gray-300">{t('push.requesting')}</p>
                         </div>
                     )}
 
                     {status === 'success' && (
                         <div className="text-center py-6">
-                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Bell size={32} className="text-green-500" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">{t('push.allSet')}</h3>
-                            <p className="text-gray-500 text-sm">{t('push.allSetBody')}</p>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{t('push.allSet')}</h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm">{t('push.allSetBody')}</p>
                         </div>
                     )}
 
                     {status === 'denied' && (
                         <div className="text-center py-4">
-                            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <BellOff size={32} className="text-amber-500" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">{t('push.blocked')}</h3>
-                            <p className="text-gray-500 text-sm mb-4">{errorMessage}</p>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{t('push.blocked')}</h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">{errorMessage}</p>
 
-                            <div className="flex items-center justify-center gap-2 text-xs text-gray-400 bg-gray-50 p-3 rounded-xl">
+                            <div className="flex items-center justify-center gap-2 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-700 p-3 rounded-xl">
                                 <Settings size={14} />
                                 <span>{t('push.deviceSettings')}</span>
                             </div>
 
                             <button
                                 onClick={onClose}
-                                className="mt-4 px-6 py-2 text-gray-500 font-medium text-sm hover:text-gray-700"
+                                className="mt-4 px-6 py-2 text-gray-500 dark:text-gray-400 font-medium text-sm hover:text-gray-700 dark:hover:text-gray-200"
                             >
                                 {t('push.gotIt')}
                             </button>
@@ -137,15 +137,15 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
 
                     {status === 'error' && (
                         <div className="text-center py-4">
-                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <X size={32} className="text-red-500" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">{t('push.wrong')}</h3>
-                            <p className="text-gray-500 text-sm mb-4">{errorMessage}</p>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{t('push.wrong')}</h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">{errorMessage}</p>
 
                             <button
                                 onClick={() => setStatus('idle')}
-                                className="px-6 py-2 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200"
+                                className="px-6 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 font-medium rounded-xl hover:bg-gray-200 dark:hover:bg-slate-600"
                             >
                                 {t('push.tryAgain')}
                             </button>

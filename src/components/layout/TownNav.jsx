@@ -33,7 +33,7 @@ export default function TopVillageMenu() {
                 {loading ? (
                     // Skeleton loader for vertical list
                     [1, 2, 3].map(i => (
-                        <div key={i} className="h-10 w-full bg-white rounded-lg animate-pulse" />
+                        <div key={i} className="h-10 w-full bg-white dark:bg-slate-800 rounded-lg animate-pulse" />
                     ))
                 ) : (
                     towns.map(town => (
@@ -43,8 +43,8 @@ export default function TopVillageMenu() {
                             className={({ isActive }) =>
                                 `block w-full px-4 py-3 rounded-xl text-center font-bold text-sm tracking-wide transition-all border-2
                 ${isActive
-                                    ? 'bg-black text-white border-black shadow-md'
-                                    : 'bg-white text-gray-800 border-transparent hover:border-gray-200'
+                                    ? 'bg-black text-white border-black shadow-md dark:bg-slate-700 dark:text-gray-100 dark:border-turquoise'
+                                    : 'bg-white text-gray-800 border-transparent hover:border-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:hover:border-slate-600'
                                 }`
                             }
                         >

@@ -48,7 +48,7 @@ export default function TownFooter() {
 
     // z-40 = chrome tier, same as Header. Modals/Sidebar are z-50 and must cover this.
     return (
-        <footer className="sticky bottom-0 z-40 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 shadow-lg transition-colors duration-500">
+        <footer data-tour="town-footer" className="sticky bottom-0 z-40 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 shadow-lg transition-colors duration-500">
             <div className="px-2 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
                 {/* Horizontal scrollable town list - shows ~4 towns at a time */}
                 <div

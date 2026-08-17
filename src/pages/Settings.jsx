@@ -46,7 +46,7 @@ export default function Settings() {
     const Toggle = ({ enabled, onChange }) => (
         <button
             onClick={() => onChange(!enabled)}
-            className={`relative w-12 h-7 rounded-full transition-colors ${enabled ? 'bg-turquoise' : 'bg-gray-300'}`}
+            className={`relative w-12 h-7 rounded-full transition-colors ${enabled ? 'bg-turquoise' : 'bg-gray-300 dark:bg-slate-600'}`}
         >
             <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform ${enabled ? 'left-6' : 'left-1'}`} />
         </button>
@@ -54,7 +54,7 @@ export default function Settings() {
 
     // Language switch — two states, so a segmented pair beats a dropdown
     const LangSwitch = () => (
-        <div className="flex bg-gray-100 dark:bg-gray-700 rounded-full p-1">
+        <div className="flex bg-gray-100 dark:bg-slate-700 rounded-full p-1">
             {['es', 'en'].map(code => (
                 <button
                     key={code}
@@ -72,20 +72,20 @@ export default function Settings() {
 
     // Section Header
     const SectionHeader = ({ children }) => (
-        <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-3 px-1">{children}</h3>
+        <h3 className="text-xs font-bold uppercase text-gray-400 dark:text-gray-500 tracking-wider mb-3 px-1">{children}</h3>
     )
 
     // Menu Item
     const MenuItem = ({ icon: Icon, label, onClick, to, rightElement }) => {
         const content = (
-            <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm mb-2 hover:shadow-md transition-shadow cursor-pointer">
+            <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm mb-2 hover:shadow-md transition-shadow cursor-pointer">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300">
                         <Icon size={20} />
                     </div>
                     <span className="font-medium text-gray-800 dark:text-gray-200">{label}</span>
                 </div>
-                {rightElement || <ChevronRight size={20} className="text-gray-400" />}
+                {rightElement || <ChevronRight size={20} className="text-gray-400 dark:text-gray-500" />}
             </div>
         )
 
@@ -146,8 +146,8 @@ export default function Settings() {
             )}
 
             {/* App Info */}
-            <div className="mt-10 text-center text-xs text-gray-400">
-                <p>Atitlán Vibes v1.0.0</p>
+            <div className="mt-10 text-center text-xs text-gray-400 dark:text-gray-500">
+                <p>Atitlán Vibes v1.8.0</p>
                 <p className="mt-1">{t('common.madeWith')}</p>
             </div>
         </div>

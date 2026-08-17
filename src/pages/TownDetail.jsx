@@ -13,25 +13,25 @@ function Accordion({ label, icon: Icon, children, defaultOpen = false }) {
     const [isOpen, setIsOpen] = useState(defaultOpen)
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-4">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden mb-4">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
             >
                 <div className="flex items-center gap-2">
                     {Icon && <Icon size={18} className="text-turquoise" />}
-                    <span className="font-bold text-gray-900">{label}</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-300">{label}</span>
                 </div>
                 <ChevronDown
                     size={20}
-                    className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`text-gray-400 dark:text-gray-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
                 />
             </button>
             <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
                     }`}
             >
-                <div className="px-4 pb-4 border-t border-gray-100">
+                <div className="px-4 pb-4 border-t border-gray-100 dark:border-slate-700">
                     {children}
                 </div>
             </div>
@@ -123,19 +123,19 @@ export default function TownDetail() {
         return false
     })
 
-    if (loading) return <div className="p-8 text-center text-gray-400">{t('common.loading')}</div>
+    if (loading) return <div className="p-8 text-center text-gray-400 dark:text-gray-500">{t('common.loading')}</div>
 
-    if (!town) return <div className="p-8 text-center text-gray-500">{t('town.selectPrompt')}</div>
+    if (!town) return <div className="p-8 text-center text-gray-500 dark:text-gray-400">{t('town.selectPrompt')}</div>
 
     return (
         <div className="px-4 py-6">
             {/* 1. Town Name (Top Priority) */}
-            <h1 className="text-4xl font-black mb-6 text-center leading-tight tracking-tight text-gray-900">
+            <h1 className="text-4xl font-black mb-6 text-center leading-tight tracking-tight text-gray-900 dark:text-gray-200">
                 {town.name}
             </h1>
 
             {/* 2. Hero Image */}
-            <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden mb-6 shadow-lg bg-gray-200">
+            <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden mb-6 shadow-lg bg-gray-200 dark:bg-slate-700">
                 <img
                     src={getDirectImageUrl(town.image_url)}
                     alt={town.name}
@@ -145,7 +145,7 @@ export default function TownDetail() {
 
             {/* 3. About Town Accordion */}
             <Accordion label={t('town.about')}>
-                <p className="pt-4 text-gray-600 leading-relaxed">
+                <p className="pt-4 text-gray-600 dark:text-gray-400 leading-relaxed">
                     {town.description || t('town.welcomeTo', { town: town.name })}
                 </p>
             </Accordion>
@@ -153,7 +153,7 @@ export default function TownDetail() {
             {/* 4. Boat Schedules Accordion (only if data exists) */}
             {town.boat_schedules && (
                 <Accordion label={t('town.boatSchedules')} icon={Ship}>
-                    <div className="pt-4 text-gray-600 leading-relaxed whitespace-pre-wrap">
+                    <div className="pt-4 text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
                         {town.boat_schedules}
                     </div>
                 </Accordion>
@@ -161,9 +161,9 @@ export default function TownDetail() {
 
             {/* 5. Events Section */}
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 pl-2">
-                <span className="text-black">{t('town.events')}</span>
+                <span className="text-black dark:text-gray-200">{t('town.events')}</span>
                 {events.length > 0 && (
-                    <span className="text-sm font-normal text-gray-400">({filteredEvents.length})</span>
+                    <span className="text-sm font-normal text-gray-400 dark:text-gray-500">({filteredEvents.length})</span>
                 )}
             </h2>
 
@@ -176,14 +176,14 @@ export default function TownDetail() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={t('town.searchEvents')}
-                        className="w-full pl-11 pr-10 py-3 bg-white rounded-xl border-2 border-turquoise/20 focus:border-turquoise outline-none shadow-sm transition-colors placeholder:text-gray-400"
+                        className="w-full pl-11 pr-10 py-3 bg-white dark:bg-slate-800 dark:text-gray-200 rounded-xl border-2 border-turquoise/20 focus:border-turquoise outline-none shadow-sm transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     />
                     {searchQuery && (
                         <button
                             onClick={() => setSearchQuery('')}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-colors"
                         >
-                            <X size={16} className="text-gray-400" />
+                            <X size={16} className="text-gray-400 dark:text-gray-500" />
                         </button>
                     )}
                 </div>
@@ -191,6 +191,7 @@ export default function TownDetail() {
 
             {/* Inline Add Event Button */}
             <button
+                data-tour="post-vibe"
                 onClick={handleAddEvent}
                 className="w-full mb-4 py-3 px-4 bg-sunflower text-black font-bold rounded-xl shadow-md hover:shadow-lg hover:bg-sunflower/90 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 style={{ opacity: user ? 1 : 0.6 }}
@@ -201,14 +202,14 @@ export default function TownDetail() {
 
             {/* Events Grid or Empty States */}
             {events.length === 0 ? (
-                <div className="text-center py-10 bg-white rounded-3xl border-2 border-dashed border-gray-200">
-                    <p className="text-gray-400 font-medium">{t('town.noApproved')}</p>
+                <div className="text-center py-10 bg-white dark:bg-slate-800 rounded-3xl border-2 border-dashed border-gray-200 dark:border-slate-700">
+                    <p className="text-gray-400 dark:text-gray-500 font-medium">{t('town.noApproved')}</p>
                 </div>
             ) : filteredEvents.length === 0 ? (
-                <div className="text-center py-10 bg-white rounded-3xl border-2 border-dashed border-turquoise/30">
+                <div className="text-center py-10 bg-white dark:bg-slate-800 rounded-3xl border-2 border-dashed border-turquoise/30">
                     <div className="text-4xl mb-3">🔍</div>
-                    <p className="text-gray-500 font-medium">{t('town.noMatches')}</p>
-                    <p className="text-gray-400 text-sm mt-1">{t('town.tryAnother')}</p>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium">{t('town.noMatches')}</p>
+                    <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">{t('town.tryAnother')}</p>
                 </div>
             ) : (
                 <div className="space-y-6">
@@ -233,7 +234,7 @@ export default function TownDetail() {
                                             {featuredEvents.map(event => (
                                                 <Link to={`/event/${event.id}`} key={event.id} className="block group">
                                                     <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
-                                                        <div className="aspect-square w-full relative bg-gray-100">
+                                                        <div className="aspect-square w-full relative bg-gray-100 dark:bg-slate-700">
                                                             {event.cover_image && (
                                                                 <img
                                                                     src={getDirectImageUrl(event.cover_image)}
@@ -245,14 +246,14 @@ export default function TownDetail() {
                                                                 <Star size={10} fill="currentColor" />
                                                                 {t('common.featured')}
                                                             </div>
-                                                            <div className="absolute top-2 right-2 bg-white/95 backdrop-blur px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
+                                                            <div className="absolute top-2 right-2 bg-white/95 dark:bg-slate-800/95 text-gray-900 dark:text-gray-200 backdrop-blur px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
                                                                 {event.event_date_label}
                                                             </div>
                                                         </div>
                                                         <div className="p-3">
-                                                            <h3 className="font-bold text-sm mb-1 leading-snug">{event.name}</h3>
+                                                            <h3 className="font-bold text-sm mb-1 leading-snug text-gray-900 dark:text-white">{event.name}</h3>
                                                             {event.start_time && (
-                                                                <div className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                                                                <div className="text-xs text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1">
                                                                     <Clock size={12} /> {event.start_time}
                                                                 </div>
                                                             )}
@@ -279,7 +280,7 @@ export default function TownDetail() {
                                             {regularEvents.map(event => (
                                                 <Link to={`/event/${event.id}`} key={event.id} className="block group">
                                                     <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
-                                                        <div className="aspect-square w-full relative bg-gray-100">
+                                                        <div className="aspect-square w-full relative bg-gray-100 dark:bg-slate-700">
                                                             {event.cover_image && (
                                                                 <img
                                                                     src={getDirectImageUrl(event.cover_image)}
@@ -287,14 +288,14 @@ export default function TownDetail() {
                                                                     className="w-full h-full object-cover"
                                                                 />
                                                             )}
-                                                            <div className="absolute top-2 right-2 bg-white/95 backdrop-blur px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
+                                                            <div className="absolute top-2 right-2 bg-white/95 dark:bg-slate-800/95 text-gray-900 dark:text-gray-200 backdrop-blur px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
                                                                 {event.event_date_label}
                                                             </div>
                                                         </div>
                                                         <div className="p-3">
-                                                            <h3 className="font-bold text-sm mb-1 leading-snug">{event.name}</h3>
+                                                            <h3 className="font-bold text-sm mb-1 leading-snug text-gray-900 dark:text-white">{event.name}</h3>
                                                             {event.start_time && (
-                                                                <div className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                                                                <div className="text-xs text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1">
                                                                     <Clock size={12} /> {event.start_time}
                                                                 </div>
                                                             )}
@@ -319,10 +320,14 @@ export default function TownDetail() {
                 />
             )}
 
-            {/* Floating Chat Button (logged-in users only) - sticks to the shell's right edge, above the footer */}
+            {/* Floating Chat Button (logged-in users only) - sticks to the shell's right edge, above the footer.
+                A bare bottom-24 was a guess at the footer's height; the real one is ~84px *plus*
+                env(safe-area-inset-bottom), so on a gesture-bar device the footer outgrew the guess
+                and covered the bottom half of the button. */}
             {user && (
-                <div className="sticky bottom-24 z-40 flex justify-end h-0 pointer-events-none">
+                <div className="sticky bottom-[calc(6rem+env(safe-area-inset-bottom))] z-40 flex justify-end h-0 pointer-events-none">
                     <Link
+                        data-tour="town-chat"
                         to={`/town/${id}/chat`}
                         className="pointer-events-auto w-14 h-14 -translate-y-full bg-turquoise text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all flex items-center justify-center"
                         title={t('town.chat')}

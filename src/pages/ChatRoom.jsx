@@ -330,8 +330,8 @@ export default function ChatRoom() {
     // Auth guard
     if (!currentUser) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-[#F5F5F0]">
-                <p className="text-gray-500 mb-4">{t('chat.needLogin')}</p>
+            <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-[#F5F5F0] dark:bg-slate-900">
+                <p className="text-gray-500 dark:text-gray-400 mb-4">{t('chat.needLogin')}</p>
                 <Link to="/auth" className="text-turquoise font-bold">{t('common.logIn')}</Link>
             </div>
         )
@@ -341,21 +341,21 @@ export default function ChatRoom() {
         // Header is 60px *plus* the status-bar inset (box-content pt-[env(...)]),
         // so subtracting only 60 leaves the column taller than the space it has and
         // pushes the input off-screen. Both terms have to come off.
-        <div className="flex flex-col h-[calc(100dvh-60px-env(safe-area-inset-top))] bg-[#F5F5F0]">
+        <div className="flex flex-col h-[calc(100dvh-60px-env(safe-area-inset-top))] bg-[#F5F5F0] dark:bg-slate-900">
             {/* Header - No message counter */}
-            <div className="bg-white shadow-sm px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
-                <button onClick={() => navigate(`/town/${townId}`)} className="p-2 hover:bg-gray-100 rounded-full">
+            <div className="bg-white dark:bg-slate-800 shadow-sm px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
+                <button onClick={() => navigate(`/town/${townId}`)} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full text-gray-700 dark:text-gray-200">
                     <ArrowLeft size={24} />
                 </button>
-                <h1 className="font-bold text-lg">{t('chat.title', { town: town?.name || '' })}</h1>
+                <h1 className="font-bold text-lg text-gray-900 dark:text-white">{t('chat.title', { town: town?.name || '' })}</h1>
             </div>
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
                 {loading ? (
-                    <div className="text-center text-gray-400 py-10">{t('chat.loading')}</div>
+                    <div className="text-center text-gray-400 dark:text-gray-500 py-10">{t('chat.loading')}</div>
                 ) : messages.length === 0 ? (
-                    <div className="text-center text-gray-400 py-10">
+                    <div className="text-center text-gray-400 dark:text-gray-500 py-10">
                         <p className="mb-2">{t('chat.empty')}</p>
                         <p className="text-sm">{t('chat.beFirst')}</p>
                     </div>
@@ -368,18 +368,18 @@ export default function ChatRoom() {
                         return (
                             <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                                 {!isMe && (
-                                    <span className="text-xs text-gray-400 mb-1 px-2">
+                                    <span className="text-xs text-gray-400 dark:text-gray-500 mb-1 px-2">
                                         {getDisplayName(msg.sender_id)}
                                     </span>
                                 )}
 
                                 <div
-                                    className={`relative max-w-[80%] rounded-2xl px-4 py-2 shadow-sm cursor-pointer ${isMe ? 'bg-turquoise text-white rounded-br-md' : 'bg-white text-gray-800 rounded-bl-md'
+                                    className={`relative max-w-[80%] rounded-2xl px-4 py-2 shadow-sm cursor-pointer ${isMe ? 'bg-turquoise text-white rounded-br-md' : 'bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-100 rounded-bl-md'
                                         }`}
                                     onClick={() => setShowEmojiPicker(showEmojiPicker === msg.id ? null : msg.id)}
                                 >
                                     {repliedMsg && (
-                                        <div className={`text-xs mb-2 p-2 rounded-lg border-l-2 ${isMe ? 'bg-white/20 border-white/50' : 'bg-gray-100 border-gray-300'
+                                        <div className={`text-xs mb-2 p-2 rounded-lg border-l-2 ${isMe ? 'bg-white/20 border-white/50' : 'bg-gray-100 dark:bg-slate-600 border-gray-300 dark:border-slate-500'
                                             }`}>
                                             <span className="font-bold">{getDisplayName(repliedMsg.sender_id)}</span>
                                             <p className="truncate opacity-80">{repliedMsg.text}</p>
@@ -388,7 +388,7 @@ export default function ChatRoom() {
 
                                     <p className="break-words">{msg.text}</p>
 
-                                    <span className={`text-[10px] block mt-1 ${isMe ? 'text-white/70' : 'text-gray-400'}`}>
+                                    <span className={`text-[10px] block mt-1 ${isMe ? 'text-white/70' : 'text-gray-400 dark:text-gray-500'}`}>
                                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
 
@@ -398,9 +398,9 @@ export default function ChatRoom() {
                                             setReplyingTo(msg)
                                             inputRef.current?.focus()
                                         }}
-                                        className={`absolute -bottom-2 ${isMe ? 'left-0' : 'right-0'} p-1 bg-white rounded-full shadow-md hover:scale-110 transition-transform`}
+                                        className={`absolute -bottom-2 ${isMe ? 'left-0' : 'right-0'} p-1 bg-white dark:bg-slate-600 rounded-full shadow-md hover:scale-110 transition-transform`}
                                     >
-                                        <Reply size={14} className="text-gray-500" />
+                                        <Reply size={14} className="text-gray-500 dark:text-gray-300" />
                                     </button>
                                 </div>
 
@@ -410,18 +410,18 @@ export default function ChatRoom() {
                                             <button
                                                 key={emoji}
                                                 onClick={() => handleReaction(msg.id, emoji)}
-                                                className={`px-2 py-0.5 rounded-full text-xs flex items-center gap-1 ${userIds.includes(currentUser.id) ? 'bg-turquoise/20 border border-turquoise' : 'bg-gray-100'
+                                                className={`px-2 py-0.5 rounded-full text-xs flex items-center gap-1 ${userIds.includes(currentUser.id) ? 'bg-turquoise/20 border border-turquoise' : 'bg-gray-100 dark:bg-slate-700'
                                                     }`}
                                             >
                                                 <span>{emoji}</span>
-                                                <span className="text-gray-500">{userIds.length}</span>
+                                                <span className="text-gray-500 dark:text-gray-400">{userIds.length}</span>
                                             </button>
                                         ))}
                                     </div>
                                 )}
 
                                 {showEmojiPicker === msg.id && (
-                                    <div className={`flex gap-1 mt-2 p-2 bg-white rounded-xl shadow-lg ${isMe ? 'mr-2' : 'ml-2'}`}>
+                                    <div className={`flex gap-1 mt-2 p-2 bg-white dark:bg-slate-700 rounded-xl shadow-lg ${isMe ? 'mr-2' : 'ml-2'}`}>
                                         {EMOJI_OPTIONS.map(emoji => (
                                             <button
                                                 key={emoji}
@@ -442,16 +442,16 @@ export default function ChatRoom() {
 
             {/* Reply preview bar */}
             {replyingTo && (
-                <div className="bg-white border-t border-gray-100 px-4 py-2 flex items-center justify-between">
+                <div className="bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-700 px-4 py-2 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm">
                         <Reply size={16} className="text-turquoise" />
                         <div>
                             <span className="font-bold text-turquoise">{t('chat.replyingTo', { name: getDisplayName(replyingTo.sender_id) })}</span>
-                            <p className="text-gray-500 text-xs truncate max-w-[200px]">{replyingTo.text}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs truncate max-w-[200px]">{replyingTo.text}</p>
                         </div>
                     </div>
-                    <button onClick={() => setReplyingTo(null)} className="p-1 hover:bg-gray-100 rounded-full">
-                        <X size={18} className="text-gray-400" />
+                    <button onClick={() => setReplyingTo(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full">
+                        <X size={18} className="text-gray-400 dark:text-gray-500" />
                     </button>
                 </div>
             )}
@@ -459,14 +459,14 @@ export default function ChatRoom() {
             {/* Message Input Form */}
             {/* Same safe-area pattern as TownFooter — Android 15 draws the WebView
                 under the gesture bar, so the last row has to pad itself clear of it. */}
-            <form onSubmit={handleSendMessage} className="bg-white border-t border-gray-100 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex items-center gap-3">
+            <form onSubmit={handleSendMessage} className="bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-700 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex items-center gap-3">
                 <input
                     ref={inputRef}
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder={t('chat.placeholder')}
-                    className="flex-1 bg-gray-100 rounded-full px-4 py-2 outline-none focus:ring-2 focus:ring-turquoise/20"
+                    className="flex-1 bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-full px-4 py-2 outline-none focus:ring-2 focus:ring-turquoise/20 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 />
                 <button
                     type="submit"

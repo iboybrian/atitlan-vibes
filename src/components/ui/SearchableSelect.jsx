@@ -29,28 +29,28 @@ export default function SearchableSelect({ options, value, onChange, placeholder
 
     return (
         <div className="relative" ref={containerRef}>
-            {label && <label className="text-xs font-bold uppercase text-gray-400 mb-2 block">{label}</label>}
+            {label && <label className="text-xs font-bold uppercase text-gray-400 dark:text-gray-500 mb-2 block">{label}</label>}
 
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full p-3 bg-white rounded-xl border border-gray-200 focus:border-turquoise outline-none flex items-center justify-between text-left"
+                className="w-full p-3 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 focus:border-turquoise outline-none flex items-center justify-between text-left"
             >
-                <span className={value ? "text-black" : "text-gray-400"}>
+                <span className={value ? "text-black dark:text-gray-100" : "text-gray-400 dark:text-gray-500"}>
                     {value || placeholder || t('common.select')}
                 </span>
-                <ChevronDown size={16} className="text-gray-400" />
+                <ChevronDown size={16} className="text-gray-400 dark:text-gray-500" />
             </button>
 
             {isOpen && (
                 <>
                     <div className="fixed inset-0 z-20" onClick={() => setIsOpen(false)}></div>
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-30 max-h-[250px] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                        <div className="p-2 border-b border-gray-100 bg-gray-50 flex items-center gap-2 sticky top-0">
-                            <Search size={14} className="text-gray-400" />
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 z-30 max-h-[250px] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                        <div className="p-2 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-700 flex items-center gap-2 sticky top-0">
+                            <Search size={14} className="text-gray-400 dark:text-gray-500" />
                             <input
                                 autoFocus
-                                className="bg-transparent w-full text-sm outline-none placeholder:text-gray-400"
+                                className="bg-transparent w-full text-sm outline-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                                 placeholder={t('common.search')}
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
@@ -62,13 +62,13 @@ export default function SearchableSelect({ options, value, onChange, placeholder
                                     key={opt}
                                     type="button"
                                     onClick={() => handleSelectDirect(opt)}
-                                    className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-turquoise/10 hover:text-turquoise transition-colors flex items-center justify-between ${value === opt ? 'bg-turquoise/5 text-turquoise font-bold' : 'text-gray-600'}`}
+                                    className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-turquoise/10 hover:text-turquoise transition-colors flex items-center justify-between ${value === opt ? 'bg-turquoise/5 text-turquoise font-bold' : 'text-gray-600 dark:text-gray-300'}`}
                                 >
                                     {opt}
                                     {value === opt && <Check size={14} />}
                                 </button>
                             )) : (
-                                <div className="p-3 text-xs text-gray-400 text-center">{t('common.noResults')}</div>
+                                <div className="p-3 text-xs text-gray-400 dark:text-gray-500 text-center">{t('common.noResults')}</div>
                             )}
                         </div>
                     </div>

@@ -36,6 +36,7 @@ export default function Header({ onMenuClick }) {
             className={`sticky top-0 z-40 px-4 h-[60px] box-content pt-[env(safe-area-inset-top)] flex items-center justify-between transition-all duration-[1500ms] ease-in-out ${bgColor}`}
         >
             <button
+                data-tour="menu"
                 onClick={onMenuClick}
                 className={`p-2 -ml-2 hover:bg-black/10 rounded-full transition-all duration-[1500ms] ${textColor}`}
             >

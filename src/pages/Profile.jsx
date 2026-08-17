@@ -240,15 +240,15 @@ export default function Profile() {
 
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
-                <Link to="/" className="p-2 bg-white rounded-full shadow-sm"><ArrowLeft size={20} /></Link>
-                <h1 className="text-2xl font-black">{t('profile.title')}</h1>
+                <Link to="/" className="p-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 rounded-full shadow-sm"><ArrowLeft size={20} /></Link>
+                <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('profile.title')}</h1>
             </div>
 
             <div className="space-y-6">
                 {/* Avatar Section */}
                 <div className="flex flex-col items-center">
                     <div className="relative">
-                        <div className={`w-28 h-28 rounded-full overflow-hidden bg-gray-200 border-4 ${selectedHouse ? selectedHouse.accent : 'border-white'} shadow-lg`}>
+                        <div className={`w-28 h-28 rounded-full overflow-hidden bg-gray-200 dark:bg-slate-700 border-4 ${selectedHouse ? selectedHouse.accent : 'border-white dark:border-slate-700'} shadow-lg`}>
                             {formData.avatar_url ? (
                                 <img
                                     src={formData.avatar_url}
@@ -256,7 +256,7 @@ export default function Profile() {
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-400 text-3xl font-bold">
+                                <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500 text-3xl font-bold">
                                     {formData.name ? formData.name[0].toUpperCase() : '?'}
                                 </div>
                             )}
@@ -283,48 +283,48 @@ export default function Profile() {
                             className="hidden"
                         />
                     </div>
-                    <p className="text-xs text-gray-400 mt-2">{t('profile.tapToChange')}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">{t('profile.tapToChange')}</p>
                 </div>
 
                 {/* Email (read-only) */}
-                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                    <label className="text-xs font-bold uppercase text-gray-400 mb-1 block">{t('profile.email')}</label>
-                    <div className="font-medium text-gray-700">{user.email}</div>
+                <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700">
+                    <label className="text-xs font-bold uppercase text-gray-400 dark:text-gray-500 mb-1 block">{t('profile.email')}</label>
+                    <div className="font-medium text-gray-700 dark:text-gray-200">{user.email}</div>
                 </div>
 
                 {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="text-xs font-bold uppercase text-gray-400 mb-2 block">{t('profile.firstName')}</label>
+                        <label className="text-xs font-bold uppercase text-gray-400 dark:text-gray-500 mb-2 block">{t('profile.firstName')}</label>
                         <input
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            className="w-full p-3 bg-white rounded-xl border border-gray-200 focus:border-turquoise outline-none"
+                            className="w-full p-3 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-xl border border-gray-200 dark:border-slate-700 focus:border-turquoise outline-none"
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-bold uppercase text-gray-400 mb-2 block">{t('profile.lastName')}</label>
+                        <label className="text-xs font-bold uppercase text-gray-400 dark:text-gray-500 mb-2 block">{t('profile.lastName')}</label>
                         <input
                             name="last_name"
                             value={formData.last_name}
                             onChange={handleChange}
-                            className="w-full p-3 bg-white rounded-xl border border-gray-200 focus:border-turquoise outline-none"
+                            className="w-full p-3 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-xl border border-gray-200 dark:border-slate-700 focus:border-turquoise outline-none"
                         />
                     </div>
                 </div>
 
                 {/* Instagram Handle */}
                 <div>
-                    <label className="text-xs font-bold uppercase text-gray-400 mb-2 block">{t('profile.instagram')}</label>
+                    <label className="text-xs font-bold uppercase text-gray-400 dark:text-gray-500 mb-2 block">{t('profile.instagram')}</label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">@</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">@</span>
                         <input
                             name="instagram_handle"
                             value={formData.instagram_handle}
                             onChange={handleChange}
                             placeholder={t('profile.instagramPlaceholder')}
-                            className="w-full p-3 pl-8 bg-white rounded-xl border border-gray-200 focus:border-turquoise outline-none"
+                            className="w-full p-3 pl-8 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-xl border border-gray-200 dark:border-slate-700 focus:border-turquoise outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
                         />
                     </div>
                     {formData.instagram_handle && (
@@ -353,7 +353,7 @@ export default function Profile() {
 
                 {/* House Selection */}
                 <div>
-                    <label className="text-xs font-bold uppercase text-gray-400 mb-3 block">{t('profile.chooseHouse')}</label>
+                    <label className="text-xs font-bold uppercase text-gray-400 dark:text-gray-500 mb-3 block">{t('profile.chooseHouse')}</label>
                     <div className="grid grid-cols-2 gap-3">
                         {HOUSES.map(house => (
                             <button
@@ -363,12 +363,12 @@ export default function Profile() {
                                     house_affinity: prev.house_affinity === house.id ? null : house.id
                                 }))}
                                 className={`p-4 rounded-xl border-2 transition-all ${formData.house_affinity === house.id
-                                    ? `${house.accent} bg-white shadow-md scale-[1.02]`
-                                    : 'border-gray-200 bg-white hover:border-gray-300'
+                                    ? `${house.accent} bg-white dark:bg-slate-800 shadow-md scale-[1.02]`
+                                    : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-gray-300 dark:hover:border-slate-600'
                                     }`}
                             >
                                 <div className="text-2xl mb-1">{house.emoji}</div>
-                                <div className={`font-bold text-sm ${formData.house_affinity === house.id ? house.textColor : 'text-gray-700'}`}>
+                                <div className={`font-bold text-sm ${formData.house_affinity === house.id ? house.textColor : 'text-gray-700 dark:text-gray-300'}`}>
                                     {house.name}
                                 </div>
                                 {formData.house_affinity === house.id && (
@@ -383,7 +383,7 @@ export default function Profile() {
 
                 {/* Traveler Type Selection */}
                 <div>
-                    <label className="text-xs font-bold uppercase text-gray-400 mb-3 block">{t('profile.travelerType')}</label>
+                    <label className="text-xs font-bold uppercase text-gray-400 dark:text-gray-500 mb-3 block">{t('profile.travelerType')}</label>
                     <div className="grid grid-cols-2 gap-3">
                         {TRAVELER_TYPES.map(type => (
                             <button
@@ -394,14 +394,14 @@ export default function Profile() {
                                 }))}
                                 className={`p-4 rounded-xl border-2 transition-all text-left ${formData.traveler_type === type.id
                                     ? 'border-turquoise bg-turquoise/5 shadow-md scale-[1.02]'
-                                    : 'border-gray-200 bg-white hover:border-gray-300'
+                                    : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-gray-300 dark:hover:border-slate-600'
                                     }`}
                             >
                                 <div className="text-2xl mb-1">{type.emoji}</div>
-                                <div className={`font-bold text-sm ${formData.traveler_type === type.id ? 'text-turquoise' : 'text-gray-700'}`}>
+                                <div className={`font-bold text-sm ${formData.traveler_type === type.id ? 'text-turquoise' : 'text-gray-700 dark:text-gray-300'}`}>
                                     {t(`profile.${type.key}`)}
                                 </div>
-                                <div className="text-[10px] text-gray-400 mt-1">{t(`profile.${type.key}Desc`)}</div>
+                                <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">{t(`profile.${type.key}Desc`)}</div>
                                 {formData.traveler_type === type.id && (
                                     <div className="mt-2 w-5 h-5 bg-turquoise rounded-full flex items-center justify-center">
                                         <Check size={12} className="text-white" />
@@ -413,14 +413,14 @@ export default function Profile() {
                 </div>
 
                 {/* Push Notifications Toggle — mobile app only */}
-                <div className={`flex items-center justify-between bg-white p-4 rounded-xl border border-gray-100 ${isPushSupported() ? '' : 'hidden'}`}>
+                <div className={`flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-slate-700 ${isPushSupported() ? '' : 'hidden'}`}>
                     <div>
-                        <div className="font-bold text-sm">{t('profile.push')}</div>
-                        <div className="text-xs text-gray-400">{t('profile.pushSub')}</div>
+                        <div className="font-bold text-sm text-gray-900 dark:text-gray-100">{t('profile.push')}</div>
+                        <div className="text-xs text-gray-400 dark:text-gray-500">{t('profile.pushSub')}</div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="push_enabled" checked={formData.push_enabled} onChange={handleChange} className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-turquoise"></div>
+                        <div className="w-11 h-6 bg-gray-200 dark:bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-turquoise"></div>
                     </label>
                 </div>
 
@@ -428,7 +428,7 @@ export default function Profile() {
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="w-full bg-black text-white font-bold p-4 rounded-xl shadow-lg mt-8 flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-50"
+                    className="w-full bg-black dark:bg-turquoise text-white font-bold p-4 rounded-xl shadow-lg mt-8 flex items-center justify-center gap-2 hover:bg-gray-800 dark:hover:bg-turquoise/90 transition-colors disabled:opacity-50"
                 >
                     <Save size={18} />
                     {saving ? t('profile.saving') : t('profile.save')}
@@ -442,7 +442,7 @@ export default function Profile() {
                             navigate('/auth')
                         }
                     }}
-                    className="w-full mt-4 py-3 px-4 bg-white border-2 border-red-200 text-red-500 font-bold rounded-xl hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                    className="w-full mt-4 py-3 px-4 bg-white dark:bg-slate-800 border-2 border-red-200 dark:border-red-500/40 text-red-500 dark:text-red-400 font-bold rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
                 >
                     <LogOut size={18} />
                     {t('profile.signOut')}

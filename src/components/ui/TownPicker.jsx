@@ -63,7 +63,7 @@ export default function TownPicker() {
     }
 
     return (
-        <div className="mb-3">
+        <div className="mb-3" data-tour="town-picker">
             <button
                 onClick={() => setOpen(!open)}
                 className="w-full flex items-center justify-between gap-2 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-turquoise/40 hover:shadow-md transition-shadow"

@@ -45,3 +45,17 @@ export function setCurrentTown(town) {
     if (!town?.id) return;
     localStorage.setItem(CURRENT_TOWN_KEY, JSON.stringify({ id: town.id, name: town.name }));
 }
+
+const TOUR_KEY = 'tour_done';
+
+/**
+ * First-run guided tour flag, same one-shot shape as push_prompt_shown in
+ * pushNotifications.js. Device-scoped, not per-user.
+ */
+export function shouldShowTour() {
+    return !localStorage.getItem(TOUR_KEY);
+}
+
+export function markTourDone() {
+    localStorage.setItem(TOUR_KEY, 'true');
+}
