@@ -1,12 +1,19 @@
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, Fragment } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ArrowLeft, Send, Reply, X } from 'lucide-react'
-import { useT } from '../lib/i18n'
+import { useT, getLang } from '../lib/i18n'
 
 // Common emoji reactions
 const EMOJI_OPTIONS = ['👍', '❤️', '😂', '😮', '😢', '🔥', '🎉', '👏']
+
+// Local midnight of a timestamp — comparing these is what decides where a day
+// divider goes, so it has to be the user's calendar day, not the UTC one.
+const startOfDay = (ts) => {
+    const d = new Date(ts)
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+}
 
 export default function ChatRoom() {
     const t = useT()
@@ -317,6 +324,13 @@ export default function ChatRoom() {
 
     const getRepliedMessage = (replyToId) => messages.find(m => m.id === replyToId)
 
+    const dayLabel = (ts) => {
+        const days = Math.round((startOfDay(Date.now()) - startOfDay(ts)) / 86400000)
+        if (days === 0) return t('chat.today')
+        if (days === 1) return t('chat.yesterday')
+        return new Date(ts).toLocaleDateString(getLang(), { day: 'numeric', month: 'long', year: 'numeric' })
+    }
+
     const getGroupedReactions = (messageId) => {
         const msgReactions = reactions[messageId] || []
         const grouped = {}
@@ -360,13 +374,22 @@ export default function ChatRoom() {
                         <p className="text-sm">{t('chat.beFirst')}</p>
                     </div>
                 ) : (
-                    messages.map((msg) => {
+                    messages.map((msg, i) => {
                         const isMe = msg.sender_id === currentUser.id
                         const repliedMsg = msg.reply_to_message_id ? getRepliedMessage(msg.reply_to_message_id) : null
                         const groupedReactions = getGroupedReactions(msg.id)
+                        const newDay = i === 0 || startOfDay(messages[i - 1].created_at) !== startOfDay(msg.created_at)
 
                         return (
-                            <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                            <Fragment key={msg.id}>
+                            {newDay && (
+                                <div className="flex justify-center py-1">
+                                    <span className="text-[11px] px-3 py-1 rounded-full bg-gray-200 dark:bg-slate-700 text-gray-500 dark:text-gray-400">
+                                        {dayLabel(msg.created_at)}
+                                    </span>
+                                </div>
+                            )}
+                            <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                                 {!isMe && (
                                     <span className="text-xs text-gray-400 dark:text-gray-500 mb-1 px-2">
                                         {getDisplayName(msg.sender_id)}
@@ -434,6 +457,7 @@ export default function ChatRoom() {
                                     </div>
                                 )}
                             </div>
+                            </Fragment>
                         )
                     })
                 )}

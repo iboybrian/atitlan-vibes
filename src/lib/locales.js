@@ -123,6 +123,8 @@ const en = {
     'chat.placeholder': 'Type a message...',
     'chat.traveler': 'Traveler',
     'chat.sendFailed': 'Failed to send: {msg}',
+    'chat.today': 'Today',
+    'chat.yesterday': 'Yesterday',
 
     // Add event modal
     'addEvent.title': 'Post Vibes',
@@ -421,6 +423,8 @@ const es = {
     'chat.placeholder': 'Escribe un mensaje...',
     'chat.traveler': 'Viajero',
     'chat.sendFailed': 'No se pudo enviar: {msg}',
+    'chat.today': 'Hoy',
+    'chat.yesterday': 'Ayer',
 
     // Modal de nuevo evento
     'addEvent.title': 'Publicar vibras',
