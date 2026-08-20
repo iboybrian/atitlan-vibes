@@ -10,12 +10,36 @@ export default function TownFooter() {
     const currentRef = useRef(null)
     const location = useLocation()
 
-    // On a town route the URL wins — that's the town being looked at right now.
-    // Everywhere else, fall back to the one picked in TownPicker.
+    // The strip marks what's being looked at, not where you are. A town route says
+    // it outright; an event says it through events.town_id, which is why that one
+    // costs a query — EventDetail holds the row but it's a sibling, not a parent.
+    // Anything else falls back to the town picked in TownPicker.
+    const eventId = location.pathname.match(/^\/event\/([^/]+)/)?.[1]
+    // Keyed by the event it was fetched for, so leaving the page drops it without
+    // an effect clearing state — the id simply stops matching.
+    const [eventTown, setEventTown] = useState(null)
+
+    useEffect(() => {
+        if (!eventId) return
+        let alive = true
+        supabase
+            .from('events')
+            .select('town_id')
+            .eq('id', eventId)
+            .single()
+            .then(({ data, error }) => {
+                if (error) console.error('Error fetching event town for footer:', error)
+                // Null town on failure — the picked town takes over, same as before.
+                if (alive) setEventTown({ id: eventId, townId: data?.town_id ?? null })
+            })
+        return () => { alive = false }
+    }, [eventId])
+
     const currentTownId = useMemo(() => {
         const fromRoute = location.pathname.match(/^\/town\/([^/]+)/)?.[1]
-        return fromRoute ?? getCurrentTown()?.id ?? null
-    }, [location.pathname])
+        const fromEvent = eventTown?.id === eventId ? eventTown.townId : null
+        return fromRoute ?? fromEvent ?? getCurrentTown()?.id ?? null
+    }, [location.pathname, eventId, eventTown])
 
     // Hide footer on chat pages
     const isChatPage = location.pathname.includes('/chat')
