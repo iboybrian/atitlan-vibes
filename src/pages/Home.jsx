@@ -63,14 +63,17 @@ export default function Home() {
     useEffect(() => {
         async function fetchUpcoming() {
             try {
-                const today = new Date().toISOString()
+                // calendar_date is a date column (YYYY-MM-DD); start_time is time-only
+                // and has no date to compare against a timestamp.
+                const today = new Date().toISOString().slice(0, 10)
 
                 // Fetch all approved events
                 const { data, error } = await supabase
                     .from('events')
                     .select('*')
                     .eq('is_approved', true)
-                    .gte('start_time', today)
+                    .gte('calendar_date', today)
+                    .order('calendar_date', { ascending: true })
                     .order('start_time', { ascending: true })
                     .limit(8)
 
