@@ -37,7 +37,7 @@ export default function TownFooter() {
 
     const currentTownId = useMemo(() => {
         const fromRoute = location.pathname.match(/^\/town\/([^/]+)/)?.[1]
-        const fromEvent = eventTown?.id === eventId ? eventTown.townId : null
+        const fromEvent = eventId && eventTown?.id === eventId ? eventTown.townId : null
         return fromRoute ?? fromEvent ?? getCurrentTown()?.id ?? null
     }, [location.pathname, eventId, eventTown])
 
