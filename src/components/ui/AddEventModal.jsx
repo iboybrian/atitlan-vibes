@@ -2,6 +2,7 @@
 import { X, Upload, Calendar as CalendarIcon, Phone, Tag, DollarSign, MapPin, Camera, Image as ImageIcon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import { useTowns } from '../../lib/towns'
 import { useAuth } from '../../context/AuthContext'
 import { PHONE_CODES } from '../../data/constants'
 import { useT } from '../../lib/i18n'
@@ -11,7 +12,7 @@ export default function AddEventModal({ isOpen, onClose }) {
     const { user } = useAuth()
     const [loading, setLoading] = useState(false)
     const [uploading, setUploading] = useState(false)
-    const [towns, setTowns] = useState([])
+    const towns = useTowns()
 
     // Preview URL for immediate feedback
     const [previewUrl, setPreviewUrl] = useState(null)
@@ -33,13 +34,6 @@ export default function AddEventModal({ isOpen, onClose }) {
         tags: '', // Comma separated string
         contact_link: ''
     })
-
-    // Fetch Towns
-    useEffect(() => {
-        if (isOpen) {
-            supabase.from('towns').select('id, name').order('name').then(({ data }) => setTowns(data || []))
-        }
-    }, [isOpen])
 
     // Cleanup object URL
     useEffect(() => {

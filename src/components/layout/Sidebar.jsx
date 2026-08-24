@@ -1,27 +1,16 @@
 
 import { X, User, Settings, Info, MapPin, LogIn, LogOut, Shield, Heart } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { useTowns } from '../../lib/towns'
 import { useAuth } from '../../context/AuthContext'
 import { useT } from '../../lib/i18n'
 
 export default function Sidebar({ isOpen, onClose }) {
     const t = useT()
-    const [towns, setTowns] = useState([])
+    const towns = useTowns()
     const { user } = useAuth()
     const navigate = useNavigate()
-
-    useEffect(() => {
-        if (isOpen) {
-            async function fetchTowns() {
-                // Fetch only Approved towns if you had that flag (optional, towns usually static)
-                const { data } = await supabase.from('towns').select('id, name').order('name')
-                if (data) setTowns(data)
-            }
-            fetchTowns()
-        }
-    }, [isOpen])
 
     const handleLogout = async () => {
         await supabase.auth.signOut()

@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
+import { fetchTowns } from '../../lib/towns'
 import { getCurrentTown, markTourDone } from '../../lib/utils'
 import { useT } from '../../lib/i18n'
 
@@ -41,8 +41,7 @@ export default function Tour({ isOpen, onClose }) {
     // Nothing picked yet — Antigua if it exists, else whatever comes first.
     useEffect(() => {
         if (!isOpen || getCurrentTown()?.id) return
-        supabase.from('towns').select('id, name').order('name').then(({ data }) => {
-            const list = data || []
+        fetchTowns().then(list => {
             setFallbackTown((list.find(x => /antigua/i.test(x.name)) || list[0])?.id ?? null)
         })
     }, [isOpen])

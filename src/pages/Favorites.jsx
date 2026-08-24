@@ -1,10 +1,9 @@
 
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Heart, Clock } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { getDirectImageUrl } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
+import EventCard from '../components/ui/EventCard'
 import { useT } from '../lib/i18n'
 
 export default function Favorites() {
@@ -48,30 +47,7 @@ export default function Favorites() {
             ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {events.map(event => (
-                        <Link to={`/event/${event.id}`} key={event.id} className="block group">
-                            <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
-                                <div className="aspect-square w-full relative bg-gray-100 dark:bg-slate-700">
-                                    {event.cover_image && (
-                                        <img
-                                            src={getDirectImageUrl(event.cover_image)}
-                                            alt={event.name}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    )}
-                                    <div className="absolute top-2 right-2 bg-white/95 dark:bg-slate-800/95 text-gray-900 dark:text-gray-200 backdrop-blur px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
-                                        {event.event_date_label}
-                                    </div>
-                                </div>
-                                <div className="p-3">
-                                    <h3 className="font-bold text-sm mb-1 leading-snug text-gray-900 dark:text-white">{event.name}</h3>
-                                    {event.start_time && (
-                                        <div className="text-xs text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1">
-                                            <Clock size={12} /> {event.start_time}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </Link>
+                        <EventCard key={event.id} event={event} />
                     ))}
                 </div>
             )}

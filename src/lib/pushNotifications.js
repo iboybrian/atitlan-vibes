@@ -3,8 +3,8 @@
  *
  * FCM delivers the message, Supabase stores the device token on users.push_token.
  * Web push is deliberately off: isPushSupported() is false in a browser, so the
- * soft prompt never shows and no tokens get written. public/sw.js is left in
- * place for whenever web push is worth doing properly (real VAPID keys + a sender).
+ * soft prompt never shows and no tokens get written. Doing it properly needs a
+ * service worker plus real VAPID keys and a sender — none of which exist here.
  */
 
 import { PushNotifications } from '@capacitor/push-notifications'
@@ -19,17 +19,6 @@ export const isNative = () => {
     return typeof window !== 'undefined' &&
         window.Capacitor !== undefined &&
         window.Capacitor.isNativePlatform()
-}
-
-// Check if running on iOS
-const isIOS = () => {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-}
-
-// Check if running on Android
-const isAndroid = () => {
-    return /Android/.test(navigator.userAgent)
 }
 
 /**
@@ -95,7 +84,9 @@ export const requestPushPermission = async () => {
         const { receive } = await PushNotifications.requestPermissions()
 
         if (receive === 'denied') {
-            return { success: false, error: 'denied', message: getSettingsMessage() }
+            // Android only — isPushSupported() is isNative(), and this build ships
+            // no iOS target, so there is no other platform to branch on.
+            return { success: false, error: 'denied', message: t('push.settingsAndroid') }
         }
         if (receive !== 'granted') {
             return { success: false, error: t('push.dismissed') }
@@ -221,23 +212,3 @@ export const markPushPromptShown = () => {
     localStorage.setItem('push_prompt_shown', 'true')
 }
 
-/**
- * Get platform-specific settings message
- */
-const getSettingsMessage = () => {
-    if (isIOS()) return t('push.settingsIOS')
-    if (isAndroid()) return t('push.settingsAndroid')
-    return t('push.settingsWeb')
-}
-
-export default {
-    isPushSupported,
-    getPermissionStatus,
-    requestPushPermission,
-    savePushToken,
-    disablePushNotifications,
-    setPushPreference,
-    refreshPushToken,
-    shouldShowPushPrompt,
-    markPushPromptShown
-}

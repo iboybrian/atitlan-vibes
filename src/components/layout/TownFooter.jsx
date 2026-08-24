@@ -3,10 +3,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { MapPin } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useTowns } from '../../lib/towns'
 import { getCurrentTown } from '../../lib/utils'
 
 export default function TownFooter() {
-    const [towns, setTowns] = useState([])
+    const towns = useTowns()
     const currentRef = useRef(null)
     const location = useLocation()
 
@@ -43,23 +44,6 @@ export default function TownFooter() {
 
     // Hide footer on chat pages
     const isChatPage = location.pathname.includes('/chat')
-
-    useEffect(() => {
-        async function fetchTowns() {
-            const { data, error } = await supabase
-                .from('towns')
-                .select('id, name')
-                .order('name', { ascending: true })
-
-            if (error) {
-                console.error('Error fetching towns for footer:', error)
-                return
-            }
-
-            if (data) setTowns(data)
-        }
-        fetchTowns()
-    }, [])
 
     // Bring it into view — the strip scrolls horizontally and it may sit off the edge.
     // block: 'nearest' keeps this from yanking the page down to the sticky footer.

@@ -1,5 +1,5 @@
 
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { ChevronDown, Search, Check } from 'lucide-react'
 import { useT } from '../../lib/i18n'
 
@@ -7,20 +7,12 @@ export default function SearchableSelect({ options, value, onChange, placeholder
     const t = useT()
     const [isOpen, setIsOpen] = useState(false)
     const [search, setSearch] = useState('')
-    const containerRef = useRef(null)
 
     // Filter options
     const filtered = options.filter(opt =>
         opt.toLowerCase().includes(search.toLowerCase())
     )
 
-    const handleSelect = (opt) => {
-        onChange({ target: { name: label, value: opt } }) // Simulate event for parent handler compatibility if needed, or just pass val
-        setIsOpen(false)
-        setSearch('')
-    }
-
-    // Direct value pass simpler
     const handleSelectDirect = (opt) => {
         onChange(opt)
         setIsOpen(false)
@@ -28,7 +20,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
     }
 
     return (
-        <div className="relative" ref={containerRef}>
+        <div className="relative">
             {label && <label className="text-xs font-bold uppercase text-gray-400 dark:text-gray-500 mb-2 block">{label}</label>}
 
             <button

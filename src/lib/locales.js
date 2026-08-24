@@ -179,9 +179,7 @@ const en = {
     'push.registerFailed': 'Could not register for notifications',
     'push.timeout': 'Timed out getting a notification token. Check your connection.',
     'push.savePrefs': 'Could not save your preferences',
-    'push.settingsIOS': 'To enable notifications, go to Settings → Atitlán Vibes → Notifications → Allow Notifications',
     'push.settingsAndroid': 'To enable notifications, go to Settings → Apps → Atitlán Vibes → Notifications → Enable',
-    'push.settingsWeb': 'To enable notifications, click the lock icon in your browser address bar and allow notifications for this site.',
 
     // Settings
     'settings.title': 'Settings',
@@ -479,9 +477,7 @@ const es = {
     'push.registerFailed': 'No se pudo registrar para notificaciones',
     'push.timeout': 'Se agotó el tiempo al obtener el token de notificaciones. Revisa tu conexión.',
     'push.savePrefs': 'No se pudieron guardar tus preferencias',
-    'push.settingsIOS': 'Para activar las notificaciones, ve a Ajustes → Atitlán Vibes → Notificaciones → Permitir notificaciones',
     'push.settingsAndroid': 'Para activar las notificaciones, ve a Ajustes → Aplicaciones → Atitlán Vibes → Notificaciones → Activar',
-    'push.settingsWeb': 'Para activar las notificaciones, toca el ícono del candado en la barra de direcciones y permite las notificaciones de este sitio.',
 
     // Ajustes
     'settings.title': 'Ajustes',

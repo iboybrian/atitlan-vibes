@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { MapPin, ChevronDown, Check, Bell } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useTowns } from '../../lib/towns'
 import { useAuth } from '../../context/AuthContext'
 import { getCurrentTown, setCurrentTown } from '../../lib/utils'
 import { useT } from '../../lib/i18n'
@@ -14,20 +15,9 @@ import { useT } from '../../lib/i18n'
 export default function TownPicker() {
     const t = useT()
     const { user } = useAuth()
-    const [towns, setTowns] = useState([])
+    const towns = useTowns()
     const [selected, setSelected] = useState(getCurrentTown)
     const [open, setOpen] = useState(false)
-
-    useEffect(() => {
-        supabase
-            .from('towns')
-            .select('id, name')
-            .order('name')
-            .then(({ data, error }) => {
-                if (error) return console.error('Error fetching towns for picker:', error)
-                setTowns(data || [])
-            })
-    }, [])
 
     // Fresh install has empty localStorage, but the choice lives on the account —
     // otherwise the server keeps pushing for a town the UI no longer shows.

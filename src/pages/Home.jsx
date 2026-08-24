@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Plus, Star } from 'lucide-react'
-import TopVillageMenu from '../components/layout/TownNav'
 import AddEventModal from '../components/ui/AddEventModal'
 import FlipCard from '../components/ui/FlipCard'
 import TownPicker from '../components/ui/TownPicker'
@@ -79,25 +78,20 @@ export default function Home() {
 
                 if (error) throw error
 
-                if (!data || data.length === 0) {
-                    // Fallback to just approved recent if no upcoming
+                // Nothing upcoming — show the most recent approved events instead,
+                // so a quiet week doesn't leave Home empty.
+                let list = data || []
+                if (list.length === 0) {
                     const { data: latest } = await supabase
                         .from('events')
                         .select('*')
                         .eq('is_approved', true)
                         .limit(8)
-
-                    const featured = (latest || []).filter(e => e.is_feature)
-                    const regular = (latest || []).filter(e => !e.is_feature)
-                    setFeaturedEvents(featured)
-                    setRegularEvents(regular)
-                } else {
-                    // Split into featured and regular
-                    const featured = data.filter(e => e.is_feature)
-                    const regular = data.filter(e => !e.is_feature)
-                    setFeaturedEvents(featured)
-                    setRegularEvents(regular)
+                    list = latest || []
                 }
+
+                setFeaturedEvents(list.filter(e => e.is_feature))
+                setRegularEvents(list.filter(e => !e.is_feature))
             } catch (err) {
                 console.error('Error loading events', err)
             } finally {
@@ -140,8 +134,6 @@ export default function Home() {
                 </h2>
 
                 <TownPicker />
-
-                <TopVillageMenu />
             </section>
 
             {/* 3. Events Section */}
