@@ -2,9 +2,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
+import { Shield, X } from 'lucide-react'
 import { PHONE_CODES } from '../data/constants'
 import { useAuth } from '../context/AuthContext'
 import { isNative } from '../lib/pushNotifications'
+import PrivacyContent from '../components/ui/PrivacyContent'
 import { useT } from '../lib/i18n'
 
 export default function Auth() {
@@ -17,6 +19,8 @@ export default function Auth() {
     const [phoneCode, setPhoneCode] = useState('+502')
     const [phoneNumber, setPhoneNumber] = useState('')
     const [isSignUp, setIsSignUp] = useState(false)
+    const [acceptedPrivacy, setAcceptedPrivacy] = useState(false)
+    const [showPrivacy, setShowPrivacy] = useState(false)
     const [error, setError] = useState(null)
     const [notice, setNotice] = useState(null)
     const [needsVerify, setNeedsVerify] = useState(false)
@@ -33,6 +37,12 @@ export default function Auth() {
         setError(null)
         setNotice(null)
         setNeedsVerify(false)
+
+        if (isSignUp && !acceptedPrivacy) {
+            setError(t('auth.mustAcceptPrivacy'))
+            setLoading(false)
+            return
+        }
 
         if (isSignUp && password !== confirmPassword) {
             setError(t('auth.passwordsMismatch'))
@@ -122,6 +132,12 @@ export default function Auth() {
     }
 
     const handleSocialLogin = async (provider) => {
+        // Google on the sign-up tab creates the account outright, so it needs the
+        // same consent. On the log-in tab there is nothing to consent to yet.
+        if (isSignUp && !acceptedPrivacy) {
+            return setError(t('auth.mustAcceptPrivacy'))
+        }
+
         try {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: provider,
@@ -232,6 +248,35 @@ export default function Auth() {
                                     required
                                 />
                             </div>
+
+                            {/* Consent gate. `required` lets the browser block the submit
+                                natively; the state is what also gates the Google button,
+                                which sits outside this form. */}
+                            <label className="flex items-start gap-3 px-1 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={acceptedPrivacy}
+                                    onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                                    required
+                                    className="mt-0.5 w-4 h-4 flex-shrink-0 accent-turquoise cursor-pointer"
+                                />
+                                <span className="text-sm text-gray-500 dark:text-gray-400 leading-snug">
+                                    {t('auth.acceptPrivacy')}{' '}
+                                    {/* A modal, not a route: navigating away would wipe the
+                                        half-filled form, and in the APK the origin is
+                                        https://localhost so a new tab lands nowhere. */}
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault() // the label would toggle the box
+                                            setShowPrivacy(true)
+                                        }}
+                                        className="text-turquoise font-bold underline underline-offset-2"
+                                    >
+                                        {t('auth.privacyLink')}
+                                    </button>
+                                </span>
+                            </label>
                         </div>
                     )}
 
@@ -288,6 +333,7 @@ export default function Auth() {
                     <button
                         onClick={() => {
                             setIsSignUp(!isSignUp)
+                            setAcceptedPrivacy(false)
                             setError(null)
                             setNotice(null)
                             setNeedsVerify(false)
@@ -298,6 +344,44 @@ export default function Auth() {
                     </button>
                 </div>
             </div>
+
+            {/* z-50 = modal tier, above the Header/TownFooter chrome at z-40 */}
+            {showPrivacy && (
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-[#F5F5F0] dark:bg-slate-900 rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <Shield size={20} className="text-turquoise flex-shrink-0" />
+                                <h2 className="font-black text-gray-900 dark:text-white truncate">{t('privacy.title')}</h2>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowPrivacy(false)}
+                                className="p-2 -mr-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex-shrink-0"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="overflow-y-auto px-4 pt-4 flex-1">
+                            <PrivacyContent />
+                        </div>
+
+                        <div className="px-4 py-3 bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-700 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setAcceptedPrivacy(true)
+                                    setShowPrivacy(false)
+                                }}
+                                className="w-full py-3 bg-turquoise text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
+                            >
+                                {t('auth.acceptAndClose')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

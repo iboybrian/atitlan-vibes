@@ -54,6 +54,10 @@ const en = {
     'auth.orContinue': 'Or continue with',
     'auth.haveAccount': 'Already have an account? Log In',
     'auth.noAccount': "Don't have an account? Sign Up",
+    'auth.acceptPrivacy': 'I have read and accept the',
+    'auth.privacyLink': 'Privacy Policy',
+    'auth.mustAcceptPrivacy': 'You must accept the Privacy Policy to create an account.',
+    'auth.acceptAndClose': 'Accept and continue',
 
     // Reset password
     'reset.expiredTitle': 'Link expired',
@@ -352,6 +356,10 @@ const es = {
     'auth.orContinue': 'O continúa con',
     'auth.haveAccount': '¿Ya tienes cuenta? Inicia sesión',
     'auth.noAccount': '¿No tienes cuenta? Regístrate',
+    'auth.acceptPrivacy': 'He leído y acepto la',
+    'auth.privacyLink': 'Política de Privacidad',
+    'auth.mustAcceptPrivacy': 'Debes aceptar la Política de Privacidad para crear una cuenta.',
+    'auth.acceptAndClose': 'Aceptar y continuar',
 
     // Restablecer contraseña
     'reset.expiredTitle': 'Enlace vencido',
