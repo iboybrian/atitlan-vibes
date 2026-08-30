@@ -7,6 +7,7 @@ import {
     markPushPromptShown,
     isPushSupported
 } from '../../lib/pushNotifications'
+import { setLocationPreference } from '../../lib/geolocation'
 import { useT } from '../../lib/i18n'
 
 export default function PushPromptModal({ isOpen, onClose, userId }) {
@@ -28,6 +29,12 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
             const saved = await savePushToken(userId, result.token)
 
             if (saved) {
+                // Second OS dialog, off the same deliberate tap and described in
+                // the copy above — that ordering is the Play prominent
+                // disclosure. Result ignored on purpose: declining location must
+                // not make an otherwise successful push opt-in look failed.
+                await setLocationPreference(userId, true)
+
                 setStatus('success')
                 markPushPromptShown()
                 // Auto-close after success
@@ -68,11 +75,20 @@ export default function PushPromptModal({ isOpen, onClose, userId }) {
                 <div className="p-6">
                     {status === 'idle' && (
                         <>
-                            <p className="text-gray-600 dark:text-gray-300 text-center mb-6 leading-relaxed">
+                            <p className="text-gray-600 dark:text-gray-300 text-center mb-3 leading-relaxed">
                                 {t('push.bodyStart')}<span className="font-bold">{t('push.boat')}</span>,{' '}
                                 <span className="font-bold">{t('push.reminders')}</span>,{' '}
                                 <span className="font-bold">{t('push.replies')}</span>.
                             </p>
+
+                            {/* Prominent disclosure: this has to describe what the
+                                location permission is for BEFORE the OS dialog
+                                appears, or Play rejects the release. */}
+                            {isPushSupported() && (
+                                <p className="text-xs text-gray-400 dark:text-gray-500 text-center mb-6 leading-snug">
+                                    {t('push.locationDisclosure')}
+                                </p>
+                            )}
 
                             {!isPushSupported() && (
                                 <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/50 rounded-xl p-3 mb-4 text-sm text-amber-700 dark:text-amber-300">

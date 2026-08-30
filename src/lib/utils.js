@@ -26,6 +26,47 @@ export function getDirectImageUrl(url) {
     return url;
 }
 
+// Coarse location is good to ~1.5 km and the whole lake is ~18 km across, so a
+// 25 km radius covers the basin from any of the three lake towns and still keeps
+// Antigua and Guatemala City (25 km apart) resolving to the nearer one. Past it
+// the user is not in any town we cover — Xela, home, a plane.
+const MAX_TOWN_KM = 25;
+const KM_PER_DEG = 111.32;
+
+/**
+ * Nearest town to a coordinate, or null if nothing is within maxKm.
+ *
+ * Equirectangular, not haversine: at 14.7°N over a ~30 km span the flat-earth
+ * approximation is off by well under a metre and the towns are kilometres apart.
+ * No poles, no antimeridian. Squared distances so there is one sqrt, and only
+ * for the range guard.
+ *
+ * Pure and import-free on purpose — scripts/check-nearest-town.mjs runs this
+ * file directly under bare node. Don't add an import to utils.js without moving
+ * that script.
+ *
+ * @param {number} lat
+ * @param {number} lng
+ * @param {Array<{id: number, name: string, lat: number|null, lng: number|null}>} towns
+ * @returns {object | null}
+ */
+export function nearestTown(lat, lng, towns, maxKm = MAX_TOWN_KM) {
+    const cos = Math.cos(lat * Math.PI / 180);
+    let best = null;
+    let bestD2 = Infinity;
+
+    for (const town of towns) {
+        if (town.lat == null || town.lng == null) continue; // coordinates not seeded
+        const dx = (town.lng - lng) * cos;
+        const dy = town.lat - lat;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < bestD2) { bestD2 = d2; best = town; }
+    }
+
+    // An empty list falls out here for free: sqrt(Infinity) > maxKm
+    return Math.sqrt(bestD2) * KM_PER_DEG <= maxKm ? best : null;
+}
+
 const CURRENT_TOWN_KEY = 'current_town';
 
 /**

@@ -7,12 +7,14 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "check": "node scripts/check-nearest-town.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.2",
     "@capacitor/app": "^8.1.1",
     "@capacitor/core": "^8.0.2",
+    "@capacitor/geolocation": "^8.2.2",
     "@capacitor/push-notifications": "^8.1.2",
     "@supabase/supabase-js": "^2.90.1",
     "lucide-react": "^0.562.0",

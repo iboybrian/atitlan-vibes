@@ -13,7 +13,9 @@ export function fetchTowns() {
     if (!cached) {
         cached = supabase
             .from('towns')
-            .select('id, name')
+            // lat/lng are only read by nearestTown() in the geolocation path;
+            // the other five callers ignore them.
+            .select('id, name, lat, lng')
             .order('name')
             .then(({ data, error }) => {
                 if (error) {

@@ -1,10 +1,11 @@
 
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, Bell, Moon, Sun, ChevronRight, Languages, Settings as SettingsIcon } from 'lucide-react'
+import { User, Bell, MapPin, Moon, Sun, ChevronRight, Languages, Settings as SettingsIcon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { setPushPreference, isPushSupported } from '../lib/pushNotifications'
+import { setLocationPreference } from '../lib/geolocation'
 import { useT, getLang, setLang } from '../lib/i18n'
 
 export default function Settings() {
@@ -13,17 +14,23 @@ export default function Settings() {
     const navigate = useNavigate()
     const [pushEnabled, setPushEnabled] = useState(true)
     const [pushError, setPushError] = useState('')
+    // Location is opt-in, so it defaults off — unlike push, which defaults on
+    const [locEnabled, setLocEnabled] = useState(false)
+    const [locError, setLocError] = useState('')
 
-    // Load push_enabled state from database
+    // Load push_enabled / location_enabled state from database
     useEffect(() => {
         if (user) {
             supabase
                 .from('users')
-                .select('push_enabled')
+                .select('push_enabled, location_enabled')
                 .eq('id', user.id)
                 .single()
                 .then(({ data }) => {
-                    if (data) setPushEnabled(data.push_enabled ?? true)
+                    if (data) {
+                        setPushEnabled(data.push_enabled ?? true)
+                        setLocEnabled(data.location_enabled ?? false)
+                    }
                 })
         }
     }, [user])
@@ -39,6 +46,20 @@ export default function Settings() {
         if (!result.success) {
             setPushEnabled(!enabled) // OS denied or the save failed — don't lie to the user
             setPushError(result.message || result.error)
+        }
+    }
+
+    // Same shape as the push toggle — asks the OS, stores the flag, reverts on refusal
+    const handleLocationToggle = async (enabled) => {
+        if (!user) return
+
+        setLocEnabled(enabled)
+        setLocError('')
+
+        const result = await setLocationPreference(user.id, enabled)
+        if (!result.success) {
+            setLocEnabled(!enabled)
+            setLocError(result.message || result.error)
         }
     }
 
@@ -141,6 +162,23 @@ export default function Settings() {
                     />
                     {pushError && (
                         <p className="text-xs text-amber-600 dark:text-amber-400 px-1 mb-2">{pushError}</p>
+                    )}
+
+                    {/* Location only means anything if push is on, so it lives in
+                        this section rather than getting a header of its own. */}
+                    <MenuItem
+                        icon={MapPin}
+                        label={t('settings.location')}
+                        rightElement={<Toggle enabled={locEnabled} onChange={handleLocationToggle} />}
+                    />
+                    {/* Always visible, not just on error: this is the in-app
+                        disclosure a Play reviewer looks for after seeing
+                        ACCESS_COARSE_LOCATION in the manifest. */}
+                    <p className="text-xs text-gray-400 dark:text-gray-500 px-1 mb-2 leading-snug">
+                        {t('settings.locationHint')}
+                    </p>
+                    {locError && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 px-1 mb-2">{locError}</p>
                     )}
                 </>
             )}

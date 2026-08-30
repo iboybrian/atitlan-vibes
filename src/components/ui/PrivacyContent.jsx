@@ -34,11 +34,16 @@ export default function PrivacyContent() {
 
             <Section title={t('privacy.automatic')}>
                 <p><strong>{t('privacy.tokenLabel')}</strong> {t('privacy.tokenBody')}</p>
+                <p><strong>{t('privacy.locationLabel')}</strong> {t('privacy.locationBody')}</p>
                 <p>{t('privacy.noTracking')}</p>
             </Section>
 
             <Section title={t('privacy.howWeUse')}>
                 <p>{t('privacy.howWeUseBody')}</p>
+            </Section>
+
+            <Section title={t('privacy.promo')}>
+                <p>{t('privacy.promoBody')}</p>
             </Section>
 
             <Section title={t('privacy.whoSees')}>

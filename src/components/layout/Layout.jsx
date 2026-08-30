@@ -8,8 +8,10 @@ import PushPromptModal from '../ui/PushPromptModal'
 import Tour from '../ui/Tour'
 import { useAuth } from '../../context/AuthContext'
 import { shouldShowPushPrompt, isPushSupported, refreshPushToken } from '../../lib/pushNotifications'
+import { refreshDetectedTown } from '../../lib/geolocation'
 import { shouldShowTour } from '../../lib/utils'
 import { syncLang } from '../../lib/i18n'
+import { App as CapacitorApp } from '@capacitor/app'
 
 export default function Layout() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -28,6 +30,17 @@ export default function Layout() {
         // Silent no-op unless already opted in — FCM tokens rotate
         refreshPushToken(user.id)
 
+        // Same contract: silent unless the OS granted and the user opted in.
+        refreshDetectedTown(user.id)
+
+        // This shell does not remount when the app is resumed — the Outlet swaps
+        // but Layout stays mounted, and Android never reloads the WebView. Without
+        // this listener "on open" would really only mean "on cold start", and
+        // someone who never closes the app would go permanently stale.
+        const resume = CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+            if (isActive) refreshDetectedTown(user.id)
+        })
+
         // First login never passes through Settings, so the detected language
         // would otherwise never reach the row notify-town reads.
         syncLang(user.id)
@@ -38,7 +51,10 @@ export default function Layout() {
             if (shouldShowTour()) setShowTour(true)
             else maybeShowPushPrompt()
         }, 2000)
-        return () => clearTimeout(timer)
+        return () => {
+            clearTimeout(timer)
+            resume.then(handle => handle.remove())
+        }
     }, [user])
 
     return (

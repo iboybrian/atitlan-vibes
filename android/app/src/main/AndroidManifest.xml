@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:allowBackup="true"
@@ -58,4 +59,25 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Required from Android 13 (targetSdk 33+) or the permission dialog never shows -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Coarse only, and only while the app is open (src/lib/geolocation.js).
+         ACCESS_BACKGROUND_LOCATION is deliberately absent: it is the one thing
+         that triggers Google's Location Permissions declaration — written
+         justification plus a demo video plus weeks of review. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Guard, not a request: tools:node="remove" deletes FINE from the merged
+         manifest if any library declares it. @capacitor/geolocation 8.2.2 does
+         not, so today this is a no-op and the build prints "tagged to remove
+         other declarations but no other declaration present" — that warning is
+         expected, don't chase it. Keep the line: a plugin version bump that adds
+         FINE would otherwise put precise location in the APK silently, and the
+         Play Data Safety answers would quietly become false. We never need it —
+         the two closest towns are ~4 km apart and coarse is ~1.5 km.
+         Verify after a build in
+         android/app/build/intermediates/merged_manifests/*/AndroidManifest.xml -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="remove" />
+
+    <!-- Location is optional, so don't let Play hide the app from GPS-less devices -->
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
 </manifest>

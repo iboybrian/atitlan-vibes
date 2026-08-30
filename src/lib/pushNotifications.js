@@ -197,18 +197,19 @@ export const refreshPushToken = async (userId) => {
 }
 
 /**
- * Check if we should show the soft prompt
+ * One-shot flag for the soft prompt.
+ *
+ * Bumped to _v2 when the prompt started asking for location too: every existing
+ * user has the v1 key set, would never see the modal again, and location
+ * adoption would start at zero. Re-showing is cheap — requestPushPermission()
+ * on an already-granted permission returns without a dialog, so those users
+ * effectively get a location-only prompt.
  */
-export const shouldShowPushPrompt = () => {
-    // Check localStorage to see if prompt was already shown
-    const prompted = localStorage.getItem('push_prompt_shown')
-    return !prompted
-}
+const PROMPT_KEY = 'push_prompt_shown_v2'
 
-/**
- * Mark that we've shown the soft prompt
- */
+export const shouldShowPushPrompt = () => !localStorage.getItem(PROMPT_KEY)
+
 export const markPushPromptShown = () => {
-    localStorage.setItem('push_prompt_shown', 'true')
+    localStorage.setItem(PROMPT_KEY, 'true')
 }
 
