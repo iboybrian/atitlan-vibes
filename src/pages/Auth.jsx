@@ -3,11 +3,14 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import { Shield, X } from 'lucide-react'
-import { PHONE_CODES } from '../data/constants'
+import { PHONE_CODES, COUNTRIES } from '../data/constants'
 import { useAuth } from '../context/AuthContext'
 import { isNative } from '../lib/pushNotifications'
 import PrivacyContent from '../components/ui/PrivacyContent'
 import { useT } from '../lib/i18n'
+
+// Temporarily hidden — flip back to true to restore Google sign-in.
+const SHOW_GOOGLE_LOGIN = false
 
 export default function Auth() {
     const t = useT()
@@ -18,6 +21,7 @@ export default function Auth() {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [phoneCode, setPhoneCode] = useState('+502')
     const [phoneNumber, setPhoneNumber] = useState('')
+    const [country, setCountry] = useState('')
     const [isSignUp, setIsSignUp] = useState(false)
     const [acceptedPrivacy, setAcceptedPrivacy] = useState(false)
     const [showPrivacy, setShowPrivacy] = useState(false)
@@ -62,7 +66,7 @@ export default function Auth() {
                         // Without this the link always points at the dashboard Site URL,
                         // which sends local dev signups to production.
                         emailRedirectTo: window.location.origin,
-                        data: { phone: `${phoneCode} ${phoneNumber.trim()}` }
+                        data: { phone: `${phoneCode} ${phoneNumber.trim()}`, country }
                     }
                 })
                 if (error) throw error
@@ -249,6 +253,18 @@ export default function Auth() {
                                 />
                             </div>
 
+                            <select
+                                value={country}
+                                onChange={(e) => setCountry(e.target.value)}
+                                required
+                                className="w-full p-4 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-xl border border-gray-100 dark:border-slate-700 focus:border-turquoise outline-none transition-colors appearance-none cursor-pointer"
+                            >
+                                <option value="" disabled>{t('auth.country')}</option>
+                                {COUNTRIES.map(c => (
+                                    <option key={c} value={c}>{c}</option>
+                                ))}
+                            </select>
+
                             {/* Consent gate. `required` lets the browser block the submit
                                 natively; the state is what also gates the Google button,
                                 which sits outside this form. */}
@@ -300,34 +316,36 @@ export default function Auth() {
                     )}
                 </form>
 
-                <div className="mt-8">
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
+                {SHOW_GOOGLE_LOGIN && (
+                    <div className="mt-8">
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                {/* The background has to match the page, not the card — it's masking the rule behind it */}
+                                <span className="px-2 bg-[#F5F5F0] dark:bg-slate-900 text-gray-400 dark:text-gray-500">{t('auth.orContinue')}</span>
+                            </div>
                         </div>
-                        <div className="relative flex justify-center text-sm">
-                            {/* The background has to match the page, not the card — it's masking the rule behind it */}
-                            <span className="px-2 bg-[#F5F5F0] dark:bg-slate-900 text-gray-400 dark:text-gray-500">{t('auth.orContinue')}</span>
-                        </div>
-                    </div>
 
-                    <div className="mt-6">
-                        <button
-                            onClick={() => handleSocialLogin('google')}
-                            type="button"
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm text-sm font-medium text-gray-600 dark:text-gray-200"
-                        >
-                            {/* Google Icon SVG */}
-                            <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill-rule="evenodd" fill-opacity="1" fill="#4285F4" stroke="none"></path>
-                                <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.035-3.715H.957v2.332A8.997 8.997 0 0 0 9 18z" fill-rule="evenodd" fill-opacity="1" fill="#34A853" stroke="none"></path>
-                                <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill-rule="evenodd" fill-opacity="1" fill="#FBBC05" stroke="none"></path>
-                                <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.965 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill-rule="evenodd" fill-opacity="1" fill="#EA4335" stroke="none"></path>
-                            </svg>
-                            Google
-                        </button>
+                        <div className="mt-6">
+                            <button
+                                onClick={() => handleSocialLogin('google')}
+                                type="button"
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm text-sm font-medium text-gray-600 dark:text-gray-200"
+                            >
+                                {/* Google Icon SVG */}
+                                <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill-rule="evenodd" fill-opacity="1" fill="#4285F4" stroke="none"></path>
+                                    <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.035-3.715H.957v2.332A8.997 8.997 0 0 0 9 18z" fill-rule="evenodd" fill-opacity="1" fill="#34A853" stroke="none"></path>
+                                    <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill-rule="evenodd" fill-opacity="1" fill="#FBBC05" stroke="none"></path>
+                                    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.965 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill-rule="evenodd" fill-opacity="1" fill="#EA4335" stroke="none"></path>
+                                </svg>
+                                Google
+                            </button>
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <div className="mt-8 text-center">
                     <button

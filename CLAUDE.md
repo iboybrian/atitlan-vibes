@@ -25,9 +25,9 @@ Requires `.env` with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Read via 
 
 ## Architecture
 
-Routing is flat in [src/App.jsx](src/App.jsx): all routes nest under one `<Layout>` (`/`, `/town/:id`, `/town/:townId/chat`, `/event/:id`, `/auth`, `/profile`, `/settings`, `/about`, `/privacy`). Deployed as an SPA — [vercel.json](vercel.json) rewrites all paths to `index.html`.
+Routing is flat in [src/App.jsx](src/App.jsx): all routes nest under one `<Layout>` (`/`, `/town/:id`, `/town/:townId/chat`, `/event/:id`, `/auth`, `/reset-password`, `/profile`, `/settings`, `/favorites`, `/about`, `/privacy`). Deployed as an SPA — [vercel.json](vercel.json) rewrites all paths to `index.html`.
 
-**Every route is wrapped in `RequireAuth` except `/auth` and `/privacy`** — no session redirects to `/auth`. `/privacy` stays public on purpose: Play Store review has to reach the policy without an account. Any new public page needs the same exemption.
+**Every route is wrapped in `RequireAuth` except `/auth`, `/reset-password`, and `/privacy`** — no session redirects to `/auth`. `/privacy` stays public on purpose: Play Store review has to reach the policy without an account. `/reset-password` is public because the recovery session may not exist the instant the page renders (see PKCE notes below) — it handles the no-session case itself rather than relying on `RequireAuth`. Any new public page needs the same exemption.
 
 **Auth & global state** live in a single React context, [src/context/AuthContext.jsx](src/context/AuthContext.jsx) (`useAuth()`). It owns the Supabase session, the joined `userProfile` row, and dark mode. Two things to know:
 - `AuthProvider` renders `{!loading && children}` — the whole app is gated on the initial `getSession()` resolving. A broken/missing Supabase env means nothing paints.
