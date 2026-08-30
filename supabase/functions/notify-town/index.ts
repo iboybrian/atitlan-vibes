@@ -7,9 +7,10 @@
  *   2. A manual POST of { "eventId": 123 } with the same secret — the paid
  *      promotion path. Deliberate, so it skips the announce-once gate.
  *
- * "In that town" means: the town we detected them in, if that detection is less
- * than 24h old, otherwise the town they picked in TownPicker. See
- * src/lib/geolocation.js — the client stores only a town id, never coordinates.
+ * "In that town" means either signal points here: a detection under 72h old, or
+ * a TownPicker choice under 7 days old. See targeting.js for the exact rule and
+ * the one asymmetry in it. src/lib/geolocation.js does the detecting — the
+ * client stores only a town id, never coordinates.
  *
  * Sends through FCM HTTP v1, which needs an OAuth2 access token minted from a
  * service account key. @capacitor/push-notifications has no topic API, so
@@ -22,6 +23,7 @@
  */
 
 import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { isInTown } from './targeting.js'
 
 interface ServiceAccount {
     client_email: string
@@ -45,10 +47,6 @@ const AGAIN = {
     es: (town: string) => `Sucede en ${town}`
 }
 const FALLBACK_TOWN = { en: 'your town', es: 'tu pueblo' }
-
-// How long a detected town counts as "where they are" before we fall back to
-// the town they picked by hand. Matches the copy in the privacy policy.
-const FRESH_MS = 24 * 60 * 60 * 1000
 
 function pemToBinary(pem: string): ArrayBuffer {
     const body = pem
@@ -161,14 +159,14 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'bad town_id' }, { status: 400 })
     }
 
-    // Fresh detected location wins; otherwise the town they picked. Writing that
-    // as a single PostgREST filter needs nested and()/or() strings nobody can
-    // read at 3am, and one typo silently changes who got paid-for reach — so
-    // fetch anyone matching EITHER column and decide here. Bounded: at most two
-    // towns' worth of opted-in users.
+    // Either signal can put someone in this town, so fetch anyone matching
+    // EITHER column and apply the freshness rules in isInTown(). Writing those
+    // as one PostgREST filter needs nested and()/or() strings nobody can read at
+    // 3am, and one typo silently changes who got paid-for reach. Bounded: at
+    // most two towns' worth of opted-in users.
     const { data: rows, error } = await supabase
         .from('users')
-        .select('id, push_token, lang, current_town_id, detected_town_id, detected_at')
+        .select('id, push_token, lang, current_town_id, detected_town_id, detected_at, current_town_set_at')
         .eq('push_enabled', true)
         .not('push_token', 'is', null)
         .or(`current_town_id.eq.${townId},detected_town_id.eq.${townId}`)
@@ -178,12 +176,7 @@ Deno.serve(async (req) => {
         return Response.json({ error: error.message }, { status: 500 })
     }
 
-    const cutoff = Date.now() - FRESH_MS
-    const recipients = (rows ?? []).filter((r) =>
-        r.detected_at && Date.parse(r.detected_at) > cutoff
-            ? r.detected_town_id === townId   // seen here recently — location wins
-            : r.current_town_id === townId    // no fresh fix — fall back to the pick
-    )
+    const recipients = (rows ?? []).filter((r) => isInTown(r, townId))
 
     if (!recipients.length) return Response.json({ sent: 0, reason: 'nobody in this town' })
 

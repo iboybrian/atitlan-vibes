@@ -4,7 +4,12 @@ import { App as CapacitorApp } from '@capacitor/app'
 import './index.css'
 import App from './App.jsx'
 import { supabase } from './lib/supabase'
-import { isNative } from './lib/pushNotifications'
+import { isNative, startPushTapListener } from './lib/pushNotifications'
+
+// Before React mounts, for the same reason as the deep link below: a tap that
+// cold-starts the app fires while Android is still building the activity.
+// Layout claims the tap with onPushTap() once the router exists.
+startPushTapListener()
 
 // Native OAuth return leg. Google runs in the system browser, so the redirect comes
 // back through the com.atitlanvibes:// intent — never through the WebView's own URL,

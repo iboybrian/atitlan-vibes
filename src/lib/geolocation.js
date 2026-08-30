@@ -9,9 +9,9 @@
  * Nothing here runs in the background: no ACCESS_BACKGROUND_LOCATION, no
  * foreground service, so no Location Permissions declaration form.
  *
- * detected_town_id is what notify-town targets while it is fresh (24h). The town
- * the user picked in TownPicker still drives everything they SEE, and takes over
- * targeting again once a detection goes stale.
+ * notify-town targets on detected_town_id while it is fresh (72h). The town the
+ * user picked in TownPicker still drives everything they SEE, and counts for
+ * targeting too — see supabase/functions/notify-town/targeting.js.
  *
  * Shape mirrors pushNotifications.js on purpose — same permission states, same
  * { success, error, message } returns, same silent refresh-on-mount contract.
@@ -27,7 +27,7 @@ import { t } from './i18n'
 const POSITION_TIMEOUT_MS = 10000
 
 // The app can sit open for days and resume fires constantly. One fix per half
-// hour is plenty to keep a 24h freshness window honest.
+// hour is plenty to keep a 72h freshness window honest.
 const REFRESH_INTERVAL_MS = 30 * 60 * 1000
 let lastRun = 0
 
@@ -88,8 +88,8 @@ const detectAndSave = async (userId) => {
  */
 export const setLocationPreference = async (userId, enabled) => {
     if (!enabled) {
-        // Clear the detection too, or a stale one keeps overriding the picked
-        // town for up to 24h after the user opted out.
+        // Clear the detection too, or it keeps targeting the user for up to 72h
+        // after they opted out.
         const { error } = await supabase
             .from('users')
             .update({ location_enabled: false, detected_town_id: null, detected_at: null })

@@ -43,9 +43,11 @@ export default function TownPicker() {
         setOpen(false)
 
         if (!user) return
+        // The timestamp is what stops a pick from counting forever — notify-town
+        // drops it after 7 days when a live location says otherwise.
         const { error } = await supabase
             .from('users')
-            .update({ current_town_id: town.id })
+            .update({ current_town_id: town.id, current_town_set_at: new Date().toISOString() })
             .eq('id', user.id)
 
         // Local pick still works; only the notifications would miss it

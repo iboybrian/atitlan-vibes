@@ -213,3 +213,46 @@ export const markPushPromptShown = () => {
     localStorage.setItem(PROMPT_KEY, 'true')
 }
 
+/**
+ * Tapping a push opens the event it is about.
+ *
+ * Split in two because of a race: a tap can cold-start the app, and the plugin
+ * fires the event while Android is still building the activity — before React
+ * has mounted, so a listener registered in a useEffect misses it. Same reason
+ * the OAuth deep link is registered at module scope in main.jsx.
+ *
+ * So startPushTapListener() runs at module scope and buffers, and whatever can
+ * actually navigate claims the tap later with onPushTap().
+ */
+let pendingEventId = null
+let tapHandler = null
+
+export const startPushTapListener = () => {
+    if (!isPushSupported()) return
+
+    PushNotifications.addListener('pushNotificationActionPerformed', ({ notification }) => {
+        // notify-town sends data.eventId on every push, manual blast included.
+        const id = notification?.data?.eventId
+        if (!id) return
+
+        if (tapHandler) tapHandler(id)
+        else pendingEventId = id
+    })
+}
+
+/**
+ * Claim push taps. Fires immediately if one arrived before React was ready.
+ * Returns an unsubscribe for the effect cleanup.
+ */
+export const onPushTap = (handler) => {
+    tapHandler = handler
+
+    if (pendingEventId) {
+        const id = pendingEventId
+        pendingEventId = null
+        handler(id)
+    }
+
+    return () => { tapHandler = null }
+}
+

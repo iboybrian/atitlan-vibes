@@ -1,13 +1,13 @@
 
 import { useState, useEffect } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import TownFooter from './TownFooter'
 import PushPromptModal from '../ui/PushPromptModal'
 import Tour from '../ui/Tour'
 import { useAuth } from '../../context/AuthContext'
-import { shouldShowPushPrompt, isPushSupported, refreshPushToken } from '../../lib/pushNotifications'
+import { shouldShowPushPrompt, isPushSupported, refreshPushToken, onPushTap } from '../../lib/pushNotifications'
 import { refreshDetectedTown } from '../../lib/geolocation'
 import { shouldShowTour } from '../../lib/utils'
 import { syncLang } from '../../lib/i18n'
@@ -18,10 +18,17 @@ export default function Layout() {
     const [showPushPrompt, setShowPushPrompt] = useState(false)
     const [showTour, setShowTour] = useState(false)
     const { user } = useAuth()
+    const navigate = useNavigate()
 
     const maybeShowPushPrompt = () => {
         if (shouldShowPushPrompt() && isPushSupported()) setShowPushPrompt(true)
     }
+
+    // A push is only worth sending if it opens the event it is about — an
+    // advertiser whose blast lands on Home does not buy a second one. Separate
+    // from the user effect below: the listener is registered at module scope in
+    // main.jsx, so a tap can already be buffered before the session resolves.
+    useEffect(() => onPushTap(id => navigate(`/event/${id}`)), [navigate])
 
     // Show the tour, then the push prompt after first login
     useEffect(() => {

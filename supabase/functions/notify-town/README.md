@@ -4,10 +4,11 @@ Manda un push a todos los usuarios que están en una town, cada vez que un event
 de esa town pasa a `is_approved = true`. También se puede disparar a mano para
 promocionar un evento (ver §7).
 
-**A quién le llega.** Si detectamos al usuario en esa town hace menos de 24h, gana
-la ubicación detectada. Si no hay detección fresca, se usa la town que eligió a
-mano en el TownPicker. Así la promoción llega a quien de verdad está ahí, sin
-perder alcance con quien no tiene la ubicación activada.
+**A quién le llega.** Cualquiera de las dos señales basta: una detección de menos
+de 72h, o un pick del TownPicker de menos de 7 días. Un pick vencido se descarta
+solo si hay una detección fresca que lo contradiga — quien tiene la ubicación
+apagada no tiene otra señal y silenciarlo sería peor. La regla exacta está en
+[targeting.js](targeting.js), con su check en `npm run check`.
 
 ## 1. Columnas en la base
 
@@ -16,6 +17,7 @@ Corre estas migraciones en Supabase → SQL Editor:
 - [`current_town_id`](../../migrations/20260802000000_add_current_town_id.sql) — la town elegida a mano (el respaldo).
 - [`lang`](../../migrations/20260811000000_add_lang.sql) — en qué idioma va el título.
 - [`detected_town_id`](../../migrations/20260830000000_add_detected_town.sql) — la town detectada, más `detected_at` y `location_enabled`. Incluye las coordenadas de las towns.
+- [`current_town_set_at`](../../migrations/20260830020000_add_current_town_set_at.sql) — cuándo se hizo el pick, para poder caducarlo.
 
 ## 2. Llave de servicio de Firebase
 
@@ -110,10 +112,13 @@ Se salta el candado de "avisar una sola vez" (ese candado existe para que editar
 un evento no vuelva a notificar a todos; una promoción no es una edición), pero
 el evento tiene que existir: si no, responde `404`.
 
+Al tocar la notificación se abre `/event/<id>`: la función manda `data.eventId` y
+el cliente lo escucha con `startPushTapListener()` (registrado en
+[main.jsx](../../../src/main.jsx), antes de React) más `onPushTap()` en
+[Layout.jsx](../../../src/components/layout/Layout.jsx).
+
 ## Qué no hace
 
-- **No abre el evento al tocar la notificación.** Manda `data.eventId`, pero
-  nadie escucha `pushNotificationActionPerformed` en el cliente todavía.
 - **Un token por usuario.** `users.push_token` es una sola columna: si alguien
   entra desde un segundo teléfono, el primero deja de recibir.
 - **Sin reintentos.** Un fallo de FCM que no sea `404` solo queda en los logs.

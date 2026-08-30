@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "check": "node scripts/check-nearest-town.mjs",
+    "check": "node scripts/check-nearest-town.mjs && node scripts/check-targeting.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
