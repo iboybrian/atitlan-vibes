@@ -78,6 +78,15 @@
          android/app/build/intermediates/merged_manifests/*/AndroidManifest.xml -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="remove" />
 
-    <!-- Location is optional, so don't let Play hide the app from GPS-less devices -->
+    <!-- Location is optional, so don't let Play hide the app from devices without
+         the hardware. All three have to be listed: a location permission IMPLIES
+         a <uses-feature> that defaults to required="true", and Play then filters
+         on it. ACCESS_COARSE_LOCATION implies android.hardware.location and
+         .network; ACCESS_FINE_LOCATION would imply .gps. Declaring only .gps
+         cost 6 devices on the first upload — Play reports that as "no longer
+         supports N devices". The app works fine with no location at all, so
+         none of these may ever be required. -->
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.network" android:required="false" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
 </manifest>
