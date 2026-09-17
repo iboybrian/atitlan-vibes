@@ -173,7 +173,24 @@ export const setPushPreference = async (userId, enabled) => {
  */
 export const refreshPushToken = async (userId) => {
     if (!userId || !isPushSupported()) return
-    if (await getPermissionStatus() !== 'granted') return
+
+    if (await getPermissionStatus() !== 'granted') {
+        // Android lets the user revoke notifications in Settings long after they
+        // opted in here. The FCM token stays valid when that happens, so FCM keeps
+        // answering 200 and notify-town keeps counting the send — the user is
+        // unreachable and nothing anywhere says so. Clearing the flag is what makes
+        // the DB stop lying: same two-gate rule geolocation already follows with
+        // location_enabled, which push had the column for but never enforced.
+        //
+        // The .eq('push_enabled', true) makes it a no-op for the many users who
+        // never opted in at all, so this costs nothing on a normal launch.
+        await supabase
+            .from('users')
+            .update({ push_enabled: false })
+            .eq('id', userId)
+            .eq('push_enabled', true)
+        return
+    }
 
     const { data } = await supabase
         .from('users')
@@ -256,3 +273,29 @@ export const onPushTap = (handler) => {
     return () => { tapHandler = null }
 }
 
+
+/**
+ * A push that lands while the app is open on screen.
+ *
+ * Android does not draw a tray notification for the foreground app when the
+ * payload carries a `notification` block — and notify-town always sends one. So
+ * without this the message is delivered and silently discarded: FCM answers 200,
+ * the function counts it in `sent`, and the user sees nothing. That is the whole
+ * bug this exists to close.
+ *
+ * No module-scope buffering here, unlike startPushTapListener(): a foreground
+ * push means React is already mounted by definition, so there is no cold-start
+ * race to lose the event to.
+ *
+ * Returns an unsubscribe for the effect cleanup.
+ */
+export const onPushReceived = (handler) => {
+    if (!isPushSupported()) return () => { }
+
+    const handle = PushNotifications.addListener(
+        'pushNotificationReceived',
+        ({ title, body, data }) => handler({ title, body, eventId: data?.eventId })
+    )
+
+    return () => { handle.then((h) => h.remove()) }
+}

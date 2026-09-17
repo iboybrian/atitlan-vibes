@@ -7,7 +7,7 @@ import TownFooter from './TownFooter'
 import PushPromptModal from '../ui/PushPromptModal'
 import Tour from '../ui/Tour'
 import { useAuth } from '../../context/AuthContext'
-import { shouldShowPushPrompt, isPushSupported, refreshPushToken, onPushTap } from '../../lib/pushNotifications'
+import { shouldShowPushPrompt, isPushSupported, refreshPushToken, onPushTap, onPushReceived } from '../../lib/pushNotifications'
 import { refreshDetectedTown } from '../../lib/geolocation'
 import { shouldShowTour } from '../../lib/utils'
 import { syncLang } from '../../lib/i18n'
@@ -17,6 +17,7 @@ export default function Layout() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [showPushPrompt, setShowPushPrompt] = useState(false)
     const [showTour, setShowTour] = useState(false)
+    const [pushBanner, setPushBanner] = useState(null)
     const { user } = useAuth()
     const navigate = useNavigate()
 
@@ -29,6 +30,20 @@ export default function Layout() {
     // from the user effect below: the listener is registered at module scope in
     // main.jsx, so a tap can already be buffered before the session resolves.
     useEffect(() => onPushTap(id => navigate(`/event/${id}`)), [navigate])
+
+    // Android suppresses the tray notification for the foreground app, so a push
+    // that arrives while someone is looking at the app is delivered and dropped —
+    // 200 from FCM, nothing on screen. Render it in-app instead, tappable to the
+    // same place the real notification would have gone.
+    useEffect(() => onPushReceived(setPushBanner), [])
+
+    // Separate effect so a second push re-arms the timer for free instead of
+    // inheriting the first one's remaining time.
+    useEffect(() => {
+        if (!pushBanner) return
+        const timer = setTimeout(() => setPushBanner(null), 6000)
+        return () => clearTimeout(timer)
+    }, [pushBanner])
 
     // Show the tour, then the push prompt after first login
     useEffect(() => {
@@ -81,6 +96,35 @@ export default function Layout() {
                 <main className="flex-1 transition-colors duration-500">
                     <Outlet />
                 </main>
+
+                {/* A push that arrived with the app in the foreground. Fixed is fine
+                    here for the same reason the Profile toast is: viewport-centered
+                    equals shell-centered. Pads for the status bar like Header does,
+                    since the WebView draws under it edge-to-edge. */}
+                {pushBanner && (
+                    <div
+                        role="alert"
+                        className="fixed top-[calc(1rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm rounded-xl shadow-lg bg-turquoise text-white animate-in slide-in-from-top-5"
+                    >
+                        <button
+                            type="button"
+                            onClick={() => {
+                                // notify-town always sends data.eventId, but a push from
+                                // anywhere else must not navigate to /event/undefined.
+                                if (pushBanner.eventId) navigate(`/event/${pushBanner.eventId}`)
+                                setPushBanner(null)
+                            }}
+                            className="w-full px-5 py-3 text-left"
+                        >
+                            {pushBanner.title && (
+                                <p className="font-bold text-sm">{pushBanner.title}</p>
+                            )}
+                            {pushBanner.body && (
+                                <p className="text-sm opacity-90">{pushBanner.body}</p>
+                            )}
+                        </button>
+                    </div>
+                )}
 
                 {/* Push Notification Soft Prompt */}
                 <PushPromptModal

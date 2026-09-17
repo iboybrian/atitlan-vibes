@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, ChevronDown, Ship, MessageCircle, Search, X, Star } from 'lucide-react'
-import { getDirectImageUrl } from '../lib/utils'
+import { getDirectImageUrl, compareEventsByWhen } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import AddEventModal from '../components/ui/AddEventModal'
 import EventCard from '../components/ui/EventCard'
@@ -95,7 +95,9 @@ export default function TownDetail() {
         if (id) fetchData()
     }, [id])
 
-    // Filter events based on search query (case-insensitive, multi-field)
+    // Filter events based on search query (case-insensitive, multi-field), then
+    // put today's first — the query returns them unordered, and someone opening a
+    // town page is asking "what is on tonight", not "what happened in March".
     const filteredEvents = events.filter(event => {
         if (!searchQuery.trim()) return true
 
@@ -122,7 +124,7 @@ export default function TownDetail() {
         }
 
         return false
-    })
+    }).sort(compareEventsByWhen)
 
     if (loading) return <div className="p-8 text-center text-gray-400 dark:text-gray-500">{t('common.loading')}</div>
 

@@ -1,8 +1,8 @@
 
 import { Link } from 'react-router-dom'
 import { Star, Clock } from 'lucide-react'
-import { getDirectImageUrl } from '../../lib/utils'
-import { useT } from '../../lib/i18n'
+import { getDirectImageUrl, formatOccurrence } from '../../lib/utils'
+import { useT, getLang } from '../../lib/i18n'
 
 /**
  * Grid event card — the square-image variant used by TownDetail and Favorites.
@@ -12,6 +12,13 @@ import { useT } from '../../lib/i18n'
  */
 export default function EventCard({ event }) {
     const t = useT()
+
+    // For a series, event_date_label says "Every Sunday" but not WHICH Sunday —
+    // the badge is the one place with room for the answer. One-off events already
+    // have a label that says it better than a bare date would.
+    const badge = event.recurring_days?.length
+        ? formatOccurrence(event, getLang())
+        : event.event_date_label
 
     return (
         <Link to={`/event/${event.id}`} className="block group">
@@ -31,7 +38,7 @@ export default function EventCard({ event }) {
                         </div>
                     )}
                     <div className="absolute top-2 right-2 bg-white/95 dark:bg-slate-800/95 text-gray-900 dark:text-gray-200 backdrop-blur px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
-                        {event.event_date_label}
+                        {badge}
                     </div>
                 </div>
                 <div className="p-3">

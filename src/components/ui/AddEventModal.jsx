@@ -5,7 +5,8 @@ import { supabase } from '../../lib/supabase'
 import { useTowns } from '../../lib/towns'
 import { useAuth } from '../../context/AuthContext'
 import { PHONE_CODES } from '../../data/constants'
-import { useT } from '../../lib/i18n'
+import { weekdayNames } from '../../lib/utils'
+import { useT, getLang } from '../../lib/i18n'
 
 export default function AddEventModal({ isOpen, onClose }) {
     const t = useT()
@@ -20,6 +21,15 @@ export default function AddEventModal({ isOpen, onClose }) {
 
     // Form State
     const [costType, setCostType] = useState('gtq') // gtq, free, contact
+
+    // Weekdays this event repeats on, 0 = Sunday, matching events.recurring_days.
+    // Empty means a one-off, which is the existing behaviour untouched.
+    const [recurringDays, setRecurringDays] = useState([])
+    const dayNames = weekdayNames(getLang(), 'short')
+
+    const toggleDay = (day) => setRecurringDays(prev =>
+        prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day].sort((a, b) => a - b)
+    )
     const [formData, setFormData] = useState({
         name: '',
         town_id: '',
@@ -96,8 +106,15 @@ export default function AddEventModal({ isOpen, onClose }) {
         e.preventDefault()
         if (!user) return alert(t('addEvent.mustLogin'))
 
+        // A series doesn't need the label typed out — the weekdays already say it.
+        const dateLabel = formData.event_date_label.trim() || (
+            recurringDays.length
+                ? t('addEvent.everyDays').replace('{days}', recurringDays.map(d => dayNames[d]).join(', '))
+                : ''
+        )
+
         // Basic validation
-        if (!formData.name || !formData.town_id || !formData.calendar_date || !formData.start_time || !formData.venue || !formData.event_date_label) {
+        if (!formData.name || !formData.town_id || !formData.calendar_date || !formData.start_time || !formData.venue || !dateLabel) {
             return alert(t('addEvent.fillRequired'))
         }
 
@@ -130,7 +147,10 @@ export default function AddEventModal({ isOpen, onClose }) {
                 town_id: formData.town_id,
                 description: formData.description,
                 calendar_date: formData.calendar_date,
-                event_date_label: formData.event_date_label,
+                event_date_label: dateLabel,
+                // null, not [] — the column's check constraint rejects an empty
+                // array on purpose, since it would be ambiguous.
+                recurring_days: recurringDays.length ? recurringDays : null,
                 start_time: formattedTime,
                 venue: formData.venue,
                 cost: finalCost,
@@ -153,6 +173,7 @@ export default function AddEventModal({ isOpen, onClose }) {
                 event_date_label: '', start_time: '', venue: '', costValue: '',
                 phone_code: '+502', phone_number: '', tags: '', contact_link: ''
             })
+            setRecurringDays([])
             setPreviewUrl(null)
             setSelectedFile(null)
 
@@ -233,13 +254,36 @@ export default function AddEventModal({ isOpen, onClose }) {
                         {/* Dates */}
                         <div className="grid grid-cols-2 gap-3">
                             <div className="flex flex-col gap-1">
-                                <label className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500">{t('addEvent.exactDate')} <span className="text-red-500">*</span></label>
+                                <label className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500">{recurringDays.length ? t('addEvent.startsOn') : t('addEvent.exactDate')} <span className="text-red-500">*</span></label>
                                 <input type="date" name="calendar_date" required value={formData.calendar_date} onChange={handleChange} className="w-full p-3 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm" />
                             </div>
                             <div className="flex flex-col gap-1">
                                 <label className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500">{t('addEvent.displayLabel')} <span className="text-red-500">*</span></label>
-                                <input name="event_date_label" placeholder={t('addEvent.labelExample')} required value={formData.event_date_label} onChange={handleChange} className="w-full p-3 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm" />
+                                <input name="event_date_label" placeholder={t('addEvent.labelExample')} required={recurringDays.length === 0} value={formData.event_date_label} onChange={handleChange} className="w-full p-3 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm" />
                             </div>
+                        </div>
+
+                        {/* Weekly recurrence. None selected = one-off, which is what
+                            every event was before this existed. */}
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500">{t('addEvent.repeats')}</label>
+                            <div className="flex gap-1.5">
+                                {dayNames.map((name, day) => (
+                                    <button
+                                        key={day}
+                                        type="button"
+                                        onClick={() => toggleDay(day)}
+                                        aria-pressed={recurringDays.includes(day)}
+                                        className={`flex-1 py-2 rounded-lg text-xs font-bold capitalize transition-colors ${recurringDays.includes(day)
+                                            ? 'bg-turquoise text-white'
+                                            : 'bg-gray-50 dark:bg-slate-700 text-gray-500 dark:text-gray-400'
+                                            }`}
+                                    >
+                                        {name}
+                                    </button>
+                                ))}
+                            </div>
+                            <span className="text-[10px] text-gray-400 dark:text-gray-500">{t('addEvent.repeatsHint')}</span>
                         </div>
 
                         <div className="flex flex-col gap-1">

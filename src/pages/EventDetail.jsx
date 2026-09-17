@@ -2,12 +2,12 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { getDirectImageUrl } from '../lib/utils'
+import { getDirectImageUrl, formatOccurrence } from '../lib/utils'
 import { MapPin, Calendar, Clock, ArrowLeft, Globe, Instagram, ExternalLink, Heart } from 'lucide-react'
 import InstagramGradient from '../components/icons/InstagramGradient'
 import WhatsAppIcon from '../components/icons/WhatsAppIcon'
 import { useAuth } from '../context/AuthContext'
-import { useT } from '../lib/i18n'
+import { useT, getLang } from '../lib/i18n'
 
 export default function EventDetail() {
     const t = useT()
@@ -229,7 +229,18 @@ export default function EventDetail() {
                 <div className="flex items-center gap-4 text-gray-600 dark:text-gray-300 font-medium mb-6 text-sm">
                     <div className="flex items-center gap-1.5">
                         <Calendar size={16} className="text-turquoise" />
-                        <span>{event.event_date_label}</span>
+                        {/* A series shows both: the concrete next date, and the
+                            pattern it repeats on underneath. */}
+                        {event.recurring_days?.length ? (
+                            <span>
+                                {formatOccurrence(event, getLang())}
+                                <span className="text-gray-400 dark:text-gray-500 ml-1.5">
+                                    · {event.event_date_label}
+                                </span>
+                            </span>
+                        ) : (
+                            <span>{event.event_date_label}</span>
+                        )}
                     </div>
                     {event.start_time && (
                         <div className="flex items-center gap-1.5">

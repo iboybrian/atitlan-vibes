@@ -6,7 +6,7 @@ import AddEventModal from '../components/ui/AddEventModal'
 import FlipCard from '../components/ui/FlipCard'
 import TownPicker from '../components/ui/TownPicker'
 import { supabase } from '../lib/supabase'
-import { getDirectImageUrl } from '../lib/utils'
+import { getDirectImageUrl, todayInGuatemala, compareEventsByWhen } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import { useT } from '../lib/i18n'
 
@@ -63,18 +63,20 @@ export default function Home() {
         async function fetchUpcoming() {
             try {
                 // calendar_date is a date column (YYYY-MM-DD); start_time is time-only
-                // and has no date to compare against a timestamp.
-                const today = new Date().toISOString().slice(0, 10)
+                // and has no date to compare against a timestamp. The date has to be
+                // Guatemala's, not UTC — see todayInGuatemala().
+                const today = todayInGuatemala()
 
-                // Fetch all approved events
+                // A recurring event's calendar_date is when the series STARTED, so
+                // it is usually in the past and gte() alone would hide exactly the
+                // events that are on every week. Pull those in regardless of date;
+                // nextOccurrence() sorts out when they actually happen.
                 const { data, error } = await supabase
                     .from('events')
                     .select('*')
                     .eq('is_approved', true)
-                    .gte('calendar_date', today)
-                    .order('calendar_date', { ascending: true })
-                    .order('start_time', { ascending: true })
-                    .limit(8)
+                    .or(`calendar_date.gte.${today},recurring_days.not.is.null`)
+                    .limit(50)
 
                 if (error) throw error
 
@@ -89,6 +91,10 @@ export default function Home() {
                         .limit(8)
                     list = latest || []
                 }
+
+                // Sorted here, not in the query: the real date of a recurring event
+                // is computed, so no column can order it. Over-fetch then cut to 8.
+                list = list.sort(compareEventsByWhen).slice(0, 8)
 
                 setFeaturedEvents(list.filter(e => e.is_feature))
                 setRegularEvents(list.filter(e => !e.is_feature))
