@@ -1,6 +1,7 @@
 
 import { useState } from 'react'
-import { ChevronDown, MessageCircle, Info } from 'lucide-react'
+import { ChevronDown, Info } from 'lucide-react'
+import WhatsAppIcon from '../components/ui/WhatsAppIcon'
 import { useT } from '../lib/i18n'
 
 // Accordion Component
@@ -80,7 +81,7 @@ export default function About() {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 bg-green-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg hover:bg-green-600 transition-all active:scale-[0.98]"
                     >
-                        <MessageCircle size={20} />
+                        <WhatsAppIcon size={20} />
                         <span>{t('common.contactWhatsApp')}</span>
                     </a>
                 </div>

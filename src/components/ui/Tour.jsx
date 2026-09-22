@@ -19,7 +19,6 @@ const STEPS = [
     { route: '/', target: 'town-picker', title: 'tour.pickerTitle', body: 'tour.pickerBody' },
     { route: '/', target: 'town-footer', title: 'tour.footerTitle', body: 'tour.footerBody' },
     { route: '/town/{town}', target: 'town-chat', title: 'tour.chatTitle', body: 'tour.chatBody' },
-    { route: '/town/{town}/chat', target: null, title: 'tour.chatRoomTitle', body: 'tour.chatRoomBody' },
     { route: '/town/{town}', target: 'post-vibe', title: 'tour.postTitle', body: 'tour.postBody' }
 ]
 

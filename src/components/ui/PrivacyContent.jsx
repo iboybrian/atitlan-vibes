@@ -50,6 +50,10 @@ export default function PrivacyContent() {
                 <p>{t('privacy.whoSeesBody')}</p>
             </Section>
 
+            <Section title={t('privacy.community')}>
+                <p>{t('privacy.communityBody')}</p>
+            </Section>
+
             <Section title={t('privacy.thirdParty')}>
                 <p>
                     {t('privacy.thirdPartyA')}<strong>Supabase</strong>

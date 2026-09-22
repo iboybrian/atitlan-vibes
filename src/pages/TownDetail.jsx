@@ -1,13 +1,18 @@
 
 import { useEffect, useState } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { Plus, ChevronDown, Ship, MessageCircle, Search, X, Star } from 'lucide-react'
+import { Plus, ChevronDown, Ship, Search, X, Star } from 'lucide-react'
+import WhatsAppIcon from '../components/ui/WhatsAppIcon'
 import { getDirectImageUrl, compareEventsByWhen } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import AddEventModal from '../components/ui/AddEventModal'
 import EventCard from '../components/ui/EventCard'
 import { useT } from '../lib/i18n'
+
+// Every town's button opens the same community group — change it here and it
+// changes for all of them.
+const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/B59U3uqiFKuD6YSESfBLYG'
 
 // Accordion Component
 function Accordion({ label, icon: Icon, children, defaultOpen = false }) {
@@ -273,20 +278,27 @@ export default function TownDetail() {
                 />
             )}
 
-            {/* Floating Chat Button (logged-in users only) - sticks to the shell's right edge, above the footer.
+            {/* Floating WhatsApp Button (logged-in users only) - sticks to the shell's right edge, above the footer.
                 A bare bottom-24 was a guess at the footer's height; the real one is ~84px *plus*
                 env(safe-area-inset-bottom), so on a gesture-bar device the footer outgrew the guess
-                and covered the bottom half of the button. */}
+                and covered the bottom half of the button.
+
+                One shared group for all towns, not a per-town link: the community lives in WhatsApp,
+                so the in-app ChatRoom is no longer reachable from the UI. Plain anchor on purpose —
+                chat.whatsapp.com is outside the Capacitor server origin, so Android hands it to the
+                WhatsApp app (or the browser) instead of loading it inside the WebView. */}
             {user && (
                 <div className="sticky bottom-[calc(6rem+env(safe-area-inset-bottom))] z-40 flex justify-end h-0 pointer-events-none">
-                    <Link
+                    <a
                         data-tour="town-chat"
-                        to={`/town/${id}/chat`}
-                        className="pointer-events-auto w-14 h-14 -translate-y-full bg-turquoise text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all flex items-center justify-center"
+                        href={WHATSAPP_GROUP_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pointer-events-auto w-14 h-14 -translate-y-full bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all flex items-center justify-center"
                         title={t('town.chat')}
                     >
-                        <MessageCircle size={24} />
-                    </Link>
+                        <WhatsAppIcon size={28} />
+                    </a>
                 </div>
             )}
         </div>
