@@ -37,8 +37,7 @@ public class MetaEventsPlugin extends Plugin {
             "open_town_chat",
             "send_chat_message",
             "set_current_town",
-            "enable_push",
-            "enable_location"
+            "enable_push"
     ));
 
     private static final Set<String> PARAM_KEYS = new HashSet<>(Arrays.asList(
@@ -46,8 +45,7 @@ public class MetaEventsPlugin extends Plugin {
             "fb_content_type",
             "fb_content_id",
             "method",
-            "town_id",
-            "channel"
+            "town_id"
     ));
 
     private static final Pattern TOKEN = Pattern.compile("^[A-Za-z0-9_-]{1,64}$");

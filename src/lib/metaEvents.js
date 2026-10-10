@@ -60,13 +60,10 @@ export const logViewEvent = (eventId) =>
 export const logFavoriteEvent = (eventId) =>
     log('fb_mobile_add_to_wishlist', { fb_content_type: 'event', fb_content_id: eventId })
 
-export const logOpenTownChat = (townId, channel) =>
-    log('open_town_chat', { town_id: townId, channel })
+export const logOpenTownChat = (townId) => log('open_town_chat', { town_id: townId })
 
 export const logSendChatMessage = (townId) => log('send_chat_message', { town_id: townId })
 
 export const logSetCurrentTown = (townId) => log('set_current_town', { town_id: townId })
 
 export const logEnablePush = () => log('enable_push')
-
-export const logEnableLocation = () => log('enable_location')

@@ -10,7 +10,7 @@ import AddEventModal from '../components/ui/AddEventModal'
 import EventCard from '../components/ui/EventCard'
 import CategoryChips from '../components/ui/CategoryChips'
 import { useT } from '../lib/i18n'
-import { logViewTown, logOpenTownChat } from '../lib/metaEvents'
+import { logViewTown } from '../lib/metaEvents'
 
 // Every town's button opens the same community group — change it here and it
 // changes for all of them.
@@ -294,7 +294,6 @@ export default function TownDetail() {
                 <div className="sticky bottom-[calc(6rem+env(safe-area-inset-bottom))] z-40 flex justify-end h-0 pointer-events-none">
                     <a
                         data-tour="town-chat"
-                        onClick={() => logOpenTownChat(id, 'whatsapp')}
                         href={WHATSAPP_GROUP_URL}
                         target="_blank"
                         rel="noopener noreferrer"

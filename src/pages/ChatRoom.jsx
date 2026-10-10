@@ -24,7 +24,7 @@ export default function ChatRoom() {
     const inputRef = useRef(null)
     const initRef = useRef(false) // Prevent double-calling
 
-    useEffect(() => { logOpenTownChat(townId, 'in_app') }, [townId])
+    useEffect(() => { logOpenTownChat(townId) }, [townId])
 
     const [currentUser, setCurrentUser] = useState(null)
     const [town, setTown] = useState(null)
