@@ -23,6 +23,7 @@ import { isNative } from './pushNotifications'
 import { fetchTowns } from './towns'
 import { nearestTown } from './utils'
 import { t } from './i18n'
+import { logEnableLocation } from './metaEvents'
 
 const POSITION_TIMEOUT_MS = 10000
 
@@ -123,6 +124,8 @@ export const setLocationPreference = async (userId, enabled) => {
             console.error('Error saving location preference:', error)
             return { success: false, error: t('loc.savePrefs') }
         }
+
+        logEnableLocation()
 
         // Don't make them wait up to half an hour for the first detection
         await detectAndSave(userId)

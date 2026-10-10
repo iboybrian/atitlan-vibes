@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ArrowLeft, Send, Reply, X } from 'lucide-react'
 import { useT, getLang } from '../lib/i18n'
+import { logOpenTownChat, logSendChatMessage } from '../lib/metaEvents'
 
 // Common emoji reactions
 const EMOJI_OPTIONS = ['👍', '❤️', '😂', '😮', '😢', '🔥', '🎉', '👏']
@@ -22,6 +23,8 @@ export default function ChatRoom() {
     const messagesEndRef = useRef(null)
     const inputRef = useRef(null)
     const initRef = useRef(false) // Prevent double-calling
+
+    useEffect(() => { logOpenTownChat(townId, 'in_app') }, [townId])
 
     const [currentUser, setCurrentUser] = useState(null)
     const [town, setTown] = useState(null)
@@ -285,6 +288,7 @@ export default function ChatRoom() {
                 return
             }
 
+            logSendChatMessage(townId)
             setNewMessage('')
             setReplyingTo(null)
         } catch (err) {

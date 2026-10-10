@@ -10,6 +10,7 @@
 import { PushNotifications } from '@capacitor/push-notifications'
 import { supabase } from './supabase'
 import { t } from './i18n'
+import { logEnablePush } from './metaEvents'
 
 // Play Services can hang; don't leave the modal spinning forever
 const REGISTER_TIMEOUT_MS = 10000
@@ -117,6 +118,7 @@ export const savePushToken = async (userId, token) => {
             return false
         }
 
+        logEnablePush()
         return true
     } catch (err) {
         console.error('Save token error:', err)

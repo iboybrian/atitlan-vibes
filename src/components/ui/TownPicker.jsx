@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { useTowns } from '../../lib/towns'
 import { useAuth } from '../../context/AuthContext'
 import { getCurrentTown, setCurrentTown } from '../../lib/utils'
+import { logSetCurrentTown } from '../../lib/metaEvents'
 import { useT } from '../../lib/i18n'
 
 /**
@@ -40,6 +41,7 @@ export default function TownPicker() {
     const choose = async (town) => {
         setSelected(town)
         setCurrentTown(town)
+        logSetCurrentTown(town.id)
         setOpen(false)
 
         if (!user) return
