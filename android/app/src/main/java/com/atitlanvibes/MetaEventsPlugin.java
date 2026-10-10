@@ -35,6 +35,7 @@ public class MetaEventsPlugin extends Plugin {
             "fb_mobile_add_to_wishlist",
             "login",
             "open_town_chat",
+            "click_whatsapp_chat",
             "send_chat_message",
             "set_current_town",
             "enable_push"

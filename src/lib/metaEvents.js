@@ -62,6 +62,8 @@ export const logFavoriteEvent = (eventId) =>
 
 export const logOpenTownChat = (townId) => log('open_town_chat', { town_id: townId })
 
+export const logClickWhatsappChat = (townId) => log('click_whatsapp_chat', { town_id: townId })
+
 export const logSendChatMessage = (townId) => log('send_chat_message', { town_id: townId })
 
 export const logSetCurrentTown = (townId) => log('set_current_town', { town_id: townId })
