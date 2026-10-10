@@ -78,6 +78,12 @@ For *targeting*, both count and the rule lives in one place — [supabase/functi
 - Recipient selection is one over-fetching query plus a predicate in TS, not a PostgREST filter: nested `and()`/`or()` strings are unreadable and a typo silently changes who got paid-for reach.
 - The soft-prompt (`PushPromptModal`) fires 2s after first login, gated by a `localStorage` flag, and asks for push *and* location in that order — the copy before the OS dialogs is the Play prominent disclosure. Its key is versioned (`push_prompt_shown_v2`); bump it again if the prompt ever asks for something new, or existing users never see it.
 
+**Ad attribution (Meta App Events)** — Android only, native only, no JS. `facebook-core` (not the umbrella SDK) in [app/build.gradle](android/app/build.gradle); [AndroidManifest.xml](android/app/src/main/AndroidManifest.xml) carries the `com.facebook.sdk.*` meta-data and the SDK's `FacebookInitProvider` boots it before `MainActivity`, so there is no init code. Things not to undo:
+- **It brings permissions the manifest never lists.** `AD_ID` and `ACCESS_ADSERVICES_*` arrive by merge, so Play Console "Advertising ID = yes" and the Data Safety form must stay in step with it; check the *merged* manifest after any SDK bump. The privacy copy (`privacy.noTracking` / `privacy.adMeasurement`) also admits this SDK — removing the SDK or adding new data to it means editing that copy.
+- `facebook_client_token` in `strings.xml` is a placeholder until the user supplies the real one; the App ID is public and committed.
+- No Facebook Login, so no key hashes / `fb_login_protocol_scheme`. Never add the `facebook-android-sdk` umbrella just to get events.
+- The SDK must never be given coordinates, emails, or other PII — same line as the geolocation privacy claim.
+
 ## Conventions
 
 - **One responsive shell, one width declaration**: everything renders inside a centered column that steps 450 → 576 → 672 → 896px across `sm`/`md`/`lg` ([src/components/layout/Layout.jsx](src/components/layout/Layout.jsx)). That line is the *only* place the shell width is written — child chrome inherits it, so never hardcode a shell width elsewhere.

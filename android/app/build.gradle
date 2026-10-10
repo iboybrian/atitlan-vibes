@@ -36,6 +36,9 @@ dependencies {
     implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
     implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
     implementation project(':capacitor-android')
+    // Meta App Events only (install attribution for Meta ad campaigns). Deliberately
+    // facebook-core, not the facebook-android-sdk umbrella: no Login/Share/Messenger.
+    implementation "com.facebook.android:facebook-core:$facebookSdkVersion"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
