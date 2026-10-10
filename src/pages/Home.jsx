@@ -20,6 +20,9 @@ function EventCard({ event }) {
                 <img
                     src={getDirectImageUrl(event.cover_image)}
                     alt={event.name}
+                    // The grid sits below the logo and town picker; fetch covers as they scroll in.
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>

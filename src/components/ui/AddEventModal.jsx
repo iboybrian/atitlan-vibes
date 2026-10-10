@@ -8,6 +8,32 @@ import { PHONE_CODES } from '../../data/constants'
 import { weekdayNames, EVENT_CATEGORIES } from '../../lib/utils'
 import { useT, getLang } from '../../lib/i18n'
 
+// Phone photos and exported posters arrive at 2–20 MB; the cards show them at
+// ~300px. Re-encoding before upload stops one poster from costing every visitor
+// megabytes of mobile data — 24 covers in the bucket were over 1 MB when this went in.
+// ponytail: fixed 1600px / q0.82 — raise it if posters with small print look soft.
+async function compressImage(file, maxSide = 1600, quality = 0.82) {
+    try {
+        const bitmap = await createImageBitmap(file)
+        const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height))
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(bitmap.width * scale)
+        canvas.height = Math.round(bitmap.height * scale)
+        const ctx = canvas.getContext('2d')
+        // JPEG has no alpha: a transparent PNG would otherwise come out on black.
+        ctx.fillStyle = '#fff'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+        bitmap.close()
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality))
+        // An already-small, already-compressed file can come out bigger; keep it then.
+        return blob && blob.size < file.size ? blob : file
+    } catch {
+        // The WebView can't decode it (HEIC on some devices) — upload the original.
+        return file
+    }
+}
+
 export default function AddEventModal({ isOpen, onClose }) {
     const t = useT()
     const { user } = useAuth()
@@ -78,14 +104,17 @@ export default function AddEventModal({ isOpen, onClose }) {
         if (!file) return null
         try {
             setUploading(true)
+            const upload = await compressImage(file)
+            const compressed = upload !== file
             // Camera captures often arrive with no extension and an empty type, which
             // stores the object as application/octet-stream and trips MIME allow-lists.
-            const fileExt = file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'jpg'
+            const fileExt = compressed ? 'jpg'
+                : file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'jpg'
             const fileName = `${user.id}/${Date.now()}.${fileExt}` // Organized by user
 
             const { error: uploadError } = await supabase.storage
                 .from('events')
-                .upload(fileName, file, { contentType: file.type || 'image/jpeg' })
+                .upload(fileName, upload, { contentType: compressed ? 'image/jpeg' : file.type || 'image/jpeg' })
 
             if (uploadError) throw uploadError
 

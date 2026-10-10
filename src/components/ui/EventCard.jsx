@@ -28,6 +28,9 @@ export default function EventCard({ event }) {
                         <img
                             src={getDirectImageUrl(event.cover_image)}
                             alt={event.name}
+                            // A town grid can be 30+ covers; only fetch the ones scrolled to.
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-cover"
                         />
                     )}

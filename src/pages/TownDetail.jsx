@@ -72,22 +72,19 @@ export default function TownDetail() {
         async function fetchData() {
             setLoading(true)
             try {
-                // Fetch town details (including boat_schedules)
-                const { data: townData, error: townError } = await supabase
-                    .from('towns')
-                    .select('*')
-                    .eq('id', id)
-                    .single()
+                // Town (including boat_schedules) and its approved events, in
+                // parallel — neither query needs the other, and awaiting them in turn
+                // cost a full round trip on every town open.
+                const [
+                    { data: townData, error: townError },
+                    { data: eventsData, error: eventsError }
+                ] = await Promise.all([
+                    supabase.from('towns').select('*').eq('id', id).single(),
+                    supabase.from('events').select('*').eq('town_id', id).eq('is_approved', true)
+                ])
 
                 if (townError) throw townError
                 setTown(townData)
-
-                // Fetch Approved events for this town
-                const { data: eventsData, error: eventsError } = await supabase
-                    .from('events')
-                    .select('*')
-                    .eq('town_id', id)
-                    .eq('is_approved', true) // Admin Filter
 
                 if (eventsError) throw eventsError
                 setEvents(eventsData || [])
