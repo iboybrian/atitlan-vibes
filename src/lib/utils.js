@@ -254,3 +254,29 @@ export function compareEventsByWhen(a, b, today = todayInGuatemala()) {
     // Past events read best newest-first: "last Friday" before "back in March".
     return rankA === WHEN_PAST ? -soonest : soonest;
 }
+
+/**
+ * events.category values, in chip order. Must match the events_category_valid
+ * check in supabase/migrations/20261010000000_add_event_category.sql; labels are
+ * `category.<id>` in locales.js, icons live in CategoryChips.jsx.
+ */
+export const EVENT_CATEGORIES = ['music', 'culture', 'wellness', 'workshops', 'nightlife'];
+
+/**
+ * The categories that actually have events in `events`. Chips are built from
+ * this, not from the full list, so tapping one never lands on an empty grid —
+ * San Marcos has almost no nightlife, Guatemala City almost no wellness.
+ */
+export function categoriesIn(events) {
+    return EVENT_CATEGORIES.filter(id => events.some(e => e.category === id));
+}
+
+/**
+ * The filter to apply for `selected`. A pick that no longer has a chip counts as
+ * no filter: TownDetail keeps its state when the route moves to another town, and
+ * a category the new town lacks would otherwise hide everything with no chip left
+ * to clear it. Under two chips the row is hidden, so the same rule applies.
+ */
+export function activeCategory(categories, selected) {
+    return categories.length >= 2 && categories.includes(selected) ? selected : null;
+}

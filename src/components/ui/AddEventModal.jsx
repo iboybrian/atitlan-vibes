@@ -1,11 +1,11 @@
 
-import { X, Upload, Calendar as CalendarIcon, Phone, Tag, DollarSign, MapPin, Camera, Image as ImageIcon } from 'lucide-react'
+import { X, Upload, Calendar as CalendarIcon, Phone, DollarSign, MapPin, Camera, Image as ImageIcon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useTowns } from '../../lib/towns'
 import { useAuth } from '../../context/AuthContext'
 import { PHONE_CODES } from '../../data/constants'
-import { weekdayNames } from '../../lib/utils'
+import { weekdayNames, EVENT_CATEGORIES } from '../../lib/utils'
 import { useT, getLang } from '../../lib/i18n'
 
 export default function AddEventModal({ isOpen, onClose }) {
@@ -41,7 +41,7 @@ export default function AddEventModal({ isOpen, onClose }) {
         costValue: '', // Only used if costType === 'gtq'
         phone_code: '+502',
         phone_number: '',
-        tags: '', // Comma separated string
+        category: '',
         contact_link: ''
     })
 
@@ -114,7 +114,7 @@ export default function AddEventModal({ isOpen, onClose }) {
         )
 
         // Basic validation
-        if (!formData.name || !formData.town_id || !formData.calendar_date || !formData.start_time || !formData.venue || !dateLabel) {
+        if (!formData.name || !formData.town_id || !formData.category || !formData.calendar_date || !formData.start_time || !formData.venue || !dateLabel) {
             return alert(t('addEvent.fillRequired'))
         }
 
@@ -154,7 +154,7 @@ export default function AddEventModal({ isOpen, onClose }) {
                 start_time: formattedTime,
                 venue: formData.venue,
                 cost: finalCost,
-                // tags: tagsArray, // Removed: column missing in DB
+                category: formData.category,
                 contact_number: finalPhone,
                 contact_link: formData.contact_link,
                 cover_image: finalImageUrl, // The uploaded URL
@@ -171,7 +171,7 @@ export default function AddEventModal({ isOpen, onClose }) {
             setFormData({
                 name: '', town_id: '', description: '', calendar_date: '',
                 event_date_label: '', start_time: '', venue: '', costValue: '',
-                phone_code: '+502', phone_number: '', tags: '', contact_link: ''
+                phone_code: '+502', phone_number: '', category: '', contact_link: ''
             })
             setRecurringDays([])
             setPreviewUrl(null)
@@ -238,6 +238,14 @@ export default function AddEventModal({ isOpen, onClose }) {
 
                         {/* Basic Info */}
                         <input name="name" placeholder={t('addEvent.name')} required value={formData.name} onChange={handleChange} className="w-full p-3 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 font-bold text-lg" />
+
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500">{t('addEvent.category')} <span className="text-red-500">*</span></label>
+                            <select name="category" required value={formData.category} onChange={handleChange} className="w-full p-3 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm">
+                                <option value="">—</option>
+                                {EVENT_CATEGORIES.map(id => <option key={id} value={id}>{t(`category.${id}`)}</option>)}
+                            </select>
+                        </div>
 
                         <div className="grid grid-cols-2 gap-3">
                             <select name="town_id" required value={formData.town_id} onChange={handleChange} className="w-full p-3 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm">
@@ -348,12 +356,6 @@ export default function AddEventModal({ isOpen, onClose }) {
                                 onChange={handleChange}
                                 className="w-full p-3 pl-9 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm"
                             />
-                        </div>
-
-                        {/* Tags (Moved Down) */}
-                        <div className="relative">
-                            <Tag size={16} className="absolute left-3 top-3.5 text-gray-400 dark:text-gray-500" />
-                            <input name="tags" placeholder={t('addEvent.tags')} value={formData.tags} onChange={handleChange} className="w-full p-3 pl-9 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl border-none focus:ring-2 focus:ring-turquoise/20 text-sm" />
                         </div>
 
                     </form>

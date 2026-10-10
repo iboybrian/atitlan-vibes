@@ -5,8 +5,9 @@ import { Plus, Star } from 'lucide-react'
 import AddEventModal from '../components/ui/AddEventModal'
 import FlipCard from '../components/ui/FlipCard'
 import TownPicker from '../components/ui/TownPicker'
+import CategoryChips from '../components/ui/CategoryChips'
 import { supabase } from '../lib/supabase'
-import { getDirectImageUrl, todayInGuatemala, compareEventsByWhen } from '../lib/utils'
+import { getDirectImageUrl, todayInGuatemala, compareEventsByWhen, categoriesIn, activeCategory } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import { useT } from '../lib/i18n'
 
@@ -41,8 +42,8 @@ function EventCard({ event }) {
 }
 
 export default function Home() {
-    const [featuredEvents, setFeaturedEvents] = useState([])
-    const [regularEvents, setRegularEvents] = useState([])
+    const [events, setEvents] = useState([])
+    const [category, setCategory] = useState(null)
     const [loading, setLoading] = useState(true)
     const [isAddEventOpen, setIsAddEventOpen] = useState(false)
     const { user } = useAuth()
@@ -93,11 +94,9 @@ export default function Home() {
                 }
 
                 // Sorted here, not in the query: the real date of a recurring event
-                // is computed, so no column can order it. Over-fetch then cut to 8.
-                list = list.sort(compareEventsByWhen).slice(0, 8)
-
-                setFeaturedEvents(list.filter(e => e.is_feature))
-                setRegularEvents(list.filter(e => !e.is_feature))
+                // is computed, so no column can order it. Over-fetch, then the cut
+                // to 8 happens at render, after the category filter.
+                setEvents(list.sort(compareEventsByWhen))
             } catch (err) {
                 console.error('Error loading events', err)
             } finally {
@@ -106,6 +105,14 @@ export default function Home() {
         }
         fetchUpcoming()
     }, [])
+
+    // Filter first, then cut to 8 — cutting first would leave a chip with one or
+    // two events out of the 8 soonest, instead of the 8 soonest of that type.
+    const categories = categoriesIn(events)
+    const active = activeCategory(categories, category)
+    const shown = events.filter(e => !active || e.category === active).slice(0, 8)
+    const featuredEvents = shown.filter(e => e.is_feature)
+    const regularEvents = shown.filter(e => !e.is_feature)
 
     return (
         <div className="px-4 py-2 space-y-8">
@@ -148,6 +155,8 @@ export default function Home() {
                     <h2 className="text-xl font-bold text-black dark:text-white">{t('home.nextEvents')}</h2>
                     <span className="text-xs font-bold text-turquoise uppercase tracking-wide">{t('home.seeAll')}</span>
                 </div>
+
+                <CategoryChips categories={categories} value={active} onChange={setCategory} />
 
                 {/* Inline Add Event Button */}
                 <button

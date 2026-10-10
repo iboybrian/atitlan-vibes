@@ -4,10 +4,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, ChevronDown, Ship, Search, X, Star } from 'lucide-react'
 import WhatsAppIcon from '../components/ui/WhatsAppIcon'
-import { getDirectImageUrl, compareEventsByWhen } from '../lib/utils'
+import { getDirectImageUrl, compareEventsByWhen, categoriesIn, activeCategory } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import AddEventModal from '../components/ui/AddEventModal'
 import EventCard from '../components/ui/EventCard'
+import CategoryChips from '../components/ui/CategoryChips'
 import { useT } from '../lib/i18n'
 
 // Every town's button opens the same community group — change it here and it
@@ -52,6 +53,7 @@ export default function TownDetail() {
     const [loading, setLoading] = useState(true)
     const [isAddEventOpen, setIsAddEventOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
+    const [category, setCategory] = useState(null)
     const { user } = useAuth()
     const navigate = useNavigate()
     const t = useT()
@@ -100,10 +102,14 @@ export default function TownDetail() {
         if (id) fetchData()
     }, [id])
 
-    // Filter events based on search query (case-insensitive, multi-field), then
-    // put today's first — the query returns them unordered, and someone opening a
-    // town page is asking "what is on tonight", not "what happened in March".
+    // Filter events by category chip and search query (case-insensitive,
+    // multi-field), then put today's first — the query returns them unordered, and
+    // someone opening a town page is asking "what is on tonight", not "what
+    // happened in March".
+    const categories = categoriesIn(events)
+    const active = activeCategory(categories, category)
     const filteredEvents = events.filter(event => {
+        if (active && event.category !== active) return false
         if (!searchQuery.trim()) return true
 
         const query = searchQuery.toLowerCase().trim()
@@ -122,11 +128,6 @@ export default function TownDetail() {
 
         // Check contact_link
         if (event.contact_link?.toLowerCase().includes(query)) return true
-
-        // Check tags array
-        if (event.tags && Array.isArray(event.tags)) {
-            if (event.tags.some(tag => tag.toLowerCase().includes(query))) return true
-        }
 
         return false
     }).sort(compareEventsByWhen)
@@ -196,6 +197,8 @@ export default function TownDetail() {
                     )}
                 </div>
             )}
+
+            <CategoryChips categories={categories} value={active} onChange={setCategory} />
 
             {/* Inline Add Event Button */}
             <button
