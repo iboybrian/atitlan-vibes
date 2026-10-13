@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { Heart } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { ongoingEventsOr } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import EventCard from '../components/ui/EventCard'
 import { useT } from '../lib/i18n'
@@ -15,10 +16,14 @@ export default function Favorites() {
     useEffect(() => {
         if (!user) return
         async function fetchFavorites() {
+            // The saved row stays. Once end_date has passed the event leaves
+            // this list, same rule as Home and the town page. !inner drops the
+            // parent row when the embedded event no longer matches.
             const { data, error } = await supabase
                 .from('event_favorites')
-                .select('created_at, events(*)')
+                .select('created_at, events!inner(*)')
                 .eq('user_id', user.id)
+                .or(ongoingEventsOr(), { referencedTable: 'events' })
                 .order('created_at', { ascending: false })
 
             if (error) console.error('Error fetching favorites:', error)
