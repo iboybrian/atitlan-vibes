@@ -126,6 +126,32 @@ export function todayInGuatemala(now = new Date()) {
 }
 
 /**
+ * Whether a listed event is still on.
+ *
+ * end_date is inclusive: the last day still shows, and the day after it does
+ * not. Null (every row from before the column, and any event that was never
+ * given one) keeps the old behavior — a one-off with no end stays listed even
+ * after calendar_date, and the town page still shows it in the past bucket.
+ *
+ * Compared as YYYY-MM-DD text. Same shape as calendar_date, and it does not
+ * shift a day the way `new Date('2026-10-13')` does west of Greenwich.
+ */
+export function isEventOngoing(event, today = todayInGuatemala()) {
+    return event.end_date == null || event.end_date >= today;
+}
+
+/**
+ * PostgREST `or` clause for isEventOngoing().
+ *
+ * A second `.or()` on the same query ANDs with the first (the calendar_date /
+ * recurring_days filter on Home). Do not fold this into that clause or a
+ * recurring series with no end_date stops matching.
+ */
+export function ongoingEventsOr(today = todayInGuatemala()) {
+    return `end_date.is.null,end_date.gte.${today}`;
+}
+
+/**
  * Weekday of a YYYY-MM-DD string, 0 = Sunday, matching events.recurring_days.
  *
  * Built and read in UTC on purpose. new Date('2026-08-30') parses as midnight
@@ -210,7 +236,8 @@ export function formatOccurrence(event, lang = 'en', today = todayInGuatemala())
 }
 
 // Sort buckets, lowest first. A town page shows every approved event, past ones
-// included, so plain date-ascending would open on last March.
+// included, so plain date-ascending would open on last March. Rows whose
+// end_date has passed never reach this sort — the list queries drop them.
 //
 // UNDATED beats PAST on purpose. A null calendar_date is not missing data here —
 // it is how the evergreen listings are entered ("Various / Ongoing": the butterfly
