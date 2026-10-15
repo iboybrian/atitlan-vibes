@@ -38,6 +38,10 @@ export default function PrivacyContent() {
                 <p>{t('privacy.noTracking')}</p>
             </Section>
 
+            <Section title={t('privacy.adMeasurement')}>
+                <p>{t('privacy.adMeasurementBody')}</p>
+            </Section>
+
             <Section title={t('privacy.howWeUse')}>
                 <p>{t('privacy.howWeUseBody')}</p>
             </Section>

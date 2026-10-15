@@ -8,6 +8,7 @@ import InstagramGradient from '../components/icons/InstagramGradient'
 import WhatsAppIcon from '../components/icons/WhatsAppIcon'
 import { useAuth } from '../context/AuthContext'
 import { useT, getLang } from '../lib/i18n'
+import { logViewEvent, logFavoriteEvent } from '../lib/metaEvents'
 
 export default function EventDetail() {
     const t = useT()
@@ -24,6 +25,8 @@ export default function EventDetail() {
     // the first entry in the session (deep link, push notification): nothing to
     // go back to, so Home is the honest fallback.
     const goBack = () => location.key === 'default' ? navigate('/') : navigate(-1)
+
+    useEffect(() => { if (id) logViewEvent(id) }, [id])
 
     useEffect(() => {
         async function fetchEvent() {
@@ -71,6 +74,8 @@ export default function EventDetail() {
         if (error) {
             console.error('Favorite toggle failed:', error)
             setIsFav(!next)
+        } else if (next) {
+            logFavoriteEvent(id)
         }
     }
 

@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import { isNative } from '../lib/pushNotifications'
 import PrivacyContent from '../components/ui/PrivacyContent'
 import { useT } from '../lib/i18n'
+import { logSignUp, logLogin } from '../lib/metaEvents'
 
 // Temporarily hidden — flip back to true to restore Google sign-in.
 const SHOW_GOOGLE_LOGIN = false
@@ -70,6 +71,7 @@ export default function Auth() {
                     }
                 })
                 if (error) throw error
+                logSignUp('email')
                 setNotice(t('auth.confirmSent', { email }))
             } else {
                 const { error } = await supabase.auth.signInWithPassword({
@@ -77,6 +79,7 @@ export default function Auth() {
                     password,
                 })
                 if (error) throw error
+                logLogin('email')
                 navigate('/')
             }
         } catch (error) {
