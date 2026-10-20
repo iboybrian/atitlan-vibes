@@ -41,14 +41,6 @@ body {
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 3D flip for FlipCard (Home hero). FlipCard used these from day one but
-   nothing defined them, so the card never turned and its back face covered the
-   logo for good. Tailwind 3 has no 3D utilities, hence plain CSS. */
-.perspective-1000 { perspective: 1000px; }
-.transform-style-3d { transform-style: preserve-3d; }
-.backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.rotate-y-180 { transform: rotateY(180deg); }
-
 /* Event cards arriving in a grid. --i is the card's index, capped at 8 so a
    long town list never makes the last card wait more than ~320ms.
    fill-mode backwards: visible by default, hidden only during its own delay. */
@@ -119,22 +111,6 @@ body {
 .pigeon-sleep .pigeon-z:nth-of-type(2) { animation-delay: 0.9s; }
 .pigeon-sleep .pigeon-z:nth-of-type(3) { animation-delay: 1.8s; }
 
-/* Home hero: smoke puffs rising off the logo's volcano, drifting with the wind. */
-/* Linear on purpose: smoke rises at a steady drift. An ease-out curve front-loads
-   the whole climb and fade into the first half second. */
-@keyframes fumarole {
-  0% { opacity: 0; transform: translate(0, 0) scale(0.4); }
-  15% { opacity: 0.85; }
-  60% { opacity: 0.55; }
-  100% { opacity: 0; transform: translate(-38px, -32px) scale(2.4); }
-}
-.fumarole {
-  opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: fumarole 4.5s linear infinite;
-}
-
 /* The ✨ after "Find your Vibes": twinkles every couple of seconds. */
 @keyframes sparkle {
   0%, 70%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
@@ -200,9 +176,7 @@ body {
   .pigeon-peck .pigeon-head,
   .pigeon-peck .pigeon-body,
   .pigeon-sleep .pigeon-body { animation: none; }
-  .feather,
-  .fumarole { display: none; }
-  .transform-style-3d { transition-duration: 0.01ms !important; }
+  .feather { display: none; }
   .pigeon-sleep .pigeon-z { animation: none; opacity: 0.7; }
 }
 

@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { Plus, Star } from 'lucide-react'
 import AddEventModal from '../components/ui/AddEventModal'
-import FlipCard from '../components/ui/FlipCard'
 import TownPicker from '../components/ui/TownPicker'
 import CategoryChips from '../components/ui/CategoryChips'
 import LoginNudge from '../components/ui/LoginNudge'
@@ -133,46 +132,21 @@ export default function Home() {
     return (
         <div className="px-4 py-2 space-y-8">
 
-            {/* 1. Static Branding / Welcome - FlipCard */}
+            {/* 1. Welcome card. It used to be a FlipCard with the logo on the front,
+                but the flip CSS never existed, so this text side was all anyone ever
+                saw; the logo side was tried and dropped (Oct 2026). */}
             <div className="flex justify-center py-4">
-                <FlipCard
-                    className="w-full max-w-[320px] h-[200px]"
-                    front={
-                        <div className="relative w-full h-full">
-                            <img
-                                src="https://tcdjxxnjfqnfbnseuhsa.supabase.co/storage/v1/object/public/logo/Logo.png"
-                                alt="Atitlán Vibes Logo"
-                                className="w-full h-full object-contain drop-shadow-sm"
-                            />
-                            {/* Fumarole off the logo's taller volcano. Same viewBox as the
-                                image's pixels (443x343) and meet = object-contain, so the
-                                puffs stay on the peak at any size. If Logo.png is ever
-                                replaced, re-measure the peak (192, 42). */}
-                            <svg viewBox="0 0 443 343" preserveAspectRatio="xMidYMid meet" aria-hidden="true"
-                                className="absolute inset-0 w-full h-full pointer-events-none">
-                                <defs>
-                                    <filter id="smoke-soft"><feGaussianBlur stdDeviation="1.6" /></filter>
-                                </defs>
-                                <g filter="url(#smoke-soft)" fill="#FFFFFF">
-                                    {[0, 1.5, 3].map(delay => (
-                                        <circle key={delay} cx="192" cy="38" r="7" className="fumarole" style={{ animationDelay: `${delay}s` }} />
-                                    ))}
-                                </g>
-                            </svg>
-                        </div>
-                    }
-                    back={
-                        <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                            <p className="mb-4">
-                                {t('home.welcome')} <span className="font-bold text-turquoise">Atitlán Vibes</span>
-                                {t('home.welcomeRest')}
-                            </p>
-                            <p className="text-xl font-black text-turquoise">
-                                {t('home.findVibes')} <span className="sparkle" aria-hidden="true">✨</span>
-                            </p>
-                        </div>
-                    }
-                />
+                <div className="w-full max-w-[320px] h-[200px] bg-white dark:bg-slate-800 rounded-3xl p-6 flex items-center justify-center text-center shadow-inner border border-gray-100 dark:border-slate-700">
+                    <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                        <p className="mb-4">
+                            {t('home.welcome')} <span className="font-bold text-turquoise">Atitlán Vibes</span>
+                            {t('home.welcomeRest')}
+                        </p>
+                        <p className="text-xl font-black text-turquoise">
+                            {t('home.findVibes')} <span className="sparkle" aria-hidden="true">✨</span>
+                        </p>
+                    </div>
+                </div>
             </div>
 
             {/* 2. Vertical Town Menu (Now in Body) */}
