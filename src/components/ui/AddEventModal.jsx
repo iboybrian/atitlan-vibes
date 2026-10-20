@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import { PHONE_CODES } from '../../data/constants'
 import { weekdayNames, EVENT_CATEGORIES } from '../../lib/utils'
 import { useT, getLang } from '../../lib/i18n'
+import { coo } from '../../lib/sound'
 
 // Phone photos and exported posters arrive at 2–20 MB; the cards show them at
 // ~300px. Re-encoding before upload stops one poster from costing every visitor
@@ -193,6 +194,7 @@ export default function AddEventModal({ isOpen, onClose }) {
 
             if (error) throw error
 
+            coo()
             alert(t('addEvent.success'))
             onClose()
 

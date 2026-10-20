@@ -7,7 +7,7 @@
  * imports nothing.
  */
 import assert from 'node:assert/strict'
-import { nextOccurrence, compareEventsByWhen, isTodayOrTomorrow } from '../src/lib/utils.js'
+import { nextOccurrence, compareEventsByWhen, isTodayOrTomorrow, hourInGuatemala, dayPhase } from '../src/lib/utils.js'
 
 // 2026-08-30 is a Sunday. Every case below is anchored to that.
 const SUNDAY = '2026-08-30'
@@ -88,5 +88,14 @@ assert.equal(guest({ calendar_date: null }), false, 'undated is out')
 assert.equal(guest({ recurring_days: [MON], calendar_date: '2025-01-06' }), true, 'weekly on tomorrow')
 assert.equal(guest({ recurring_days: [WED], calendar_date: '2025-01-08' }), false, 'weekly on wednesday')
 assert.equal(isTodayOrTomorrow({ calendar_date: '2027-01-01' }, '2026-12-31'), true, 'tomorrow across new year')
+
+// The lake map's light. 2026-08-30T00:30Z is 18:30 the day before at the lake.
+assert.equal(hourInGuatemala(new Date('2026-08-30T00:30:00Z')), 18, 'UTC-6, not the runner')
+assert.equal(hourInGuatemala(new Date('2026-08-30T06:00:00Z')), 0, 'midnight is 0, not 24')
+assert.equal(dayPhase(6), 'dawn')
+assert.equal(dayPhase(12), 'day')
+assert.equal(dayPhase(18), 'dusk')
+assert.equal(dayPhase(23), 'night')
+assert.equal(dayPhase(4), 'night')
 
 console.log('recurrence ok')

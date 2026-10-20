@@ -8,6 +8,29 @@ import InstagramGradient from '../components/icons/InstagramGradient'
 import WhatsAppIcon from '../components/icons/WhatsAppIcon'
 import { useAuth } from '../context/AuthContext'
 import { useT, getLang } from '../lib/i18n'
+import { coo } from '../lib/sound'
+import { PigeonLoading } from '../components/ui/Pigeon'
+
+// Six pigeon feathers thrown out around the heart on save. Angles are spread
+// unevenly on purpose; a perfect hexagon reads as a UI spinner, not feathers.
+const FEATHERS = [
+    { a: '-20deg', spin: '120deg', fill: '#94A3B8' },
+    { a: '35deg', spin: '-90deg', fill: '#00CED1' },
+    { a: '95deg', spin: '160deg', fill: '#CBD5E1' },
+    { a: '150deg', spin: '-140deg', fill: '#94A3B8' },
+    { a: '210deg', spin: '100deg', fill: '#00CED1' },
+    { a: '275deg', spin: '-110deg', fill: '#CBD5E1' }
+]
+
+function FeatherBurst() {
+    return FEATHERS.map(({ a, spin, fill }) => (
+        <svg key={a} className="feather" width="10" height="14" viewBox="0 0 10 14" aria-hidden="true"
+            style={{ '--a': a, '--spin': spin }}>
+            <path d="M5 0 C9 4 9 10 5 14 C1 10 1 4 5 0 Z" fill={fill} />
+            <path d="M5 2 L5 13" stroke="#64748B" strokeWidth="0.8" />
+        </svg>
+    ))
+}
 
 export default function EventDetail() {
     const t = useT()
@@ -16,9 +39,14 @@ export default function EventDetail() {
     const location = useLocation()
     const { user } = useAuth()
     const { askLogin } = useOutletContext()
-    const [event, setEvent] = useState(null)
-    const [loading, setLoading] = useState(true)
+    // A card hands over its row in location.state: paint it immediately (and give
+    // the photo morph a hero to land on), then refresh from the DB below.
+    const [event, setEvent] = useState(() => location.state?.event ?? null)
+    const [loading, setLoading] = useState(() => !location.state?.event)
     const [isFav, setIsFav] = useState(false)
+    // Bumped on every save: re-keys the heart pop and the feather burst so a
+    // second save replays them instead of doing nothing.
+    const [burst, setBurst] = useState(0)
 
     // Back to wherever you came from — a town page, Home, anywhere. A hardcoded
     // destination is what sent everyone to Home. key === 'default' means this is
@@ -64,6 +92,10 @@ export default function EventDetail() {
         if (!user) return askLogin()
         const next = !isFav
         setIsFav(next)
+        if (next) {
+            coo()
+            setBurst(b => b + 1)
+        }
 
         const { error } = next
             ? await supabase.from('event_favorites').insert({ user_id: user.id, event_id: id })
@@ -75,7 +107,7 @@ export default function EventDetail() {
         }
     }
 
-    if (loading) return <div className="p-10 text-center text-gray-400 dark:text-gray-500">{t('event.loading')}</div>
+    if (loading) return <PigeonLoading label={t('event.loading')} />
     if (!event) return <div className="p-10 text-center text-gray-500 dark:text-gray-400">{t('event.notFound')}</div>
 
     // Contact Logic
@@ -175,6 +207,7 @@ export default function EventDetail() {
                     src={getDirectImageUrl(event.cover_image)}
                     alt={event.name}
                     className="w-full h-full object-cover"
+                    style={{ viewTransitionName: 'event-hero' }}
                 />
 
                 {/* Gradient Overlay for text readability if needed, but design asks for clean */}
@@ -185,10 +218,13 @@ export default function EventDetail() {
                     {/* Save for later — greyed for guests, tapping asks them to log in */}
                     <button
                         onClick={toggleFavorite}
-                        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95 ${isFav ? 'bg-red-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-300'} ${user ? '' : 'opacity-60'}`}
+                        className={`relative w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95 ${isFav ? 'bg-red-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-300'} ${user ? '' : 'opacity-60'}`}
                         aria-label={t('favorites.save')}
                     >
-                        <Heart size={22} fill={isFav ? 'currentColor' : 'none'} />
+                        <span key={burst} className={`flex ${burst ? 'heart-pop' : ''}`}>
+                            <Heart size={22} fill={isFav ? 'currentColor' : 'none'} />
+                        </span>
+                        {burst > 0 && <FeatherBurst key={`f${burst}`} />}
                     </button>
 
                     {/* WhatsApp */}

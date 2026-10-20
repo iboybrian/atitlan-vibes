@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { ongoingEventsOr } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import EventCard from '../components/ui/EventCard'
+import Pigeon, { PigeonLoading } from '../components/ui/Pigeon'
 import { useT } from '../lib/i18n'
 
 export default function Favorites() {
@@ -42,17 +43,17 @@ export default function Favorites() {
             </div>
 
             {loading ? (
-                <div className="text-center text-gray-400 dark:text-gray-500 py-10">{t('event.loading')}</div>
+                <PigeonLoading label={t('event.loading')} />
             ) : events.length === 0 ? (
                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 text-center">
-                    <Heart size={32} className="mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                    <Pigeon mood="sleep" className="mx-auto mb-3" />
                     <p className="text-gray-500 dark:text-gray-400 font-medium">{t('favorites.empty')}</p>
                     <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">{t('favorites.emptyHint')}</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {events.map(event => (
-                        <EventCard key={event.id} event={event} />
+                    {events.map((event, i) => (
+                        <EventCard key={event.id} event={event} index={i} />
                     ))}
                 </div>
             )}

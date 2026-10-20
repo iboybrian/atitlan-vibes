@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { useTowns } from '../../lib/towns'
 import { useAuth } from '../../context/AuthContext'
 import { getCurrentTown, setCurrentTown } from '../../lib/utils'
+import { coo } from '../../lib/sound'
 import { useT } from '../../lib/i18n'
 
 /**
@@ -79,7 +80,7 @@ export default function TownPicker() {
                         return (
                             <button
                                 key={town.id}
-                                onClick={() => choose(town)}
+                                onClick={() => { coo(); choose(town) }}
                                 className={`w-full flex items-center justify-between gap-2 px-4 py-3 text-left text-sm border-b border-gray-100 dark:border-slate-700 last:border-b-0 transition-colors ${isSelected
                                     ? 'text-turquoise font-bold bg-turquoise/5'
                                     : 'text-gray-700 dark:text-gray-200 hover:bg-turquoise/10'

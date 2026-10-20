@@ -249,8 +249,27 @@ let tapHandler = null
 const pushPath = (data) =>
     data?.route ?? (data?.eventId ? `/event/${data.eventId}` : null)
 
+/**
+ * The channel notify-town posts to (android.notification.channel_id = 'coo'),
+ * so pushes arrive with the pigeon coo from res/raw/coo.mp3 instead of the
+ * system ding. Android fixes a channel's sound when it is first created — to
+ * change the sound later, create a channel with a NEW id and point the server
+ * at it; editing this one does nothing on phones that already have it.
+ * A device that hasn't run this yet (old APK) falls back to FCM's default channel.
+ */
+const createCooChannel = () =>
+    PushNotifications.createChannel({
+        id: 'coo',
+        name: 'Atitlán Vibes',
+        importance: 4, // high: sound + heads-up
+        sound: 'coo.mp3',
+        visibility: 1
+    }).catch((err) => console.error('Push channel creation failed:', err))
+
 export const startPushTapListener = () => {
     if (!isPushSupported()) return
+
+    createCooChannel()
 
     PushNotifications.addListener('pushNotificationActionPerformed', ({ notification }) => {
         const path = pushPath(notification?.data)

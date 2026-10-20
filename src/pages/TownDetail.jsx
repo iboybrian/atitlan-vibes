@@ -10,6 +10,7 @@ import AddEventModal from '../components/ui/AddEventModal'
 import EventCard from '../components/ui/EventCard'
 import CategoryChips from '../components/ui/CategoryChips'
 import LoginNudge from '../components/ui/LoginNudge'
+import Pigeon, { PigeonLoading } from '../components/ui/Pigeon'
 import { useT } from '../lib/i18n'
 
 // Every town's button opens the same community group — change it here and it
@@ -128,7 +129,7 @@ export default function TownDetail() {
         return false
     }).sort(compareEventsByWhen)
 
-    if (loading) return <div className="p-8 text-center text-gray-400 dark:text-gray-500">{t('common.loading')}</div>
+    if (loading) return <PigeonLoading label={t('common.loading')} />
 
     if (!town) return <div className="p-8 text-center text-gray-500 dark:text-gray-400">{t('town.selectPrompt')}</div>
 
@@ -208,8 +209,9 @@ export default function TownDetail() {
 
             {/* Events Grid or Empty States */}
             {events.length === 0 ? (
-                <div className="text-center py-10 bg-white dark:bg-slate-800 rounded-3xl border-2 border-dashed border-gray-200 dark:border-slate-700">
-                    <p className="text-gray-400 dark:text-gray-500 font-medium">{t('town.noApproved')}</p>
+                <div className="flex flex-col items-center py-10 bg-white dark:bg-slate-800 rounded-3xl border-2 border-dashed border-gray-200 dark:border-slate-700">
+                    <Pigeon mood="sleep" className="mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400 font-medium">{t('town.noApproved')}</p>
                 </div>
             ) : filteredEvents.length === 0 ? (
                 // A guest with nothing on today/tomorrow gets the login nudge below
@@ -239,8 +241,8 @@ export default function TownDetail() {
                                             <div className="flex-1 h-px bg-gradient-to-r from-sunflower/50 to-transparent ml-2"></div>
                                         </div>
                                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                            {featuredEvents.map(event => (
-                                                <EventCard key={event.id} event={event} />
+                                            {featuredEvents.map((event, i) => (
+                                                <EventCard key={event.id} event={event} index={i} />
                                             ))}
                                         </div>
                                     </div>
@@ -258,8 +260,8 @@ export default function TownDetail() {
                                             </div>
                                         )}
                                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                            {regularEvents.map(event => (
-                                                <EventCard key={event.id} event={event} />
+                                            {regularEvents.map((event, i) => (
+                                                <EventCard key={event.id} event={event} index={featuredEvents.length + i} />
                                             ))}
                                         </div>
                                     </div>

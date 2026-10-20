@@ -31,6 +31,143 @@ body {
   min-height: 100vh;
 }
 
+/* ---------------------------------------------------------------------------
+   Motion. Short, ease-out, and tied to a state: a card arriving, a press, a
+   save, something loading. Everything here is switched off under
+   prefers-reduced-motion at the bottom of this block.
+   --------------------------------------------------------------------------- */
+:root {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Event cards arriving in a grid. --i is the card's index, capped at 8 so a
+   long town list never makes the last card wait more than ~320ms.
+   fill-mode backwards: visible by default, hidden only during its own delay. */
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+}
+.card-in {
+  animation: card-in 320ms var(--ease-out-quart) backwards;
+  animation-delay: calc(min(var(--i, 0), 8) * 40ms);
+}
+
+/* Saving an event: the heart swells once, feathers fly out around it. */
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+.heart-pop { animation: heart-pop 320ms var(--ease-out-quart); }
+
+/* Opacity has its own stops: on the expo curve progress hits ~95% within
+   150ms, so a plain from/to fade made the feathers vanish before anyone saw them. */
+@keyframes feather-fly {
+  0% { opacity: 1; transform: rotate(var(--a)) translateY(0) rotate(0deg) scale(0.6); }
+  60% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(-34px) rotate(var(--spin, 90deg)) scale(1); }
+}
+.feather {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -7px 0 0 -5px;
+  pointer-events: none;
+  animation: feather-fly 750ms var(--ease-out-quart) forwards;
+}
+
+/* The pigeon. Pivot points are in the SVG's own 120x100 viewBox. */
+@keyframes pigeon-peck {
+  0%, 50%, 100% { transform: rotate(0deg); }
+  60% { transform: rotate(38deg); }
+  68% { transform: rotate(4deg); }
+  76% { transform: rotate(38deg); }
+  86% { transform: rotate(0deg); }
+}
+@keyframes pigeon-step {
+  0%, 50%, 100% { transform: translateY(0); }
+  60%, 76% { transform: translateY(1.5px); }
+}
+.pigeon-peck .pigeon-head {
+  transform-origin: 78px 50px;
+  animation: pigeon-peck 1.6s ease-in-out infinite;
+}
+.pigeon-peck .pigeon-body { animation: pigeon-step 1.6s ease-in-out infinite; }
+
+@keyframes pigeon-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+@keyframes zzz {
+  0% { opacity: 0; transform: translate(0, 0); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translate(10px, -22px); }
+}
+.pigeon-sleep .pigeon-body {
+  transform-origin: 58px 84px;
+  animation: pigeon-breathe 2.8s ease-in-out infinite;
+}
+.pigeon-sleep .pigeon-z { animation: zzz 2.8s ease-out infinite; }
+.pigeon-sleep .pigeon-z:nth-of-type(2) { animation-delay: 0.9s; }
+.pigeon-sleep .pigeon-z:nth-of-type(3) { animation-delay: 1.8s; }
+
+/* Home lake map: slow ripples, towns with events today pulsing, night stars. */
+@keyframes lake-wave {
+  from { transform: translateX(-6px); }
+  to { transform: translateX(6px); }
+}
+.lake-wave { animation: lake-wave 5s ease-in-out infinite alternate; }
+
+@keyframes lake-pulse {
+  from { transform: scale(1); opacity: 0.7; }
+  to { transform: scale(2.8); opacity: 0; }
+}
+.lake-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lake-pulse 1.8s var(--ease-out-quart) infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.25; }
+}
+.twinkle { animation: twinkle 3s ease-in-out infinite; }
+
+/* Card photo -> event hero. Only the tapped card's image carries the name (set
+   on click, see useHeroLink() in lib/transition.js), so the browser
+   morphs that one picture and crossfades the rest of the page. */
+::view-transition-group(event-hero) {
+  animation-duration: 340ms;
+  animation-timing-function: var(--ease-out-quart);
+}
+::view-transition-old(event-hero),
+::view-transition-new(event-hero) {
+  height: 100%;
+  object-fit: cover;
+  overflow: clip;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+  .lake-wave,
+  .lake-pulse,
+  .twinkle { animation: none; }
+  .card-in,
+  .heart-pop,
+  .pigeon-peck .pigeon-head,
+  .pigeon-peck .pigeon-body,
+  .pigeon-sleep .pigeon-body { animation: none; }
+  .feather { display: none; }
+  .pigeon-sleep .pigeon-z { animation: none; opacity: 0.7; }
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {
   display: none;

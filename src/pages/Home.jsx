@@ -7,17 +7,22 @@ import FlipCard from '../components/ui/FlipCard'
 import TownPicker from '../components/ui/TownPicker'
 import CategoryChips from '../components/ui/CategoryChips'
 import LoginNudge from '../components/ui/LoginNudge'
+import TodayPill from '../components/ui/TodayPill'
+import Pigeon, { PigeonLoading } from '../components/ui/Pigeon'
+import LakeMap from '../components/ui/LakeMap'
+import { useHeroLink } from '../lib/transition'
 import { supabase } from '../lib/supabase'
-import { getDirectImageUrl, todayInGuatemala, compareEventsByWhen, categoriesIn, activeCategory, isTodayOrTomorrow, ongoingEventsOr } from '../lib/utils'
+import { getDirectImageUrl, todayInGuatemala, compareEventsByWhen, categoriesIn, activeCategory, isTodayOrTomorrow, ongoingEventsOr, happeningToday } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import { useT } from '../lib/i18n'
 
 // Reusable Event Card Component
-function EventCard({ event }) {
+function EventCard({ event, index = 0 }) {
     const t = useT()
+    const heroLink = useHeroLink()
     return (
-        <Link to={`/event/${event.id}`} className="block group">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md transition-all duration-300 relative aspect-[4/5]">
+        <Link to={`/event/${event.id}`} state={{ event }} onClick={heroLink(`/event/${event.id}`, { event })} className="block group card-in" style={{ '--i': index }}>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md transition-[transform,box-shadow] duration-150 ease-out motion-safe:active:scale-[0.97] relative aspect-[4/5]">
                 <img
                     src={getDirectImageUrl(event.cover_image)}
                     alt={event.name}
@@ -37,7 +42,9 @@ function EventCard({ event }) {
                 )}
 
                 <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
-                    <div className="text-xs font-bold text-sunflower mb-1">{event.event_date_label}</div>
+                    <div className="text-xs font-bold text-sunflower mb-1">
+                        {happeningToday(event) ? <TodayPill event={event} dot="bg-sunflower" /> : event.event_date_label}
+                    </div>
                     <h3 className="font-bold leading-tight text-sm line-clamp-2">{event.name}</h3>
                 </div>
             </div>
@@ -117,6 +124,10 @@ export default function Home() {
     const active = activeCategory(categories, category)
     const shown = visible.filter(e => !active || e.category === active).slice(0, 8)
     const featuredEvents = shown.filter(e => e.is_feature)
+    // How many events each town has on today, for the lake map. From the full
+    // list, not the category-filtered one: the map answers "where is it on tonight".
+    const todayByTown = {}
+    for (const e of events) if (happeningToday(e)) todayByTown[e.town_id] = (todayByTown[e.town_id] || 0) + 1
     const regularEvents = shown.filter(e => !e.is_feature)
 
     return (
@@ -151,7 +162,11 @@ export default function Home() {
                     {t('home.exploreByTown')}
                 </h2>
 
-                <TownPicker />
+                <LakeMap todayByTown={todayByTown} />
+
+                <div className="mt-4">
+                    <TownPicker />
+                </div>
             </section>
 
             {/* 3. Events Section */}
@@ -173,9 +188,10 @@ export default function Home() {
                 </button>
 
                 {loading ? (
-                    <div className="text-center py-10 text-gray-400 dark:text-gray-500">{t('home.loadingVibes')}</div>
+                    <PigeonLoading label={t('home.loadingVibes')} />
                 ) : (featuredEvents.length === 0 && regularEvents.length === 0) ? (
-                    <div className="p-6 bg-white dark:bg-slate-800 rounded-2xl text-center text-gray-500 dark:text-gray-400 shadow-sm">
+                    <div className="p-6 flex flex-col items-center bg-white dark:bg-slate-800 rounded-2xl text-center text-gray-500 dark:text-gray-400 shadow-sm">
+                        <Pigeon mood="sleep" className="mb-3" />
                         {t('home.noEvents')}
                     </div>
                 ) : (
@@ -191,8 +207,8 @@ export default function Home() {
                                     <div className="flex-1 h-px bg-gradient-to-r from-sunflower/50 to-transparent ml-2"></div>
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    {featuredEvents.map(event => (
-                                        <EventCard key={event.id} event={event} />
+                                    {featuredEvents.map((event, i) => (
+                                        <EventCard key={event.id} event={event} index={i} />
                                     ))}
                                 </div>
                             </div>
@@ -210,8 +226,8 @@ export default function Home() {
                                     </div>
                                 )}
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    {regularEvents.map(event => (
-                                        <EventCard key={event.id} event={event} />
+                                    {regularEvents.map((event, i) => (
+                                        <EventCard key={event.id} event={event} index={featuredEvents.length + i} />
                                     ))}
                                 </div>
                             </div>

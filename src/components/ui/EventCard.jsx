@@ -1,7 +1,9 @@
 
 import { Link } from 'react-router-dom'
 import { Star, Clock } from 'lucide-react'
-import { getDirectImageUrl, formatOccurrence } from '../../lib/utils'
+import { getDirectImageUrl, formatOccurrence, happeningToday } from '../../lib/utils'
+import TodayPill from './TodayPill'
+import { useHeroLink } from '../../lib/transition'
 import { useT, getLang } from '../../lib/i18n'
 
 /**
@@ -10,8 +12,9 @@ import { useT, getLang } from '../../lib/i18n'
  * the is_feature rows, so a flag would only be able to disagree with the data.
  * Home has its own overlay card; it's a different design, not a copy of this.
  */
-export default function EventCard({ event }) {
+export default function EventCard({ event, index = 0 }) {
     const t = useT()
+    const heroLink = useHeroLink()
 
     // For a series, event_date_label says "Every Sunday" but not WHICH Sunday —
     // the badge is the one place with room for the answer. One-off events already
@@ -21,8 +24,11 @@ export default function EventCard({ event }) {
         : event.event_date_label
 
     return (
-        <Link to={`/event/${event.id}`} className="block group">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
+        // index drives the stagger in .card-in; the press scale is the tap feedback.
+        // state: the detail page paints from this row at once instead of a loading
+        // screen, which is also what gives the photo morph something to land on.
+        <Link to={`/event/${event.id}`} state={{ event }} onClick={heroLink(`/event/${event.id}`, { event })} className="block group card-in" style={{ '--i': index }}>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-[transform,box-shadow] duration-150 ease-out motion-safe:active:scale-[0.97] cursor-pointer h-full">
                 <div className="aspect-square w-full relative bg-gray-100 dark:bg-slate-700">
                     {event.cover_image && (
                         <img
@@ -41,7 +47,7 @@ export default function EventCard({ event }) {
                         </div>
                     )}
                     <div className="absolute top-2 right-2 bg-white/95 dark:bg-slate-800/95 text-gray-900 dark:text-gray-200 backdrop-blur px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
-                        {badge}
+                        {happeningToday(event) ? <TodayPill event={event} /> : badge}
                     </div>
                 </div>
                 <div className="p-3">

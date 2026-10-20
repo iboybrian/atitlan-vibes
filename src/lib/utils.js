@@ -125,6 +125,26 @@ export function todayInGuatemala(now = new Date()) {
     return eventDateFormat.format(now);
 }
 
+const eventHourFormat = new Intl.DateTimeFormat('en-GB', {
+    timeZone: EVENT_TIMEZONE, hour: 'numeric', hourCycle: 'h23'
+});
+
+/** Hour 0-23 at the lake, whatever the phone's own timezone says. */
+export function hourInGuatemala(now = new Date()) {
+    return Number(eventHourFormat.format(now));
+}
+
+/**
+ * Light at the lake: drives the palette of the Home lake map. Near the equator
+ * the sun rises ~5:45 and sets ~18:10 all year, so fixed hours are honest.
+ */
+export function dayPhase(hour = hourInGuatemala()) {
+    if (hour >= 5 && hour < 7) return 'dawn';
+    if (hour >= 7 && hour < 17) return 'day';
+    if (hour >= 17 && hour < 19) return 'dusk';
+    return 'night';
+}
+
 /**
  * Whether a listed event is still on.
  *
@@ -197,6 +217,11 @@ export function nextOccurrence(event, today = todayInGuatemala()) {
     }
 
     return null;
+}
+
+/** Next occurrence is today in Guatemala: drives the "Today / Tonight" pill. */
+export function happeningToday(event, today = todayInGuatemala()) {
+    return nextOccurrence(event, today) === today;
 }
 
 /**

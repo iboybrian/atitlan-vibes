@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, Bell, MapPin, Moon, Sun, ChevronRight, Languages, Settings as SettingsIcon } from 'lucide-react'
+import { User, Bell, MapPin, Moon, Sun, ChevronRight, Languages, Volume2, VolumeX, Settings as SettingsIcon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { setPushPreference, isPushSupported } from '../lib/pushNotifications'
 import { setLocationPreference } from '../lib/geolocation'
 import { useT, getLang, setLang } from '../lib/i18n'
+import { coo, isSoundOn, setSoundOn } from '../lib/sound'
 
 export default function Settings() {
     const t = useT()
@@ -17,6 +18,14 @@ export default function Settings() {
     // Location is opt-in, so it defaults off — unlike push, which defaults on
     const [locEnabled, setLocEnabled] = useState(false)
     const [locError, setLocError] = useState('')
+    const [soundOn, setSound] = useState(isSoundOn)
+
+    // Turning it on coos once, so you hear what you just enabled
+    const handleSoundToggle = (on) => {
+        setSoundOn(on)
+        setSound(on)
+        coo()
+    }
 
     // Load push_enabled / location_enabled state from database
     useEffect(() => {
@@ -140,6 +149,11 @@ export default function Settings() {
                 label={darkMode ? t('settings.darkMode') : t('settings.lightMode')}
                 onClick={toggleDarkMode}
                 rightElement={<Toggle enabled={darkMode} onChange={toggleDarkMode} />}
+            />
+            <MenuItem
+                icon={soundOn ? Volume2 : VolumeX}
+                label={t('settings.sound')}
+                rightElement={<Toggle enabled={soundOn} onChange={handleSoundToggle} />}
             />
 
             {/* Language — no row onClick, the switch handles its own clicks */}

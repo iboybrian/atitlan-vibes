@@ -146,7 +146,13 @@ async function sendAll(
                     token: r.push_token,
                     notification: copy(lang),
                     data,
-                    android: { priority: 'HIGH' }
+                    android: {
+                        priority: 'HIGH',
+                        // The pigeon coo. channel_id is what Android 8+ uses (the
+                        // client creates it in pushNotifications.js); sound covers
+                        // Android 7, which has no channels. Both name res/raw/coo.mp3.
+                        notification: { channel_id: 'coo', sound: 'coo' }
+                    }
                 }
             })
         })

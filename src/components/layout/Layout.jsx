@@ -11,6 +11,7 @@ import { shouldShowPushPrompt, isPushSupported, refreshPushToken, onPushTap, onP
 import { refreshDetectedTown } from '../../lib/geolocation'
 import { shouldShowTour } from '../../lib/utils'
 import { syncLang, useT } from '../../lib/i18n'
+import { coo } from '../../lib/sound'
 import { App as CapacitorApp } from '@capacitor/app'
 
 export default function Layout() {
@@ -39,7 +40,7 @@ export default function Layout() {
     // that arrives while someone is looking at the app is delivered and dropped —
     // 200 from FCM, nothing on screen. Render it in-app instead, tappable to the
     // same place the real notification would have gone.
-    useEffect(() => onPushReceived(setPushBanner), [])
+    useEffect(() => onPushReceived(push => { coo(); setPushBanner(push) }), [])
 
     // Separate effect so a second push re-arms the timer for free instead of
     // inheriting the first one's remaining time.
@@ -104,7 +105,7 @@ export default function Layout() {
                 />
 
                 <main className="flex-1 transition-colors duration-500">
-                    <Outlet context={{ askLogin: () => setLoginToast(n => n + 1) }} />
+                    <Outlet context={{ askLogin: () => { coo(); setLoginToast(n => n + 1) } }} />
                 </main>
 
                 {/* Guest tapped something that needs an account. Sits above the
