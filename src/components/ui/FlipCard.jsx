@@ -8,10 +8,12 @@ export default function FlipCard({ front, back, className = "" }) {
         <div
             className={`group perspective-1000 cursor-pointer ${className}`}
             onClick={() => setIsFlipped(!isFlipped)}
-            onMouseEnter={() => setIsFlipped(true)}
-            onMouseLeave={() => setIsFlipped(false)}
+            // Mouse only: a tap fires a synthetic enter AND a click, which would
+            // flip the card and straight back, so on a phone it never turned.
+            onPointerEnter={(e) => e.pointerType === 'mouse' && setIsFlipped(true)}
+            onPointerLeave={(e) => e.pointerType === 'mouse' && setIsFlipped(false)}
         >
-            <div className={`relative w-full h-full transition-all duration-700 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+            <div className={`relative w-full h-full transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
                 {/* Front */}
                 <div className="absolute inset-0 backface-hidden w-full h-full">
                     {front}

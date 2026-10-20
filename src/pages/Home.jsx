@@ -138,11 +138,28 @@ export default function Home() {
                 <FlipCard
                     className="w-full max-w-[320px] h-[200px]"
                     front={
-                        <img
-                            src="https://tcdjxxnjfqnfbnseuhsa.supabase.co/storage/v1/object/public/logo/Logo.png"
-                            alt="Atitlán Vibes Logo"
-                            className="w-full h-full object-contain drop-shadow-sm"
-                        />
+                        <div className="relative w-full h-full">
+                            <img
+                                src="https://tcdjxxnjfqnfbnseuhsa.supabase.co/storage/v1/object/public/logo/Logo.png"
+                                alt="Atitlán Vibes Logo"
+                                className="w-full h-full object-contain drop-shadow-sm"
+                            />
+                            {/* Fumarole off the logo's taller volcano. Same viewBox as the
+                                image's pixels (443x343) and meet = object-contain, so the
+                                puffs stay on the peak at any size. If Logo.png is ever
+                                replaced, re-measure the peak (192, 42). */}
+                            <svg viewBox="0 0 443 343" preserveAspectRatio="xMidYMid meet" aria-hidden="true"
+                                className="absolute inset-0 w-full h-full pointer-events-none">
+                                <defs>
+                                    <filter id="smoke-soft"><feGaussianBlur stdDeviation="1.6" /></filter>
+                                </defs>
+                                <g filter="url(#smoke-soft)" fill="#FFFFFF">
+                                    {[0, 1.5, 3].map(delay => (
+                                        <circle key={delay} cx="192" cy="38" r="7" className="fumarole" style={{ animationDelay: `${delay}s` }} />
+                                    ))}
+                                </g>
+                            </svg>
+                        </div>
                     }
                     back={
                         <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -150,7 +167,9 @@ export default function Home() {
                                 {t('home.welcome')} <span className="font-bold text-turquoise">Atitlán Vibes</span>
                                 {t('home.welcomeRest')}
                             </p>
-                            <p className="text-xl font-black text-turquoise">{t('home.findVibes')}</p>
+                            <p className="text-xl font-black text-turquoise">
+                                {t('home.findVibes')} <span className="sparkle" aria-hidden="true">✨</span>
+                            </p>
                         </div>
                     }
                 />

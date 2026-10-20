@@ -33,7 +33,7 @@ const en = {
     // Home
     'home.welcome': 'Welcome to',
     'home.welcomeRest': ', getting together all kind of travelers, to all kind of events.',
-    'home.findVibes': 'Find your Vibes ✨',
+    'home.findVibes': 'Find your Vibes',
     'home.exploreByTown': 'Explore by Town',
     'home.nextEvents': 'Next Events in the Lake',
     'home.seeAll': 'See All',
@@ -381,7 +381,7 @@ const es = {
     // Inicio
     'home.welcome': 'Bienvenido a',
     'home.welcomeRest': ', donde se juntan todo tipo de viajeros, para todo tipo de eventos.',
-    'home.findVibes': 'Encuentra tu vibra ✨',
+    'home.findVibes': 'Encuentra tu vibra',
     'home.exploreByTown': 'Explora por pueblo',
     'home.nextEvents': 'Próximos eventos en el Lago',
     'home.seeAll': 'Ver todo',

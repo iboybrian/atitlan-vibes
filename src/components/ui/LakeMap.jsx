@@ -12,14 +12,18 @@ import { useT } from '../../lib/i18n'
  * picture, so they get plain buttons under it.
  *
  * Stylized, not cartographic: the window below is stretched to fill the panel.
+ * Turned 180° (south up): the volcanoes stand behind the lake like the view from
+ * Panajachel, and the towns line the near shore. Done in project(), not with a
+ * CSS rotate, so the labels stay upright.
  */
 const W = 360
 const H = 230
-const LNG0 = -91.30, LNG1 = -91.08, LAT0 = 14.57, LAT1 = 14.78
+// LAT0 leaves headroom: with south up, the volcano peaks sit near the top edge.
+const LNG0 = -91.30, LNG1 = -91.08, LAT0 = 14.56, LAT1 = 14.78
 
 const project = (lat, lng) => [
-    (lng - LNG0) / (LNG1 - LNG0) * W,
-    (LAT1 - lat) / (LAT1 - LAT0) * H
+    W - (lng - LNG0) / (LNG1 - LNG0) * W,
+    H - (LAT1 - lat) / (LAT1 - LAT0) * H
 ]
 const onLake = (t) => t.lat >= LAT0 && t.lat <= LAT1 && t.lng >= LNG0 && t.lng <= LNG1
 
@@ -34,7 +38,7 @@ const SHORE = [
 
 // San Pedro, Tolimán, Atitlán: [lat, lng, height in panel units]. The last two
 // are nudged apart: at their true spots one cone sits on top of the other.
-const VOLCANOES = [[14.656, -91.266, 26], [14.616, -91.205, 30], [14.600, -91.158, 38]]
+const VOLCANOES = [[14.656, -91.266, 26], [14.616, -91.205, 30], [14.600, -91.158, 34]]
 
 /** Closed Catmull-Rom curve through the points, as cubic Béziers. */
 function smoothClosed(points) {
@@ -62,8 +66,15 @@ const PALETTE = {
 // Fixed, so the sky doesn't reshuffle on every render.
 const STARS = [[18, 16], [40, 30], [300, 18], [330, 40], [345, 12], [270, 196], [320, 170], [20, 200], [150, 14], [345, 120]]
 
-// Two pins sit close on the north-west shore; these labels go above instead.
-const LABEL_ABOVE = new Set(['Tzununa', 'Panajachel'])
+// Where each label sits relative to its pin. Default is below, on the near
+// shore; San Marcos and Tzununa are close together and San Pedro is near the
+// right edge, so those two go elsewhere.
+const LABEL_SIDE = { 'San Marcos La Laguna': 'above', 'San Pedro La Laguna': 'left' }
+const LABEL_AT = {
+    below: (x, y) => [x, y + 17, 'middle'],
+    above: (x, y) => [x, y - 10, 'middle'],
+    left: (x, y) => [x - 9, y + 4, 'end']
+}
 const shortName = (name) => name.replace(/ La Laguna$/, '')
 
 export default function LakeMap({ todayByTown = {} }) {
@@ -112,17 +123,24 @@ export default function LakeMap({ todayByTown = {} }) {
                     <path d={LAKE} fill="url(#lake-water)" />
 
                     {/* A few slow ripples, kept inside the shoreline */}
+                    {/* rotate(): these were placed on the unrotated lake. Inner group, so the
+                        clip path (in the outer group's space) isn't rotated with them. */}
                     <g clipPath="url(#lake-clip)" stroke={phase === 'night' ? '#F8FAFC' : '#FFFFFF'} strokeOpacity="0.45" strokeWidth="1.5" strokeLinecap="round" fill="none">
+                        <g transform={`rotate(180 ${W / 2} ${H / 2})`}>
                         <path className="lake-wave" d="M150 70 q8 -4 16 0 t16 0" />
                         <path className="lake-wave" style={{ animationDelay: '-2s' }} d="M210 95 q8 -4 16 0 t16 0" />
                         <path className="lake-wave" style={{ animationDelay: '-3.5s' }} d="M120 110 q8 -4 16 0 t16 0" />
                         {phase === 'night' && <ellipse cx="250" cy="80" rx="22" ry="3" stroke="none" fill="#FFF7D6" opacity="0.25" />}
+                        </g>
                     </g>
 
                     {lakeTowns.map(town => {
                         const [x, y] = project(town.lat, town.lng)
                         const count = todayByTown[town.id] || 0
-                        const above = LABEL_ABOVE.has(town.name)
+                        const side = LABEL_SIDE[town.name] ?? 'below'
+                        const [lx, ly, anchor] = LABEL_AT[side](x, y)
+                        // Count badge on the pin's top-right, or bottom-right when the label is up there
+                        const by = side === 'above' ? y + 7 : y - 7
                         const label = shortName(town.name)
                         return (
                             <g
@@ -140,9 +158,9 @@ export default function LakeMap({ todayByTown = {} }) {
                                 {phase === 'night' && <circle cx={x} cy={y} r="11" fill="#FFB800" opacity="0.25" />}
                                 <circle cx={x} cy={y} r="5" fill={c.pin} stroke={phase === 'night' ? '#FFF7D6' : '#0F3B47'} strokeWidth="1.5" />
                                 <text
-                                    x={above ? x : x + 8}
-                                    y={above ? y - 10 : y + 16}
-                                    textAnchor={above ? 'middle' : 'start'}
+                                    x={lx}
+                                    y={ly}
+                                    textAnchor={anchor}
                                     fontSize="11"
                                     fontWeight="800"
                                     fill={c.ink}
@@ -155,8 +173,8 @@ export default function LakeMap({ todayByTown = {} }) {
                                 </text>
                                 {count > 0 && (
                                     <g>
-                                        <circle cx={x + 7} cy={y - 7} r="6.5" fill="#FFB800" stroke={c.halo} strokeWidth="1.5" />
-                                        <text x={x + 7} y={y - 4.3} textAnchor="middle" fontSize="8" fontWeight="900" fill="#111827">{count}</text>
+                                        <circle cx={x + 7} cy={by} r="6.5" fill="#FFB800" stroke={c.halo} strokeWidth="1.5" />
+                                        <text x={x + 7} y={by + 2.7} textAnchor="middle" fontSize="8" fontWeight="900" fill="#111827">{count}</text>
                                     </g>
                                 )}
                             </g>
