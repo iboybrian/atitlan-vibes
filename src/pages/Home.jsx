@@ -8,7 +8,7 @@ import TownPicker from '../components/ui/TownPicker'
 import CategoryChips from '../components/ui/CategoryChips'
 import LoginNudge from '../components/ui/LoginNudge'
 import { supabase } from '../lib/supabase'
-import { getDirectImageUrl, todayInGuatemala, compareEventsByWhen, categoriesIn, activeCategory, isTodayOrTomorrow } from '../lib/utils'
+import { getDirectImageUrl, todayInGuatemala, compareEventsByWhen, categoriesIn, activeCategory, isTodayOrTomorrow, ongoingEventsOr } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import { useT } from '../lib/i18n'
 
@@ -63,6 +63,9 @@ export default function Home() {
                 // and has no date to compare against a timestamp. The date has to be
                 // Guatemala's, not UTC — see todayInGuatemala().
                 const today = todayInGuatemala()
+                // Null end_date stays listed. A set end_date drops the event the
+                // day after it, in Guatemala. ANDed with the date filter below.
+                const stillOn = ongoingEventsOr(today)
 
                 // A recurring event's calendar_date is when the series STARTED, so
                 // it is usually in the past and gte() alone would hide exactly the
@@ -73,18 +76,20 @@ export default function Home() {
                     .select('*')
                     .eq('is_approved', true)
                     .or(`calendar_date.gte.${today},recurring_days.not.is.null`)
+                    .or(stillOn)
                     .limit(50)
 
                 if (error) throw error
 
                 // Nothing upcoming — show the most recent approved events instead,
-                // so a quiet week doesn't leave Home empty.
+                // so a quiet week doesn't leave Home empty. Ended ones stay out.
                 let list = data || []
                 if (list.length === 0) {
                     const { data: latest } = await supabase
                         .from('events')
                         .select('*')
                         .eq('is_approved', true)
+                        .or(stillOn)
                         .limit(8)
                     list = latest || []
                 }

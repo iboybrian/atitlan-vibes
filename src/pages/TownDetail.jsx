@@ -4,7 +4,7 @@ import { useParams, useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, ChevronDown, Ship, Search, X, Star } from 'lucide-react'
 import WhatsAppIcon from '../components/ui/WhatsAppIcon'
-import { getDirectImageUrl, compareEventsByWhen, categoriesIn, activeCategory, isTodayOrTomorrow } from '../lib/utils'
+import { getDirectImageUrl, compareEventsByWhen, categoriesIn, activeCategory, isTodayOrTomorrow, ongoingEventsOr } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import AddEventModal from '../components/ui/AddEventModal'
 import EventCard from '../components/ui/EventCard'
@@ -73,7 +73,11 @@ export default function TownDetail() {
                     { data: eventsData, error: eventsError }
                 ] = await Promise.all([
                     supabase.from('towns').select('*').eq('id', id).single(),
+                    // Search filters this list in the client, so the end_date cut
+                    // here is also the search cut. Null end_date still includes
+                    // past one-offs; a set end_date hides the event after that day.
                     supabase.from('events').select('*').eq('town_id', id).eq('is_approved', true)
+                        .or(ongoingEventsOr())
                 ])
 
                 if (townError) throw townError
