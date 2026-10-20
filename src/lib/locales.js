@@ -18,9 +18,10 @@ const en = {
     'common.featuredEvents': 'Featured Events',
     'common.moreEvents': 'More Events',
     'common.postVibe': 'Post Your Vibe',
-    'common.loginToPost': 'You need to be logged in to post an event. Go to login?',
     'common.madeWith': 'Made with 🌋 in Lake Atitlán',
     'common.contactWhatsApp': 'Contact us on WhatsApp',
+    'guest.loginToAccess': 'Log in first to access all features.',
+    'guest.seeMore': 'Want to see more than today and tomorrow? Log in to see every event.',
 
     // Home
     'home.welcome': 'Welcome to',
@@ -84,6 +85,22 @@ const en = {
     'sidebar.privacy': 'Privacy Policy',
     'sidebar.logOut': 'Log Out',
     'sidebar.browseTowns': 'Browse Towns',
+    'sidebar.admin': 'Review Events',
+
+    // Admin panel
+    'admin.title': 'Review Events',
+    'admin.pending': 'Pending',
+    'admin.approved': 'Approved',
+    'admin.approve': 'Approve',
+    'admin.edit': 'Edit',
+    'admin.delete': 'Delete',
+    'admin.save': 'Save',
+    'admin.cancel': 'Cancel',
+    'admin.confirmDelete': 'Delete this event? It is archived, not gone for good.',
+    'admin.notAllowed': 'This page is for admins only.',
+    'admin.empty': 'Nothing here.',
+    'admin.submittedBy': 'Submitted by',
+    'admin.noPermission': 'Not saved: the database refused the change. Has the is_admin migration been run?',
 
     // Favorites
     'favorites.title': 'Saved Events',
@@ -341,9 +358,10 @@ const es = {
     'common.featuredEvents': 'Eventos destacados',
     'common.moreEvents': 'Más eventos',
     'common.postVibe': 'Publica tu vibra',
-    'common.loginToPost': 'Necesitas iniciar sesión para publicar un evento. ¿Ir a iniciar sesión?',
     'common.madeWith': 'Hecho con 🌋 en el Lago de Atitlán',
     'common.contactWhatsApp': 'Escríbenos por WhatsApp',
+    'guest.loginToAccess': 'Inicia sesión primero para acceder a todas las funciones.',
+    'guest.seeMore': '¿Quieres ver más que hoy y mañana? Inicia sesión para ver todos los eventos.',
 
     // Inicio
     'home.welcome': 'Bienvenido a',
@@ -407,6 +425,22 @@ const es = {
     'sidebar.privacy': 'Política de privacidad',
     'sidebar.logOut': 'Cerrar sesión',
     'sidebar.browseTowns': 'Explorar pueblos',
+    'sidebar.admin': 'Revisar eventos',
+
+    // Admin panel
+    'admin.title': 'Revisar eventos',
+    'admin.pending': 'Pendientes',
+    'admin.approved': 'Aprobados',
+    'admin.approve': 'Aprobar',
+    'admin.edit': 'Editar',
+    'admin.delete': 'Eliminar',
+    'admin.save': 'Guardar',
+    'admin.cancel': 'Cancelar',
+    'admin.confirmDelete': '¿Eliminar este evento? Queda archivado, no se pierde del todo.',
+    'admin.notAllowed': 'Esta página es solo para administradores.',
+    'admin.empty': 'Nada por aquí.',
+    'admin.submittedBy': 'Enviado por',
+    'admin.noPermission': 'No se guardó: la base de datos rechazó el cambio. ¿Ya corriste la migración de is_admin?',
 
     // Favoritos
     'favorites.title': 'Eventos guardados',

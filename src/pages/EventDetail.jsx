@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useParams, useNavigate, useLocation, useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { getDirectImageUrl, formatOccurrence } from '../lib/utils'
 import { MapPin, Calendar, Clock, ArrowLeft, Globe, Instagram, ExternalLink, Heart } from 'lucide-react'
@@ -15,6 +15,7 @@ export default function EventDetail() {
     const navigate = useNavigate()
     const location = useLocation()
     const { user } = useAuth()
+    const { askLogin } = useOutletContext()
     const [event, setEvent] = useState(null)
     const [loading, setLoading] = useState(true)
     const [isFav, setIsFav] = useState(false)
@@ -60,7 +61,7 @@ export default function EventDetail() {
     // Toggle-by-delete-then-insert, same shape as the reactions in ChatRoom.
     // Optimistic: the heart flips first and rolls back if the write fails.
     const toggleFavorite = async () => {
-        if (!user) return
+        if (!user) return askLogin()
         const next = !isFav
         setIsFav(next)
 
@@ -181,16 +182,14 @@ export default function EventDetail() {
 
                 {/* Floating Contact Icons (positioned absolute at bottom right of hero) */}
                 <div className="absolute bottom-[-24px] right-6 flex gap-3 z-30">
-                    {/* Save for later */}
-                    {user && (
-                        <button
-                            onClick={toggleFavorite}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95 ${isFav ? 'bg-red-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-300'}`}
-                            aria-label={t('favorites.save')}
-                        >
-                            <Heart size={22} fill={isFav ? 'currentColor' : 'none'} />
-                        </button>
-                    )}
+                    {/* Save for later — greyed for guests, tapping asks them to log in */}
+                    <button
+                        onClick={toggleFavorite}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95 ${isFav ? 'bg-red-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-300'} ${user ? '' : 'opacity-60'}`}
+                        aria-label={t('favorites.save')}
+                    >
+                        <Heart size={22} fill={isFav ? 'currentColor' : 'none'} />
+                    </button>
 
                     {/* WhatsApp */}
                     {event.contact_number && (

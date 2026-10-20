@@ -1,5 +1,5 @@
 
-import { X, User, Settings, Info, MapPin, LogIn, LogOut, Shield, Heart } from 'lucide-react'
+import { X, User, Settings, Info, MapPin, LogIn, LogOut, Shield, Heart, ClipboardCheck } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useTowns } from '../../lib/towns'
@@ -9,7 +9,7 @@ import { useT } from '../../lib/i18n'
 export default function Sidebar({ isOpen, onClose }) {
     const t = useT()
     const towns = useTowns()
-    const { user } = useAuth()
+    const { user, isAdmin } = useAuth()
     const navigate = useNavigate()
 
     const handleLogout = async () => {
@@ -60,6 +60,12 @@ export default function Sidebar({ isOpen, onClose }) {
 
                     {/* Main Links */}
                     <div className="space-y-4">
+                        {isAdmin && (
+                            <Link to="/admin" onClick={onClose} className="flex items-center gap-3 p-3 bg-turquoise/10 hover:bg-turquoise/20 rounded-xl cursor-pointer text-turquoise">
+                                <ClipboardCheck size={20} />
+                                <span className="font-bold">{t('sidebar.admin')}</span>
+                            </Link>
+                        )}
                         <Link to="/profile" onClick={onClose} className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-xl cursor-pointer text-gray-900 dark:text-gray-100">
                             <User size={20} className="text-gray-500 dark:text-gray-400" />
                             <span className="font-medium">{t('sidebar.profile')}</span>

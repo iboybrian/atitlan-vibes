@@ -7,7 +7,7 @@
  * imports nothing.
  */
 import assert from 'node:assert/strict'
-import { nextOccurrence, compareEventsByWhen } from '../src/lib/utils.js'
+import { nextOccurrence, compareEventsByWhen, isTodayOrTomorrow } from '../src/lib/utils.js'
 
 // 2026-08-30 is a Sunday. Every case below is anchored to that.
 const SUNDAY = '2026-08-30'
@@ -77,5 +77,16 @@ assert.deepEqual(
     ['weekly', 'one-off', 'stale'],
     'recurring is upcoming, not past'
 )
+
+// Guests see only today and tomorrow. Asked on Sunday 2026-08-30.
+const guest = (event) => isTodayOrTomorrow(event, SUNDAY)
+assert.equal(guest({ calendar_date: SUNDAY }), true, 'one-off today')
+assert.equal(guest({ calendar_date: MONDAY }), true, 'one-off tomorrow')
+assert.equal(guest({ calendar_date: TUESDAY }), false, 'day after tomorrow is out')
+assert.equal(guest({ calendar_date: '2026-08-29' }), false, 'yesterday is out')
+assert.equal(guest({ calendar_date: null }), false, 'undated is out')
+assert.equal(guest({ recurring_days: [MON], calendar_date: '2025-01-06' }), true, 'weekly on tomorrow')
+assert.equal(guest({ recurring_days: [WED], calendar_date: '2025-01-08' }), false, 'weekly on wednesday')
+assert.equal(isTodayOrTomorrow({ calendar_date: '2027-01-01' }, '2026-12-31'), true, 'tomorrow across new year')
 
 console.log('recurrence ok')

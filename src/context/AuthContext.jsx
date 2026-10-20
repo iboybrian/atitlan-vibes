@@ -10,6 +10,10 @@ export const AuthProvider = ({ children }) => {
     const [session, setSession] = useState(null)
     const [loading, setLoading] = useState(true)
     const [userProfile, setUserProfile] = useState(null)
+    // UI only (shows the /admin link and page). The real gate is RLS: is_admin()
+    // in the admins migration decides what an account can read and change.
+    // null = still checking.
+    const [isAdmin, setIsAdmin] = useState(null)
     const [darkMode, setDarkMode] = useState(() => {
         // Initialize from localStorage
         return localStorage.getItem('darkMode') === 'true'
@@ -19,8 +23,13 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         if (session?.user) {
             fetchUserProfile(session.user.id)
+            // Separate from fetchUserProfile on purpose: if the is_admin column
+            // isn't there yet, this errors to false instead of blanking the profile.
+            supabase.from('users').select('is_admin').eq('id', session.user.id).maybeSingle()
+                .then(({ data }) => setIsAdmin(!!data?.is_admin))
         } else {
             setUserProfile(null)
+            setIsAdmin(false)
         }
     }, [session])
 
@@ -89,6 +98,7 @@ export const AuthProvider = ({ children }) => {
         session,
         user: session?.user ?? null,
         userProfile,
+        isAdmin,
         loading,
         signOut,
         refreshProfile,

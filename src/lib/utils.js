@@ -174,6 +174,16 @@ export function nextOccurrence(event, today = todayInGuatemala()) {
 }
 
 /**
+ * Is the event on today or tomorrow, in Guatemala? That is all a logged-out
+ * guest gets to see. Goes through nextOccurrence(), so a weekly class that runs
+ * tonight counts and a one-off from last week does not.
+ */
+export function isTodayOrTomorrow(event, today = todayInGuatemala()) {
+    const date = nextOccurrence(event, today);
+    return date === today || date === addDays(today, 1);
+}
+
+/**
  * Weekday names indexed the same way as events.recurring_days, 0 = Sunday.
  *
  * Generated rather than added to locales.js: fourteen translation keys for

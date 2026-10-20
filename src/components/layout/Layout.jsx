@@ -10,7 +10,7 @@ import { useAuth } from '../../context/AuthContext'
 import { shouldShowPushPrompt, isPushSupported, refreshPushToken, onPushTap, onPushReceived } from '../../lib/pushNotifications'
 import { refreshDetectedTown } from '../../lib/geolocation'
 import { shouldShowTour } from '../../lib/utils'
-import { syncLang } from '../../lib/i18n'
+import { syncLang, useT } from '../../lib/i18n'
 import { App as CapacitorApp } from '@capacitor/app'
 
 export default function Layout() {
@@ -18,8 +18,12 @@ export default function Layout() {
     const [showPushPrompt, setShowPushPrompt] = useState(false)
     const [showTour, setShowTour] = useState(false)
     const [pushBanner, setPushBanner] = useState(null)
+    // "Log in first" toast for guests who tap a locked feature. Pages raise it
+    // with useOutletContext().askLogin; a counter, so a second tap re-arms the timer.
+    const [loginToast, setLoginToast] = useState(0)
     const { user } = useAuth()
     const navigate = useNavigate()
+    const t = useT()
 
     const maybeShowPushPrompt = () => {
         if (shouldShowPushPrompt() && isPushSupported()) setShowPushPrompt(true)
@@ -29,7 +33,7 @@ export default function Layout() {
     // advertiser whose blast lands on Home does not buy a second one. Separate
     // from the user effect below: the listener is registered at module scope in
     // main.jsx, so a tap can already be buffered before the session resolves.
-    useEffect(() => onPushTap(id => navigate(`/event/${id}`)), [navigate])
+    useEffect(() => onPushTap(path => navigate(path)), [navigate])
 
     // Android suppresses the tray notification for the foreground app, so a push
     // that arrives while someone is looking at the app is delivered and dropped —
@@ -44,6 +48,12 @@ export default function Layout() {
         const timer = setTimeout(() => setPushBanner(null), 6000)
         return () => clearTimeout(timer)
     }, [pushBanner])
+
+    useEffect(() => {
+        if (!loginToast) return
+        const timer = setTimeout(() => setLoginToast(0), 4000)
+        return () => clearTimeout(timer)
+    }, [loginToast])
 
     // Show the tour, then the push prompt after first login
     useEffect(() => {
@@ -94,8 +104,26 @@ export default function Layout() {
                 />
 
                 <main className="flex-1 transition-colors duration-500">
-                    <Outlet />
+                    <Outlet context={{ askLogin: () => setLoginToast(n => n + 1) }} />
                 </main>
+
+                {/* Guest tapped something that needs an account. Sits above the
+                    footer; fixed is fine for the same reason as the push banner. */}
+                {loginToast > 0 && !user && (
+                    <div
+                        role="status"
+                        className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm rounded-xl shadow-lg bg-gray-900 dark:bg-slate-700 text-white flex items-center gap-3 px-4 py-3 animate-in slide-in-from-bottom-5"
+                    >
+                        <p className="flex-1 text-sm">{t('guest.loginToAccess')}</p>
+                        <button
+                            type="button"
+                            onClick={() => { setLoginToast(0); navigate('/auth') }}
+                            className="shrink-0 px-3 py-1.5 rounded-lg bg-turquoise text-white text-sm font-bold"
+                        >
+                            {t('common.logIn')}
+                        </button>
+                    </div>
+                )}
 
                 {/* A push that arrived with the app in the foreground. Fixed is fine
                     here for the same reason the Profile toast is: viewport-centered
@@ -109,9 +137,9 @@ export default function Layout() {
                         <button
                             type="button"
                             onClick={() => {
-                                // notify-town always sends data.eventId, but a push from
-                                // anywhere else must not navigate to /event/undefined.
-                                if (pushBanner.eventId) navigate(`/event/${pushBanner.eventId}`)
+                                // null for a push that names no event or route —
+                                // it must not navigate to /event/undefined.
+                                if (pushBanner.path) navigate(pushBanner.path)
                                 setPushBanner(null)
                             }}
                             className="w-full px-5 py-3 text-left"

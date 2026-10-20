@@ -1,13 +1,14 @@
 
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import { Plus, Star } from 'lucide-react'
 import AddEventModal from '../components/ui/AddEventModal'
 import FlipCard from '../components/ui/FlipCard'
 import TownPicker from '../components/ui/TownPicker'
 import CategoryChips from '../components/ui/CategoryChips'
+import LoginNudge from '../components/ui/LoginNudge'
 import { supabase } from '../lib/supabase'
-import { getDirectImageUrl, todayInGuatemala, compareEventsByWhen, categoriesIn, activeCategory } from '../lib/utils'
+import { getDirectImageUrl, todayInGuatemala, compareEventsByWhen, categoriesIn, activeCategory, isTodayOrTomorrow } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import { useT } from '../lib/i18n'
 
@@ -50,18 +51,10 @@ export default function Home() {
     const [loading, setLoading] = useState(true)
     const [isAddEventOpen, setIsAddEventOpen] = useState(false)
     const { user } = useAuth()
-    const navigate = useNavigate()
+    const { askLogin } = useOutletContext()
     const t = useT()
 
-    const handleAddEvent = () => {
-        if (!user) {
-            if (confirm(t('common.loginToPost'))) {
-                navigate('/auth')
-            }
-        } else {
-            setIsAddEventOpen(true)
-        }
-    }
+    const handleAddEvent = () => user ? setIsAddEventOpen(true) : askLogin()
 
     useEffect(() => {
         async function fetchUpcoming() {
@@ -111,9 +104,13 @@ export default function Home() {
 
     // Filter first, then cut to 8 — cutting first would leave a chip with one or
     // two events out of the 8 soonest, instead of the 8 soonest of that type.
-    const categories = categoriesIn(events)
+    // Guests get today and tomorrow only; the rest is behind login.
+    // ponytail: filtered here, not in RLS — the API still serves every approved
+    // event to the anon key. Fine for public listings; move to a policy if not.
+    const visible = user ? events : events.filter(e => isTodayOrTomorrow(e))
+    const categories = categoriesIn(visible)
     const active = activeCategory(categories, category)
-    const shown = events.filter(e => !active || e.category === active).slice(0, 8)
+    const shown = visible.filter(e => !active || e.category === active).slice(0, 8)
     const featuredEvents = shown.filter(e => e.is_feature)
     const regularEvents = shown.filter(e => !e.is_feature)
 
@@ -164,8 +161,7 @@ export default function Home() {
                 {/* Inline Add Event Button */}
                 <button
                     onClick={handleAddEvent}
-                    className="w-full mb-4 py-3 px-4 bg-sunflower text-black font-bold rounded-xl shadow-md hover:shadow-lg hover:bg-sunflower/90 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                    style={{ opacity: user ? 1 : 0.6 }}
+                    className={`w-full mb-4 py-3 px-4 bg-sunflower text-black font-bold rounded-xl shadow-md hover:shadow-lg hover:bg-sunflower/90 transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${user ? '' : 'grayscale opacity-60'}`}
                 >
                     <Plus size={20} strokeWidth={3} />
                     <span>{t('common.postVibe')}</span>
@@ -217,6 +213,8 @@ export default function Home() {
                         )}
                     </div>
                 )}
+
+                {!user && !loading && <LoginNudge />}
             </section>
 
             {/* Add Event Modal */}

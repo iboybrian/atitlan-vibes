@@ -241,33 +241,37 @@ export const markPushPromptShown = () => {
  * So startPushTapListener() runs at module scope and buffers, and whatever can
  * actually navigate claims the tap later with onPushTap().
  */
-let pendingEventId = null
+let pendingPath = null
 let tapHandler = null
+
+// Where a push opens. Town pushes carry data.eventId; the admin "new submission"
+// push carries data.route = '/admin'. Anything else opens nothing.
+const pushPath = (data) =>
+    data?.route ?? (data?.eventId ? `/event/${data.eventId}` : null)
 
 export const startPushTapListener = () => {
     if (!isPushSupported()) return
 
     PushNotifications.addListener('pushNotificationActionPerformed', ({ notification }) => {
-        // notify-town sends data.eventId on every push, manual blast included.
-        const id = notification?.data?.eventId
-        if (!id) return
+        const path = pushPath(notification?.data)
+        if (!path) return
 
-        if (tapHandler) tapHandler(id)
-        else pendingEventId = id
+        if (tapHandler) tapHandler(path)
+        else pendingPath = path
     })
 }
 
 /**
- * Claim push taps. Fires immediately if one arrived before React was ready.
- * Returns an unsubscribe for the effect cleanup.
+ * Claim push taps — the handler gets an in-app path. Fires immediately if one
+ * arrived before React was ready. Returns an unsubscribe for the effect cleanup.
  */
 export const onPushTap = (handler) => {
     tapHandler = handler
 
-    if (pendingEventId) {
-        const id = pendingEventId
-        pendingEventId = null
-        handler(id)
+    if (pendingPath) {
+        const path = pendingPath
+        pendingPath = null
+        handler(path)
     }
 
     return () => { tapHandler = null }
@@ -294,7 +298,7 @@ export const onPushReceived = (handler) => {
 
     const handle = PushNotifications.addListener(
         'pushNotificationReceived',
-        ({ title, body, data }) => handler({ title, body, eventId: data?.eventId })
+        ({ title, body, data }) => handler({ title, body, path: pushPath(data) })
     )
 
     return () => { handle.then((h) => h.remove()) }

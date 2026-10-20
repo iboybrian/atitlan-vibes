@@ -1,14 +1,15 @@
 
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, ChevronDown, Ship, Search, X, Star } from 'lucide-react'
 import WhatsAppIcon from '../components/ui/WhatsAppIcon'
-import { getDirectImageUrl, compareEventsByWhen, categoriesIn, activeCategory } from '../lib/utils'
+import { getDirectImageUrl, compareEventsByWhen, categoriesIn, activeCategory, isTodayOrTomorrow } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import AddEventModal from '../components/ui/AddEventModal'
 import EventCard from '../components/ui/EventCard'
 import CategoryChips from '../components/ui/CategoryChips'
+import LoginNudge from '../components/ui/LoginNudge'
 import { useT } from '../lib/i18n'
 
 // Every town's button opens the same community group — change it here and it
@@ -55,18 +56,10 @@ export default function TownDetail() {
     const [searchQuery, setSearchQuery] = useState('')
     const [category, setCategory] = useState(null)
     const { user } = useAuth()
-    const navigate = useNavigate()
+    const { askLogin } = useOutletContext()
     const t = useT()
 
-    const handleAddEvent = () => {
-        if (!user) {
-            if (confirm(t('common.loginToPost'))) {
-                navigate('/auth')
-            }
-        } else {
-            setIsAddEventOpen(true)
-        }
-    }
+    const handleAddEvent = () => user ? setIsAddEventOpen(true) : askLogin()
 
     useEffect(() => {
         async function fetchData() {
@@ -103,9 +96,11 @@ export default function TownDetail() {
     // multi-field), then put today's first — the query returns them unordered, and
     // someone opening a town page is asking "what is on tonight", not "what
     // happened in March".
-    const categories = categoriesIn(events)
+    // Guests get today and tomorrow only — same rule and same caveat as Home.
+    const visible = user ? events : events.filter(e => isTodayOrTomorrow(e))
+    const categories = categoriesIn(visible)
     const active = activeCategory(categories, category)
-    const filteredEvents = events.filter(event => {
+    const filteredEvents = visible.filter(event => {
         if (active && event.category !== active) return false
         if (!searchQuery.trim()) return true
 
@@ -201,8 +196,7 @@ export default function TownDetail() {
             <button
                 data-tour="post-vibe"
                 onClick={handleAddEvent}
-                className="w-full mb-4 py-3 px-4 bg-sunflower text-black font-bold rounded-xl shadow-md hover:shadow-lg hover:bg-sunflower/90 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                style={{ opacity: user ? 1 : 0.6 }}
+                className={`w-full mb-4 py-3 px-4 bg-sunflower text-black font-bold rounded-xl shadow-md hover:shadow-lg hover:bg-sunflower/90 transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${user ? '' : 'grayscale opacity-60'}`}
             >
                 <Plus size={20} strokeWidth={3} />
                 <span>{t('common.postVibe')}</span>
@@ -214,7 +208,9 @@ export default function TownDetail() {
                     <p className="text-gray-400 dark:text-gray-500 font-medium">{t('town.noApproved')}</p>
                 </div>
             ) : filteredEvents.length === 0 ? (
-                <div className="text-center py-10 bg-white dark:bg-slate-800 rounded-3xl border-2 border-dashed border-turquoise/30">
+                // A guest with nothing on today/tomorrow gets the login nudge below
+                // instead — "try another search" would be the wrong advice.
+                !user && visible.length === 0 ? null : <div className="text-center py-10 bg-white dark:bg-slate-800 rounded-3xl border-2 border-dashed border-turquoise/30">
                     <div className="text-4xl mb-3">🔍</div>
                     <p className="text-gray-500 dark:text-gray-400 font-medium">{t('town.noMatches')}</p>
                     <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">{t('town.tryAnother')}</p>
@@ -270,6 +266,8 @@ export default function TownDetail() {
                 </div>
             )}
 
+            {!user && <LoginNudge />}
+
             {/* Add Event Modal */}
             {user && (
                 <AddEventModal
@@ -278,7 +276,7 @@ export default function TownDetail() {
                 />
             )}
 
-            {/* Floating WhatsApp Button (logged-in users only) - sticks to the shell's right edge, above the footer.
+            {/* Floating WhatsApp Button - sticks to the shell's right edge, above the footer.
                 A bare bottom-24 was a guess at the footer's height; the real one is ~84px *plus*
                 env(safe-area-inset-bottom), so on a gesture-bar device the footer outgrew the guess
                 and covered the bottom half of the button.
@@ -286,9 +284,10 @@ export default function TownDetail() {
                 One shared group for all towns, not a per-town link: the community lives in WhatsApp,
                 so the in-app ChatRoom is no longer reachable from the UI. Plain anchor on purpose —
                 chat.whatsapp.com is outside the Capacitor server origin, so Android hands it to the
-                WhatsApp app (or the browser) instead of loading it inside the WebView. */}
-            {user && (
-                <div className="sticky bottom-[calc(6rem+env(safe-area-inset-bottom))] z-40 flex justify-end h-0 pointer-events-none">
+                WhatsApp app (or the browser) instead of loading it inside the WebView.
+                Guests see it greyed out; tapping it asks them to log in instead. */}
+            <div className="sticky bottom-[calc(6rem+env(safe-area-inset-bottom))] z-40 flex justify-end h-0 pointer-events-none">
+                {user ? (
                     <a
                         data-tour="town-chat"
                         href={WHATSAPP_GROUP_URL}
@@ -299,8 +298,18 @@ export default function TownDetail() {
                     >
                         <WhatsAppIcon size={28} />
                     </a>
-                </div>
-            )}
+                ) : (
+                    <button
+                        type="button"
+                        data-tour="town-chat"
+                        onClick={askLogin}
+                        className="pointer-events-auto w-14 h-14 -translate-y-full bg-green-500 text-white rounded-full shadow-lg grayscale opacity-60 flex items-center justify-center"
+                        title={t('town.chat')}
+                    >
+                        <WhatsAppIcon size={28} />
+                    </button>
+                )}
+            </div>
         </div>
     )
 }
