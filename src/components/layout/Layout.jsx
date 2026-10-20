@@ -51,7 +51,7 @@ export default function Layout() {
 
     useEffect(() => {
         if (!loginToast) return
-        const timer = setTimeout(() => setLoginToast(0), 4000)
+        const timer = setTimeout(() => setLoginToast(0), 2000)
         return () => clearTimeout(timer)
     }, [loginToast])
 
