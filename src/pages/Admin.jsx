@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ClipboardCheck, Check, Pencil, Trash2 } from 'lucide-react'
+import { ClipboardCheck, Check, Pencil, Trash2, Mail, Phone } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useTowns } from '../lib/towns'
@@ -23,6 +23,68 @@ const FIELDS = [
 
 const input = 'w-full p-2 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-lg border-none text-sm focus:ring-2 focus:ring-turquoise/20'
 
+// "5 minutes ago" in the app's language, from an ISO timestamp.
+const UNITS = [['year', 31536000], ['month', 2592000], ['week', 604800], ['day', 86400], ['hour', 3600], ['minute', 60]]
+function timeAgo(iso) {
+    const rtf = new Intl.RelativeTimeFormat(getLang(), { numeric: 'auto' })
+    const secs = (Date.parse(iso) - Date.now()) / 1000
+    for (const [unit, size] of UNITS) {
+        if (Math.abs(secs) >= size) return rtf.format(Math.round(secs / size), unit)
+    }
+    return rtf.format(0, 'minute')
+}
+
+/**
+ * Latest sign-ins, newest first. Reads auth.users through the
+ * admin_recent_logins() RPC (20261026000000 migration), which returns nothing
+ * to non-admins.
+ */
+function RecentLogins() {
+    const t = useT()
+    const [rows, setRows] = useState(null)
+
+    useEffect(() => {
+        let alive = true
+        supabase.rpc('admin_recent_logins', { max_rows: 50 }).then(({ data, error }) => {
+            if (!alive) return
+            if (error) alert(error.message)
+            setRows(data ?? [])
+        })
+        return () => { alive = false }
+    }, [])
+
+    if (rows === null) return <div className="text-center text-gray-400 dark:text-gray-500 py-10">{t('common.loading')}</div>
+    if (!rows.length) return <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 text-center text-gray-500 dark:text-gray-400">{t('admin.empty')}</div>
+
+    return (
+        <>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 px-1">{t('admin.loginsHint')}</p>
+            <ul className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm divide-y divide-gray-100 dark:divide-slate-700">
+                {rows.map(u => (
+                    <li key={u.id} className="p-4 flex items-start gap-3 text-sm">
+                        <div className="flex-1 min-w-0">
+                            <p className="font-bold text-gray-900 dark:text-white truncate">
+                                {u.name || u.email}
+                                {u.provider && (
+                                    <span className="ml-2 align-middle px-1.5 py-0.5 rounded bg-gray-100 dark:bg-slate-700 text-[10px] font-bold uppercase text-gray-500 dark:text-gray-300">{u.provider}</span>
+                                )}
+                            </p>
+                            <p className="flex items-center gap-1 text-gray-500 dark:text-gray-400 truncate"><Mail size={12} className="shrink-0" /> {u.email}</p>
+                            {u.phone && <p className="flex items-center gap-1 text-gray-500 dark:text-gray-400"><Phone size={12} className="shrink-0" /> {u.phone}</p>}
+                        </div>
+                        <div className="text-right shrink-0">
+                            <p className="font-bold text-turquoise">{u.last_sign_in_at ? timeAgo(u.last_sign_in_at) : t('admin.neverLoggedIn')}</p>
+                            {u.last_sign_in_at && (
+                                <p className="text-[11px] text-gray-400 dark:text-gray-500">{new Date(u.last_sign_in_at).toLocaleString(getLang())}</p>
+                            )}
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </>
+    )
+}
+
 export default function Admin() {
     const t = useT()
     const { isAdmin } = useAuth()
@@ -35,7 +97,7 @@ export default function Admin() {
     const dayNames = weekdayNames(getLang(), 'short')
 
     useEffect(() => {
-        if (!isAdmin) return
+        if (!isAdmin || tab === 'users') return
         let alive = true
         ;(async () => {
             const { data, error } = await supabase
@@ -112,7 +174,7 @@ export default function Admin() {
             </div>
 
             <div className="flex gap-2 mb-6">
-                {['pending', 'approved'].map(id => (
+                {['pending', 'approved', 'users'].map(id => (
                     <button
                         key={id}
                         onClick={() => { setTab(id); setEvents(null); setDraft(null) }}
@@ -123,7 +185,9 @@ export default function Admin() {
                 ))}
             </div>
 
-            {events === null ? (
+            {tab === 'users' ? (
+                <RecentLogins />
+            ) : events === null ? (
                 <div className="text-center text-gray-400 dark:text-gray-500 py-10">{t('common.loading')}</div>
             ) : events.length === 0 ? (
                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 text-center text-gray-500 dark:text-gray-400">{t('admin.empty')}</div>

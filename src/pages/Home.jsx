@@ -9,6 +9,7 @@ import LoginNudge from '../components/ui/LoginNudge'
 import TodayPill from '../components/ui/TodayPill'
 import Pigeon, { PigeonLoading } from '../components/ui/Pigeon'
 import LakeMap from '../components/ui/LakeMap'
+import HeroCard from '../components/ui/HeroCard'
 import { useHeroLink } from '../lib/transition'
 import { supabase } from '../lib/supabase'
 import { getDirectImageUrl, todayInGuatemala, compareEventsByWhen, categoriesIn, activeCategory, isTodayOrTomorrow, ongoingEventsOr, happeningToday } from '../lib/utils'
@@ -132,21 +133,9 @@ export default function Home() {
     return (
         <div className="px-4 py-2 space-y-8">
 
-            {/* 1. Welcome card. It used to be a FlipCard with the logo on the front,
-                but the flip CSS never existed, so this text side was all anyone ever
-                saw; the logo side was tried and dropped (Oct 2026). */}
+            {/* 1. Hero: welcome text, flips to the volcano and a Guatemala fun fact */}
             <div className="flex justify-center py-4">
-                <div className="w-full max-w-[320px] h-[200px] bg-white dark:bg-slate-800 rounded-3xl p-6 flex items-center justify-center text-center shadow-inner border border-gray-100 dark:border-slate-700">
-                    <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                        <p className="mb-4">
-                            {t('home.welcome')} <span className="font-bold text-turquoise">Atitlán Vibes</span>
-                            {t('home.welcomeRest')}
-                        </p>
-                        <p className="text-xl font-black text-turquoise">
-                            {t('home.findVibes')} <span className="sparkle" aria-hidden="true">✨</span>
-                        </p>
-                    </div>
-                </div>
+                <HeroCard />
             </div>
 
             {/* 2. Vertical Town Menu (Now in Body) */}

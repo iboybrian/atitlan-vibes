@@ -111,6 +111,55 @@ body {
 .pigeon-sleep .pigeon-z:nth-of-type(2) { animation-delay: 0.9s; }
 .pigeon-sleep .pigeon-z:nth-of-type(3) { animation-delay: 1.8s; }
 
+/* Home hero card flip (HeroCard). Tailwind 3 has no 3D utilities. */
+.perspective-1000 { perspective: 1000px; }
+.transform-style-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
+.hero-flip { transition: transform 700ms var(--ease-out-quart); }
+
+/* The little volcano on the back of the hero card. Smoke is linear: it rises
+   at a steady drift, where an ease-out would spend the whole climb in 0.5s. */
+@keyframes volcano-smoke {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  15% { opacity: 0.9; }
+  60% { opacity: 0.6; }
+  100% { opacity: 0; transform: translate(34px, -36px) scale(2.6); }
+}
+.volcano-smoke {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: volcano-smoke 4.8s linear infinite;
+}
+@keyframes volcano-glow {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+.volcano-glow { animation: volcano-glow 2.2s ease-in-out infinite; }
+@keyframes volcano-wave {
+  from { transform: translateX(-4px); }
+  to { transform: translateX(4px); }
+}
+.volcano-wave { animation: volcano-wave 3s ease-in-out infinite alternate; }
+@keyframes volcano-bird {
+  from { transform: translate(-30px, 26px); }
+  to { transform: translate(340px, 14px); }
+}
+.volcano-bird {
+  transform: translate(110px, 20px);
+  animation: volcano-bird 11s linear infinite;
+}
+@keyframes volcano-wing {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(-0.6); }
+}
+.volcano-wing {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: volcano-wing 0.5s ease-in-out infinite;
+}
+
 /* The ✨ after "Find your Vibes": twinkles every couple of seconds. */
 @keyframes sparkle {
   0%, 70%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
@@ -177,6 +226,13 @@ body {
   .pigeon-peck .pigeon-body,
   .pigeon-sleep .pigeon-body { animation: none; }
   .feather { display: none; }
+  .hero-flip { transition: none; }
+  .volcano-smoke,
+  .volcano-glow,
+  .volcano-wave,
+  .volcano-bird,
+  .volcano-wing { animation: none; }
+  .volcano-smoke:first-child { opacity: 0.6; }
   .pigeon-sleep .pigeon-z { animation: none; opacity: 0.7; }
 }
 
