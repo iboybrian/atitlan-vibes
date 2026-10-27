@@ -44,7 +44,9 @@ export default function Header({ onMenuClick }) {
             </button>
 
             <Link to="/" className="flex items-center justify-center h-full py-2">
-                <img src="/logo.png" alt="Atitlán Vibes" className="h-full w-auto object-contain" />
+                {/* 128px webp (7 KB) for a ~44px slot. logo.png (512px, 172 KB) stays in public/
+                    only because the confirm-signup email links to it. */}
+                <img src="/logo-128.webp" alt="Atitlán Vibes" width="128" height="128" className="h-full w-auto object-contain" />
             </Link>
 
             <div style={{ width: 40 }}></div> {/* Spacer to balance menu button */}

@@ -1,19 +1,25 @@
 
+import { lazy } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Home from './pages/Home'
 import TownDetail from './pages/TownDetail'
 import EventDetail from './pages/EventDetail'
-import ChatRoom from './pages/ChatRoom'
-import Profile from './pages/Profile'
-import Settings from './pages/Settings'
-import Favorites from './pages/Favorites'
-import About from './pages/About'
-import Admin from './pages/Admin'
-import Privacy from './pages/Privacy'
-import Auth from './pages/Auth'
-import ResetPassword from './pages/ResetPassword'
 import Layout from './components/layout/Layout'
+
+// Home, a town and an event are the app's main path and ship in the main bundle.
+// Everything else loads on first visit (Suspense is in Layout, around the
+// Outlet), so a first open doesn't download and parse screens most people never
+// reach on that visit.
+const ChatRoom = lazy(() => import('./pages/ChatRoom'))
+const Profile = lazy(() => import('./pages/Profile'))
+const Settings = lazy(() => import('./pages/Settings'))
+const Favorites = lazy(() => import('./pages/Favorites'))
+const About = lazy(() => import('./pages/About'))
+const Admin = lazy(() => import('./pages/Admin'))
+const Privacy = lazy(() => import('./pages/Privacy'))
+const Auth = lazy(() => import('./pages/Auth'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 
 // Most routes require a session. Public: /auth, /reset-password, /privacy (Play
 // Store review must reach it logged out), and the guest browsing routes — Home,

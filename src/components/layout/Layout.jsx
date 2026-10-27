@@ -1,7 +1,8 @@
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import Header from './Header'
+import { PigeonLoading } from '../ui/Pigeon'
 import Sidebar from './Sidebar'
 import TownFooter from './TownFooter'
 import PushPromptModal from '../ui/PushPromptModal'
@@ -12,6 +13,7 @@ import { refreshDetectedTown } from '../../lib/geolocation'
 import { shouldShowTour } from '../../lib/utils'
 import { syncLang, useT } from '../../lib/i18n'
 import { coo } from '../../lib/sound'
+import { checkForUpdate, startUpdate, installUpdate } from '../../lib/appUpdate'
 import { App as CapacitorApp } from '@capacitor/app'
 
 export default function Layout() {
@@ -22,6 +24,10 @@ export default function Layout() {
     // "Log in first" toast for guests who tap a locked feature. Pages raise it
     // with useOutletContext().askLogin; a counter, so a second tap re-arms the timer.
     const [loginToast, setLoginToast] = useState(0)
+    // New version on Play: null | 'available' | 'downloading' | 'downloaded'.
+    // "Later" hides it until the next cold start, not forever.
+    const [update, setUpdate] = useState(null)
+    const [updateDismissed, setUpdateDismissed] = useState(false)
     const { user } = useAuth()
     const navigate = useNavigate()
     const t = useT()
@@ -55,6 +61,18 @@ export default function Layout() {
         const timer = setTimeout(() => setLoginToast(0), 2000)
         return () => clearTimeout(timer)
     }, [loginToast])
+
+    // Ask Play for a newer version on launch and on every resume — guests too.
+    // Never downgrades the banner: once downloading/downloaded, a resume check
+    // returning 'available' must not reset it.
+    useEffect(() => {
+        const check = () => checkForUpdate().then(next => {
+            if (next) setUpdate(cur => (cur === 'downloading' || cur === 'downloaded') && next === 'available' ? cur : next)
+        })
+        check()
+        const resume = CapacitorApp.addListener('appStateChange', ({ isActive }) => { if (isActive) check() })
+        return () => { resume.then(h => h.remove()) }
+    }, [])
 
     // Show the tour, then the push prompt after first login
     useEffect(() => {
@@ -105,8 +123,47 @@ export default function Layout() {
                 />
 
                 <main className="flex-1 transition-colors duration-500">
-                    <Outlet context={{ askLogin: () => { coo(); setLoginToast(n => n + 1) } }} />
+                    {/* Lazy routes (see App.jsx) land here; header and footer stay put. */}
+                    <Suspense fallback={<PigeonLoading label={t('common.loading')} />}>
+                        <Outlet context={{ askLogin: () => { coo(); setLoginToast(n => n + 1) } }} />
+                    </Suspense>
                 </main>
+
+                {/* New version on Play. Above the footer like the login toast;
+                    a downloaded update can't be dismissed, it only waits for Restart. */}
+                {update && !(update === 'available' && updateDismissed) && (
+                    <div
+                        role="status"
+                        className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm rounded-xl shadow-lg bg-sunflower text-black flex items-center gap-2 px-4 py-3 animate-in slide-in-from-bottom-5"
+                    >
+                        <p className="flex-1 text-sm font-bold">
+                            {t(update === 'downloaded' ? 'update.ready' : update === 'downloading' ? 'update.downloading' : 'update.available')}
+                        </p>
+                        {update === 'available' && (
+                            <>
+                                <button type="button" onClick={() => setUpdateDismissed(true)} className="shrink-0 px-2 py-1.5 text-sm font-bold opacity-70">
+                                    {t('update.later')}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setUpdate('downloading')
+                                        startUpdate(() => setUpdate('downloaded'))
+                                            .then(ok => { if (!ok) setUpdate(cur => cur === 'downloading' ? 'available' : cur) })
+                                    }}
+                                    className="shrink-0 px-3 py-1.5 rounded-lg bg-black text-white text-sm font-bold"
+                                >
+                                    {t('update.update')}
+                                </button>
+                            </>
+                        )}
+                        {update === 'downloaded' && (
+                            <button type="button" onClick={installUpdate} className="shrink-0 px-3 py-1.5 rounded-lg bg-black text-white text-sm font-bold">
+                                {t('update.restart')}
+                            </button>
+                        )}
+                    </div>
+                )}
 
                 {/* Guest tapped something that needs an account. Sits above the
                     footer; fixed is fine for the same reason as the push banner. */}

@@ -80,6 +80,8 @@ For *targeting*, both count and the rule lives in one place — [supabase/functi
 - Recipient selection is one over-fetching query plus a predicate in TS, not a PostgREST filter: nested `and()`/`or()` strings are unreadable and a typo silently changes who got paid-for reach.
 - The soft-prompt (`PushPromptModal`) fires 2s after first login, gated by a `localStorage` flag, and asks for push *and* location in that order — the copy before the OS dialogs is the Play prominent disclosure. Its key is versioned (`push_prompt_shown_v2`); bump it again if the prompt ever asks for something new, or existing users never see it.
 
+**In-app updates** — [src/lib/appUpdate.js](src/lib/appUpdate.js) (`@capawesome/capacitor-app-update`, pinned) asks Google Play on launch and every resume whether a newer version is out; Layout shows a banner that runs a *flexible* update (background download, then "Restart"). Play priority ≥ 4 skips the banner and forces Play's full-screen *immediate* update — priority is only settable through the Play Developer API, not the Console UI. Only works on installs from Play (internal testing counts); a sideloaded/debug APK always reports no update. Bump `versionCode` in [build.gradle](android/app/build.gradle) on every upload — that number is what Play compares.
+
 ## Conventions
 
 - **One responsive shell, one width declaration**: everything renders inside a centered column that steps 450 → 576 → 672 → 896px across `sm`/`md`/`lg` ([src/components/layout/Layout.jsx](src/components/layout/Layout.jsx)). That line is the *only* place the shell width is written — child chrome inherits it, so never hardcode a shell width elsewhere.
