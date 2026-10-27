@@ -112,11 +112,61 @@ body {
 .pigeon-sleep .pigeon-z:nth-of-type(3) { animation-delay: 1.8s; }
 
 /* Home hero card flip (HeroCard). Tailwind 3 has no 3D utilities. */
-.perspective-1000 { perspective: 1000px; }
+.perspective-1400 { perspective: 1400px; }
 .transform-style-3d { transform-style: preserve-3d; }
 .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .rotate-y-180 { transform: rotateY(180deg); }
-.hero-flip { transition: transform 700ms var(--ease-out-quart); }
+/* The turn: 1.1s, ease-in-out so it starts and lands softly, and always the same
+   way round (front->back 0->180, back->front 180->360). The card lifts slightly
+   mid-turn on the separate `scale` property, which composes with the rotation. */
+@keyframes hero-to-back {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(180deg); }
+}
+@keyframes hero-to-front {
+  from { transform: rotateY(180deg); }
+  to { transform: rotateY(360deg); }
+}
+@keyframes hero-lift {
+  0%, 100% { scale: 1; filter: drop-shadow(0 0 0 rgb(0 0 0 / 0)); }
+  50% { scale: 1.07; filter: drop-shadow(0 18px 24px rgb(0 0 0 / 0.18)); }
+}
+.hero-to-back {
+  animation: hero-to-back 1.1s cubic-bezier(0.65, 0, 0.35, 1) both,
+             hero-lift 1.1s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+.hero-to-front {
+  animation: hero-to-front 1.1s cubic-bezier(0.65, 0, 0.35, 1) both,
+             hero-lift-2 1.1s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+/* Same lift under another name, so a quick back-and-forth restarts it. */
+@keyframes hero-lift-2 {
+  0%, 100% { scale: 1; filter: drop-shadow(0 0 0 rgb(0 0 0 / 0)); }
+  50% { scale: 1.07; filter: drop-shadow(0 18px 24px rgb(0 0 0 / 0.18)); }
+}
+
+/* Event page entrance: the content blocks rise in one after another, and the
+   contact buttons pop in, after the card photo has grown into the hero. */
+@keyframes detail-rise {
+  from { opacity: 0; transform: translateY(24px); }
+}
+.detail-rise > * {
+  animation: detail-rise 650ms var(--ease-out-expo) both;
+  animation-delay: 260ms;
+}
+.detail-rise > :nth-child(2) { animation-delay: 340ms; }
+.detail-rise > :nth-child(3) { animation-delay: 420ms; }
+.detail-rise > :nth-child(4) { animation-delay: 500ms; }
+.detail-rise > :nth-child(n+5) { animation-delay: 580ms; }
+@keyframes detail-pop {
+  from { opacity: 0; transform: scale(0.4); }
+}
+.detail-pop > * {
+  animation: detail-pop 500ms var(--ease-out-expo) both;
+  animation-delay: 380ms;
+}
+.detail-pop > :nth-child(2) { animation-delay: 450ms; }
+.detail-pop > :nth-child(3) { animation-delay: 520ms; }
 
 /* The little volcano on the back of the hero card. Smoke is linear: it rises
    at a steady drift, where an ease-out would spend the whole climb in 0.5s. */
@@ -198,8 +248,8 @@ body {
    on click, see useHeroLink() in lib/transition.js), so the browser
    morphs that one picture and crossfades the rest of the page. */
 ::view-transition-group(event-hero) {
-  animation-duration: 340ms;
-  animation-timing-function: var(--ease-out-quart);
+  animation-duration: 620ms;
+  animation-timing-function: var(--ease-out-expo);
 }
 ::view-transition-old(event-hero),
 ::view-transition-new(event-hero) {
@@ -207,10 +257,8 @@ body {
   object-fit: cover;
   overflow: clip;
 }
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 200ms;
-}
+::view-transition-old(root) { animation-duration: 180ms; }
+::view-transition-new(root) { animation-duration: 320ms; animation-delay: 80ms; }
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
@@ -226,7 +274,10 @@ body {
   .pigeon-peck .pigeon-body,
   .pigeon-sleep .pigeon-body { animation: none; }
   .feather { display: none; }
-  .hero-flip { transition: none; }
+  .hero-to-back,
+  .hero-to-front,
+  .detail-rise > *,
+  .detail-pop > * { animation: none; }
   .volcano-smoke,
   .volcano-glow,
   .volcano-wave,

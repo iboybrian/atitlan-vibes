@@ -16,15 +16,20 @@ export default function HeroCard() {
     const t = useT()
     const [flipped, setFlipped] = useState(false)
     const [fact, setFact] = useState(() => nextFactIndex(-1))
+    // No turn animation until the card has turned once: otherwise the
+    // "back to front" one would play on page load.
+    const [turned, setTurned] = useState(false)
 
     const flip = (next = !flipped) => {
-        if (next && !flipped) setFact(nextFactIndex)
+        if (next === flipped) return
+        if (next) setFact(nextFactIndex)
+        setTurned(true)
         setFlipped(next)
     }
 
     useEffect(() => {
         // The first fact was already picked in useState, so no reroll here.
-        const show = setTimeout(() => setFlipped(true), 1200)
+        const show = setTimeout(() => { setTurned(true); setFlipped(true) }, 1200)
         const hide = setTimeout(() => setFlipped(false), 5200)
         return () => { clearTimeout(show); clearTimeout(hide) }
     }, [])
@@ -37,7 +42,7 @@ export default function HeroCard() {
             tabIndex={0}
             aria-pressed={flipped}
             aria-label={t('home.flipHint')}
-            className="w-full max-w-[320px] h-[270px] perspective-1000 cursor-pointer outline-none rounded-3xl focus-visible:ring-2 focus-visible:ring-turquoise"
+            className="w-full max-w-[320px] h-[270px] perspective-1400 cursor-pointer outline-none rounded-3xl focus-visible:ring-2 focus-visible:ring-turquoise"
             onClick={() => flip()}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip() } }}
             // Mouse only: a tap fires a synthetic enter AND a click, which would
@@ -45,7 +50,7 @@ export default function HeroCard() {
             onPointerEnter={(e) => e.pointerType === 'mouse' && flip(true)}
             onPointerLeave={(e) => e.pointerType === 'mouse' && flip(false)}
         >
-            <div className={`relative w-full h-full transform-style-3d hero-flip ${flipped ? 'rotate-y-180' : ''}`}>
+            <div className={`relative w-full h-full transform-style-3d ${flipped ? 'rotate-y-180' : ''} ${turned ? (flipped ? 'hero-to-back' : 'hero-to-front') : ''}`}>
                 <div aria-hidden={flipped} className={`${face} bg-white dark:bg-slate-800 flex flex-col shadow-sm`}>
                     <div className="relative h-[130px] shrink-0">
                         <Volcano className="absolute inset-0 w-full h-full" />
@@ -61,11 +66,11 @@ export default function HeroCard() {
                     </div>
                 </div>
 
-                <div aria-hidden={!flipped} className={`${face} rotate-y-180 bg-white dark:bg-slate-800 p-5 flex flex-col justify-center gap-2 shadow-inner`}>
-                    <span className="self-start px-2.5 py-0.5 rounded-full bg-turquoise/15 text-xs font-bold text-teal-700 dark:text-turquoise">
+                <div aria-hidden={!flipped} className={`${face} rotate-y-180 bg-white dark:bg-slate-800 p-6 flex flex-col items-center justify-center gap-3 shadow-inner`}>
+                    <span className="px-2.5 py-0.5 rounded-full bg-turquoise/15 text-xs font-bold text-teal-700 dark:text-turquoise">
                         {t('home.didYouKnow')}
                     </span>
-                    <p className="text-base leading-snug font-medium text-gray-800 dark:text-gray-100 text-left">
+                    <p className="text-base leading-snug font-medium text-gray-800 dark:text-gray-100 text-center text-balance">
                         {GUATEMALA_FACTS[fact][getLang() === 'es' ? 'es' : 'en']}
                     </p>
                 </div>

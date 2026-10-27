@@ -214,7 +214,7 @@ export default function EventDetail() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
 
                 {/* Floating Contact Icons (positioned absolute at bottom right of hero) */}
-                <div className="absolute bottom-[-24px] right-6 flex gap-3 z-30">
+                <div className="absolute bottom-[-24px] right-6 flex gap-3 z-30 detail-pop">
                     {/* Save for later — greyed for guests, tapping asks them to log in */}
                     <button
                         onClick={toggleFavorite}
@@ -253,7 +253,8 @@ export default function EventDetail() {
             </div>
 
             {/* 2. Content Body */}
-            <div className="px-6 pt-10">
+            {/* detail-rise: each block slides up in turn once the photo has landed */}
+            <div className="px-6 pt-10 detail-rise">
 
                 {/* Title */}
                 <h1 className="text-3xl font-black text-black dark:text-white leading-tight mb-2">
