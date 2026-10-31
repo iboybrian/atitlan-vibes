@@ -15,6 +15,7 @@ import { useGoing } from '../lib/going'
 import { useT, getLang, costLabel } from '../lib/i18n'
 import { coo } from '../lib/sound'
 import { PigeonLoading } from '../components/ui/Pigeon'
+import { logViewEvent, logFavoriteEvent } from '../lib/metaEvents'
 
 // Six pigeon feathers thrown out around the heart on save. Angles are spread
 // unevenly on purpose; a perfect hexagon reads as a UI spinner, not feathers.
@@ -106,6 +107,8 @@ export default function EventDetail() {
     // go back to, so Home is the honest fallback.
     const goBack = () => location.key === 'default' ? navigate('/') : navigate(-1)
 
+    useEffect(() => { if (id) logViewEvent(id) }, [id])
+
     useEffect(() => {
         async function fetchEvent() {
             try {
@@ -169,6 +172,8 @@ export default function EventDetail() {
         if (error) {
             console.error('Favorite toggle failed:', error)
             setIsFav(!next)
+        } else if (next) {
+            logFavoriteEvent(id)
         }
     }
 

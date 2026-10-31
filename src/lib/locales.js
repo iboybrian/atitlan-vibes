@@ -380,7 +380,7 @@ const en = {
 
     // Privacy
     'privacy.title': 'Privacy Policy',
-    'privacy.updated': 'Last updated: September 21, 2026',
+    'privacy.updated': 'Last updated: October 10, 2026',
     'privacy.overview': 'Overview',
     'privacy.overviewBody': 'Atitlán Vibes ("we", "our", "the app") is a community events app for the towns around Lake Atitlán, Guatemala. This policy explains what information we collect when you use the app, why we collect it, and the choices you have.',
     'privacy.provide': 'Information you provide',
@@ -395,7 +395,9 @@ const en = {
     'privacy.tokenBody': 'If you enable push notifications, a device or browser token is stored so we can send you notifications. You can turn this off anytime in Settings.',
     'privacy.locationLabel': 'Approximate location.',
     'privacy.locationBody': 'If you turn it on in Settings, the app checks your approximate location only while it is open, works out which town is nearest on your phone, and saves just that town on your account. Your coordinates are never sent to us and never stored anywhere. Never in the background. It is off by default and you can turn it off anytime in Settings.',
-    'privacy.noTracking': 'We do not use analytics or tracking SDKs of any kind. We do not sell your data and we never share it with advertisers.',
+    'privacy.noTracking': 'We do not use in-app analytics or behavioral tracking. We do not sell your data. The only third-party SDK that sends data off your device for advertising is described under "Ad campaign measurement" below.',
+    'privacy.adMeasurement': 'Ad campaign measurement (Android app)',
+    'privacy.adMeasurementBody': 'The Android app includes the Meta (Facebook) SDK so we can tell whether an install came from one of our Meta ad campaigns. When the app opens, the SDK sends Meta your device\'s Android advertising ID, basic device and app information (app version, OS version, device model, language, time zone, IP address) and the Google Play install referrer. The app also tells Meta when you take certain actions: signing up or logging in, viewing a town or event, saving an event, opening a town chat, tapping the WhatsApp community button, sending a chat message, choosing your town, and turning on notifications. Only an anonymous town or event number or a short label (such as "email" or "google") is sent with each action. It does not receive your name, email, phone number, your posts or messages (not even the text of a chat message), or your location. You can reset or delete your advertising ID, or opt out of ad personalization, anytime in your Android settings (Settings > Privacy > Ads). Meta processes this data under its own privacy policy.',
     'privacy.howWeUse': 'How we use your information',
     'privacy.howWeUseBody': 'To create and secure your account, show your profile and posts to other users, moderate submitted events before they go live, and — if enabled — send you push notifications, including occasional paid promotions for events posted by local businesses in the town you are in.',
     'privacy.promo': 'Promoted events',
@@ -792,7 +794,7 @@ const es = {
 
     // Privacidad
     'privacy.title': 'Política de privacidad',
-    'privacy.updated': 'Última actualización: 21 de septiembre de 2026',
+    'privacy.updated': 'Última actualización: 10 de octubre de 2026',
     'privacy.overview': 'Resumen',
     'privacy.overviewBody': 'Atitlán Vibes ("nosotros", "la app") es una app de eventos comunitarios para los pueblos alrededor del Lago de Atitlán, Guatemala. Esta política explica qué información recopilamos cuando usas la app, por qué la recopilamos y qué opciones tienes.',
     'privacy.provide': 'Información que nos das',
@@ -807,7 +809,9 @@ const es = {
     'privacy.tokenBody': 'Si activas las notificaciones push, se guarda un token de tu dispositivo o navegador para poder enviártelas. Puedes desactivarlo cuando quieras en Ajustes.',
     'privacy.locationLabel': 'Ubicación aproximada.',
     'privacy.locationBody': 'Si la activas en Ajustes, la app consulta tu ubicación aproximada solo mientras está abierta, calcula en tu teléfono cuál es el pueblo más cercano y guarda únicamente ese pueblo en tu cuenta. Tus coordenadas nunca se nos envían ni se almacenan en ningún lado. Nunca en segundo plano. Viene desactivada y puedes apagarla cuando quieras en Ajustes.',
-    'privacy.noTracking': 'No usamos analítica ni SDKs de rastreo de ningún tipo. No vendemos tus datos ni los compartimos con anunciantes.',
+    'privacy.noTracking': 'No usamos analítica dentro de la app ni rastreo de comportamiento. No vendemos tus datos. El único SDK de terceros que envía datos fuera de tu dispositivo con fines publicitarios se describe en "Medición de campañas publicitarias" más abajo.',
+    'privacy.adMeasurement': 'Medición de campañas publicitarias (app de Android)',
+    'privacy.adMeasurementBody': 'La app de Android incluye el SDK de Meta (Facebook) para saber si una instalación vino de una de nuestras campañas de anuncios en Meta. Al abrir la app, el SDK envía a Meta el ID de publicidad de Android de tu dispositivo, información básica del dispositivo y de la app (versión de la app, versión del sistema, modelo, idioma, zona horaria, dirección IP) y el referrer de instalación de Google Play. La app también informa a Meta cuando realizas ciertas acciones: registrarte o iniciar sesión, ver un pueblo o evento, guardar un evento, abrir un chat de pueblo, tocar el botón de la comunidad de WhatsApp, enviar un mensaje de chat, elegir tu pueblo y activar las notificaciones. Con cada acción solo se envía un número anónimo de pueblo o evento o una etiqueta corta (como "email" o "google"). No recibe tu nombre, correo, teléfono, tus publicaciones o mensajes (ni siquiera el texto de un mensaje de chat), ni tu ubicación. Puedes restablecer o eliminar tu ID de publicidad, o desactivar la personalización de anuncios, cuando quieras en los ajustes de Android (Ajustes > Privacidad > Anuncios). Meta procesa estos datos según su propia política de privacidad.',
     'privacy.howWeUse': 'Cómo usamos tu información',
     'privacy.howWeUseBody': 'Para crear y proteger tu cuenta, mostrar tu perfil y publicaciones a otros usuarios, moderar los eventos enviados antes de publicarlos y — si lo activas — enviarte notificaciones push, incluidas promociones pagadas ocasionales de eventos publicados por negocios locales del pueblo donde estás.',
     'privacy.promo': 'Eventos promocionados',

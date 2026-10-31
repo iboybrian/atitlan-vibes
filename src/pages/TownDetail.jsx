@@ -12,6 +12,7 @@ import CategoryChips from '../components/ui/CategoryChips'
 import LoginNudge from '../components/ui/LoginNudge'
 import Pigeon, { PigeonLoading } from '../components/ui/Pigeon'
 import { useT } from '../lib/i18n'
+import { logViewTown, logClickWhatsappChat } from '../lib/metaEvents'
 
 // Every town's button opens the same community group — change it here and it
 // changes for all of them.
@@ -61,6 +62,8 @@ export default function TownDetail() {
     const t = useT()
 
     const handleAddEvent = () => user ? setIsAddEventOpen(true) : askLogin()
+
+    useEffect(() => { logViewTown(id) }, [id])
 
     useEffect(() => {
         async function fetchData() {
@@ -276,6 +279,7 @@ export default function TownDetail() {
                 {user ? (
                     <a
                         data-tour="town-chat"
+                        onClick={() => logClickWhatsappChat(id)}
                         href={WHATSAPP_GROUP_URL}
                         target="_blank"
                         rel="noopener noreferrer"

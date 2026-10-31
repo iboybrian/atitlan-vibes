@@ -4,4 +4,10 @@
     <string name="title_activity_main">Atitlan Vibes</string>
     <string name="package_name">com.atitlanvibes</string>
     <string name="custom_url_scheme">com.atitlanvibes</string>
+    <!-- Meta (Facebook) SDK. App ID is public (ships in every APK, not a secret).
+         Client token: Meta dashboard > App settings > Advanced > Client token.
+         It is also embedded in the APK by design, but replace the placeholder
+         before building a release or install events are rejected. -->
+    <string name="facebook_app_id">978352135316083</string>
+    <string name="facebook_client_token">REPLACE_WITH_FACEBOOK_CLIENT_TOKEN</string>
 </resources>

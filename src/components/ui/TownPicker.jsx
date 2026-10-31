@@ -8,6 +8,7 @@ import { useEvents } from '../../lib/events'
 import { useAuth } from '../../context/AuthContext'
 import { happeningToday, todayInGuatemala } from '../../lib/utils'
 import { coo } from '../../lib/sound'
+import { logSetCurrentTown } from '../../lib/metaEvents'
 import { useT } from '../../lib/i18n'
 import Sheet from './Sheet'
 
@@ -43,6 +44,7 @@ export default function TownPicker() {
 
     const choose = async (town) => {
         pickTown(town)
+        logSetCurrentTown(town.id)
         setOpen(false)
 
         if (!user) return

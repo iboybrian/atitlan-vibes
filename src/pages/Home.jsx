@@ -17,6 +17,7 @@ import { categoriesIn, isTodayOrTomorrow, timeFilter, matchesSearch, dayPhase } 
 import { useAuth } from '../context/AuthContext'
 import { useT } from '../lib/i18n'
 import { coo } from '../lib/sound'
+import { logFavoriteEvent } from '../lib/metaEvents'
 
 const PHASE_ICONS = { dawn: Sunrise, day: Sun, dusk: Sunset, night: Moon }
 const TIME_CHIPS = ['today', 'week', 'weekend', 'free']
@@ -69,7 +70,10 @@ export default function Home() {
         if (!user) { askLogin(); return false }
         coo()
         supabase.from('event_favorites').insert({ user_id: user.id, event_id: event.id })
-            .then(({ error }) => { if (error && error.code !== '23505') console.error('Save failed:', error) })
+            .then(({ error }) => {
+                if (!error) logFavoriteEvent(event.id)
+                else if (error.code !== '23505') console.error('Save failed:', error)
+            })
     }
     const unsave = (event) => {
         supabase.from('event_favorites').delete().eq('user_id', user.id).eq('event_id', event.id)

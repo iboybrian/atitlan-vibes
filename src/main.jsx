@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import { supabase } from './lib/supabase'
 import { isNative, startPushTapListener } from './lib/pushNotifications'
+import { logLogin, logSignUp } from './lib/metaEvents'
 
 // Before React mounts, for the same reason as the deep link below: a tap that
 // cold-starts the app fires while Android is still building the activity.
@@ -31,7 +32,14 @@ if (isNative()) {
       // start from the intent misses the event entirely.
       if (data?.redirectType === 'PASSWORD_RECOVERY') {
         window.location.replace('/reset-password')
+        return
       }
+      // Google gives no separate sign-up path: a first login is a sign-up. A brand-new
+      // auth user has last_sign_in_at within moments of created_at. Timestamps only.
+      const u = data?.session?.user
+      const isNew = u && Math.abs(new Date(u.last_sign_in_at) - new Date(u.created_at)) < 60000
+      if (isNew) logSignUp('google')
+      logLogin('google')
     })
   })
 }
