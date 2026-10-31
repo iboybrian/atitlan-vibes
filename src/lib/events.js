@@ -54,3 +54,32 @@ export function useEvents() {
 
     return events
 }
+
+// Alerts = events newly approved in the picked town. There is no inbox table:
+// "new" means created since the user last opened the tab, and only the last week
+// counts, so a first open isn't a wall of dots.
+const SEEN_KEY = 'alerts_seen_at'
+const NEW_FOR = 7 * 24 * 60 * 60 * 1000
+
+/** The picked town's events, newest first. */
+export function townAlerts(events, townId) {
+    return events
+        .filter(e => e.town_id === townId)
+        .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
+}
+
+export const alertsSeenAt = () => Number(localStorage.getItem(SEEN_KEY)) || 0
+
+export function isUnseenAlert(event, seenAt) {
+    const created = Date.parse(event.created_at)
+    return created > seenAt && created > Date.now() - NEW_FOR
+}
+
+export function unseenAlerts(events, townId) {
+    const seenAt = alertsSeenAt()
+    return townAlerts(events, townId).filter(e => isUnseenAlert(e, seenAt))
+}
+
+export function markAlertsSeen() {
+    localStorage.setItem(SEEN_KEY, String(Date.now()))
+}

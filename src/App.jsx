@@ -14,7 +14,9 @@ import Layout from './components/layout/Layout'
 const ChatRoom = lazy(() => import('./pages/ChatRoom'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Settings = lazy(() => import('./pages/Settings'))
-const Favorites = lazy(() => import('./pages/Favorites'))
+const MapPage = lazy(() => import('./pages/MapPage'))
+const Plans = lazy(() => import('./pages/Plans'))
+const Alerts = lazy(() => import('./pages/Alerts'))
 const About = lazy(() => import('./pages/About'))
 const Admin = lazy(() => import('./pages/Admin'))
 const Privacy = lazy(() => import('./pages/Privacy'))
@@ -22,8 +24,9 @@ const Auth = lazy(() => import('./pages/Auth'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 
 // Most routes require a session. Public: /auth, /reset-password, /privacy (Play
-// Store review must reach it logged out), and the guest browsing routes — Home,
-// a town, an event — which show guests today/tomorrow only and grey out the rest.
+// Store review must reach it logged out), and the guest browsing routes — Now,
+// the map, a town, an event — which show guests today/tomorrow only and grey out
+// the rest.
 function RequireAuth({ children }) {
   const { user } = useAuth()
   return user ? children : <Navigate to="/auth" replace />
@@ -36,6 +39,7 @@ function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/map" element={<MapPage />} />
             <Route path="/town/:id" element={<TownDetail />} />
             <Route path="/town/:townId/chat" element={<RequireAuth><ChatRoom /></RequireAuth>} />
             <Route path="/event/:id" element={<EventDetail />} />
@@ -46,7 +50,10 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
             <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
-            <Route path="/favorites" element={<RequireAuth><Favorites /></RequireAuth>} />
+            <Route path="/plans" element={<RequireAuth><Plans /></RequireAuth>} />
+            <Route path="/alerts" element={<RequireAuth><Alerts /></RequireAuth>} />
+            {/* Old Saved Events link, from before My Plans */}
+            <Route path="/favorites" element={<Navigate to="/plans" replace />} />
             <Route path="/about" element={<RequireAuth><About /></RequireAuth>} />
             <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
             <Route path="/privacy" element={<Privacy />} />

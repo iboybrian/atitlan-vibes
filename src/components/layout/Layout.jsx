@@ -4,7 +4,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import Header from './Header'
 import { PigeonLoading } from '../ui/Pigeon'
 import Sidebar from './Sidebar'
-import TownFooter from './TownFooter'
+import TabBar from './TabBar'
 import PushPromptModal from '../ui/PushPromptModal'
 import Tour from '../ui/Tour'
 import { useAuth } from '../../context/AuthContext'
@@ -31,6 +31,9 @@ export default function Layout() {
     const { user } = useAuth()
     const navigate = useNavigate()
     const t = useT()
+
+    // Guest tapped something that needs an account.
+    const askLogin = () => { coo(); setLoginToast(n => n + 1) }
 
     const maybeShowPushPrompt = () => {
         if (shouldShowPushPrompt() && isPushSupported()) setShowPushPrompt(true)
@@ -111,11 +114,11 @@ export default function Layout() {
     return (
         // Responsive shell: centered column that widens with the viewport. Width is declared here only.
         <div className="min-h-screen w-full flex justify-center bg-[#F5F5F0] dark:bg-slate-900 transition-colors duration-500">
-            <div className="w-full max-w-[450px] sm:max-w-xl md:max-w-2xl lg:max-w-4xl min-h-screen bg-[#F5F5F0] dark:bg-slate-900 shadow-2xl relative flex flex-col transition-colors duration-500">
+            {/* overflow-x-clip, not hidden: the menu drawer parks off the right edge, and
+                hidden would make this a scroll container and break the sticky chrome. */}
+            <div className="w-full max-w-[450px] sm:max-w-xl md:max-w-2xl lg:max-w-4xl min-h-screen bg-[#F5F5F0] dark:bg-slate-900 shadow-2xl relative flex flex-col overflow-x-clip transition-colors duration-500">
 
                 <Header onMenuClick={() => setSidebarOpen(true)} />
-
-                {/* Navigation moved to Home Page body */}
 
                 <Sidebar
                     isOpen={sidebarOpen}
@@ -125,7 +128,7 @@ export default function Layout() {
                 <main className="flex-1 transition-colors duration-500">
                     {/* Lazy routes (see App.jsx) land here; header and footer stay put. */}
                     <Suspense fallback={<PigeonLoading label={t('common.loading')} />}>
-                        <Outlet context={{ askLogin: () => { coo(); setLoginToast(n => n + 1) } }} />
+                        <Outlet context={{ askLogin }} />
                     </Suspense>
                 </main>
 
@@ -219,10 +222,10 @@ export default function Layout() {
                     userId={user?.id}
                 />
 
-                {/* Persistent Town Footer */}
-                <TownFooter />
+                {/* Now / Map / My Plans / Alerts */}
+                <TabBar askLogin={askLogin} />
 
-                {/* First-run guided tour — last so it sits above the footer it points at */}
+                {/* First-run guided tour — last so it sits above the tab bar it points at */}
                 <Tour
                     isOpen={showTour}
                     onClose={() => {

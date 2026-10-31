@@ -5,7 +5,7 @@
  * time. Run it under a couple of TZ= values: a phone's own clock must never leak in.
  */
 import assert from 'node:assert/strict'
-import { startsIn, timeFilter, dayGroup, matchesSearch } from '../src/lib/utils.js'
+import { startsIn, timeFilter, dayGroup, matchesSearch, placeLine } from '../src/lib/utils.js'
 
 // 2026-10-31 is a Saturday. 20:00 UTC = 14:00 in Guatemala (UTC-6, no DST).
 const SAT = '2026-10-31'
@@ -64,5 +64,11 @@ assert.equal(matchesSearch(ev, '  hallo '), true)
 assert.equal(matchesSearch(ev, 'socialtel'), true)
 assert.equal(matchesSearch(ev, 'yoga'), false)
 assert.equal(matchesSearch(ev, ''), true)
+
+// Venue line: the town only once.
+assert.equal(placeLine('Amaranto Hostel, Panajachel', 'Panajachel'), 'Amaranto Hostel, Panajachel')
+assert.equal(placeLine('Socialtel', 'Panajachel'), 'Socialtel · Panajachel')
+assert.equal(placeLine(null, 'Panajachel'), 'Panajachel')
+assert.equal(placeLine('Socialtel', ''), 'Socialtel')
 
 console.log('now filters ok')

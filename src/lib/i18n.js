@@ -50,3 +50,9 @@ export const useT = () => {
     useSyncExternalStore(subscribe, getLang)
     return t
 }
+
+/** events.cost is stored as English text ('Free', 'Contact Venue', 'GTQ 50'). */
+export const costLabel = (cost) =>
+    !cost || cost === 'Free' ? t('event.free')
+        : cost === 'Contact Venue' ? t('addEvent.contactVenue')
+            : cost

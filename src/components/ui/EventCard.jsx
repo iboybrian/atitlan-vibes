@@ -7,10 +7,10 @@ import { useHeroLink } from '../../lib/transition'
 import { useT, getLang } from '../../lib/i18n'
 
 /**
- * Grid event card — the square-image variant used by TownDetail and Favorites.
+ * Grid event card — the square-image variant used by TownDetail.
  * The badge keys off is_feature rather than a prop: the featured grid is exactly
  * the is_feature rows, so a flag would only be able to disagree with the data.
- * Home has its own overlay card; it's a different design, not a copy of this.
+ * Now has its own swipe card and list row (SwipeDeck, EventRow).
  */
 export default function EventCard({ event, index = 0 }) {
     const t = useT()

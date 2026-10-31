@@ -1,5 +1,28 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import { supabase } from './supabase'
+import { getCurrentTown, setCurrentTown } from './utils'
+
+/**
+ * The picked town as a subscribable value. The pill lives in Header and the
+ * pages that filter by it (Now, Map, Alerts) are siblings, so a plain
+ * localStorage read would not re-render them. Same store shape as i18n.js.
+ * The snapshot is a module variable, not a fresh JSON.parse, so it stays stable.
+ */
+let currentTown = getCurrentTown()
+const townSubs = new Set()
+
+export function pickTown(town) {
+    setCurrentTown(town)
+    currentTown = getCurrentTown()
+    townSubs.forEach(fn => fn())
+}
+
+export function useCurrentTown() {
+    return useSyncExternalStore(
+        fn => { townSubs.add(fn); return () => townSubs.delete(fn) },
+        () => currentTown
+    )
+}
 
 /**
  * Towns are a fixed handful of rows that never change while the app is open, but

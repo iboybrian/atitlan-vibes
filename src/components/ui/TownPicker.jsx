@@ -1,23 +1,28 @@
 
 import { useEffect, useState } from 'react'
-import { MapPin, ChevronDown, Check, Bell } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { MapPin, ChevronDown, Check, Bell, Info } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { useTowns } from '../../lib/towns'
+import { useTowns, useCurrentTown, pickTown } from '../../lib/towns'
+import { useEvents } from '../../lib/events'
 import { useAuth } from '../../context/AuthContext'
-import { getCurrentTown, setCurrentTown } from '../../lib/utils'
+import { happeningToday, todayInGuatemala } from '../../lib/utils'
 import { coo } from '../../lib/sound'
 import { useT } from '../../lib/i18n'
+import Sheet from './Sheet'
 
 /**
- * "Which town are you in" — the one explicit choice the user makes.
- * It drives the footer highlight and, for logged-in users, who gets pushed
- * when a new event is approved in that town (users.current_town_id).
+ * "Which town are you in" — the one explicit choice the user makes. A pill in
+ * the header that opens the town list. It scopes Now, Map and Alerts and, for
+ * logged-in users, who gets pushed when a new event is approved in that town
+ * (users.current_town_id).
  */
 export default function TownPicker() {
     const t = useT()
     const { user } = useAuth()
     const towns = useTowns()
-    const [selected, setSelected] = useState(getCurrentTown)
+    const events = useEvents()
+    const selected = useCurrentTown()
     const [open, setOpen] = useState(false)
 
     // Fresh install has empty localStorage, but the choice lives on the account —
@@ -32,15 +37,12 @@ export default function TownPicker() {
             .single()
             .then(({ data }) => {
                 const town = towns.find(t => t.id === data?.current_town_id)
-                if (!town) return
-                setCurrentTown(town)
-                setSelected(town)
+                if (town) pickTown(town)
             })
     }, [user, selected, towns])
 
     const choose = async (town) => {
-        setSelected(town)
-        setCurrentTown(town)
+        pickTown(town)
         setOpen(false)
 
         if (!user) return
@@ -55,51 +57,65 @@ export default function TownPicker() {
         if (error) console.error('Could not save town for notifications:', error)
     }
 
+    const today = todayInGuatemala()
+    const tonight = (id) => events?.filter(e => e.town_id === id && happeningToday(e, today)).length ?? 0
+
     return (
-        <div className="mb-3" data-tour="town-picker">
+        <>
             <button
-                onClick={() => setOpen(!open)}
-                className="w-full flex items-center justify-between gap-2 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-turquoise/40 hover:shadow-md transition-shadow"
+                type="button"
+                data-tour="town-picker"
+                onClick={() => setOpen(true)}
+                className="min-w-0 flex items-center gap-1.5 pl-3 pr-2 py-1.5 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-turquoise/40 text-gray-800 dark:text-gray-100"
             >
-                <span className="flex items-center gap-2 min-w-0">
-                    <MapPin size={18} className="text-turquoise flex-shrink-0" />
-                    <span className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
-                        {selected ? selected.name : t('picker.prompt')}
-                    </span>
-                </span>
-                <ChevronDown
-                    size={18}
-                    className={`text-turquoise flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
-                />
+                <MapPin size={16} className="text-turquoise shrink-0" />
+                <span className="text-sm font-bold truncate">{selected ? selected.name : t('picker.short')}</span>
+                <ChevronDown size={16} className="text-turquoise shrink-0" />
             </button>
 
             {open && (
-                <div className="mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm overflow-hidden">
-                    {towns.map(town => {
-                        const isSelected = town.id === selected?.id
-                        return (
-                            <button
-                                key={town.id}
-                                onClick={() => { coo(); choose(town) }}
-                                className={`w-full flex items-center justify-between gap-2 px-4 py-3 text-left text-sm border-b border-gray-100 dark:border-slate-700 last:border-b-0 transition-colors ${isSelected
-                                    ? 'text-turquoise font-bold bg-turquoise/5'
-                                    : 'text-gray-700 dark:text-gray-200 hover:bg-turquoise/10'
-                                    }`}
-                            >
-                                <span className="truncate">{town.name}</span>
-                                {isSelected && <Check size={16} className="flex-shrink-0" />}
-                            </button>
-                        )
-                    })}
-                </div>
-            )}
+                <Sheet title={t('picker.towns')} onClose={() => setOpen(false)}>
+                    <div className="space-y-2">
+                        {towns.map(town => {
+                            const isSelected = town.id === selected?.id
+                            const n = tonight(town.id)
+                            return (
+                                <div
+                                    key={town.id}
+                                    className={`flex items-center rounded-2xl border bg-white dark:bg-slate-800 ${isSelected ? 'border-turquoise' : 'border-transparent'}`}
+                                >
+                                    <button
+                                        type="button"
+                                        onClick={() => { coo(); choose(town) }}
+                                        className="flex-1 min-w-0 flex items-center gap-2 px-4 py-3 text-left"
+                                    >
+                                        <span className="w-4 shrink-0 text-turquoise">{isSelected && <Check size={16} />}</span>
+                                        <span className={`truncate font-bold ${isSelected ? 'text-turquoise' : 'text-gray-800 dark:text-gray-100'}`}>{town.name}</span>
+                                        <span className="shrink-0 text-xs font-medium text-gray-400 dark:text-gray-500">· {t('picker.tonight', { n })}</span>
+                                    </button>
+                                    {/* About, boats, the WhatsApp group and the full list live on the town page. */}
+                                    <Link
+                                        to={`/town/${town.id}`}
+                                        onClick={() => setOpen(false)}
+                                        aria-label={t('picker.townInfo', { town: town.name })}
+                                        className="shrink-0 p-3 mr-1 rounded-full text-gray-400 hover:text-turquoise"
+                                    >
+                                        <Info size={18} />
+                                    </Link>
+                                </div>
+                            )
+                        })}
+                    </div>
 
-            {selected && !open && (
-                <p className="flex items-center gap-1.5 mt-2 px-1 text-xs text-gray-500 dark:text-gray-400">
-                    <Bell size={12} className="flex-shrink-0" />
-                    {t('picker.notice', { town: selected.name })}
-                </p>
+                    {/* Only accounts get pushed; a guest's pick only scopes what they see. */}
+                    {selected && user && (
+                        <p className="flex items-center gap-1.5 mt-4 px-1 text-xs text-gray-500 dark:text-gray-400">
+                            <Bell size={12} className="shrink-0" />
+                            {t('picker.notice', { town: selected.name })}
+                        </p>
+                    )}
+                </Sheet>
             )}
-        </div>
+        </>
     )
 }

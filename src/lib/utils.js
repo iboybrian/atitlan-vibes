@@ -413,3 +413,9 @@ export function matchesSearch(event, query) {
     return [event.name, event.venue, event.description, event.event_date_label, event.contact_link]
         .some(field => field?.toLowerCase().includes(q));
 }
+
+/** "Venue · Town", without the town twice when the venue already names it. */
+export function placeLine(venue, town) {
+    if (!venue || !town) return venue || town || '';
+    return venue.toLowerCase().includes(town.toLowerCase()) ? venue : `${venue} · ${town}`;
+}
