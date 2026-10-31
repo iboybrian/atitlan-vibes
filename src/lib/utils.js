@@ -87,7 +87,9 @@ export function setCurrentTown(town) {
     localStorage.setItem(CURRENT_TOWN_KEY, JSON.stringify({ id: town.id, name: town.name }));
 }
 
-const TOUR_KEY = 'tour_done';
+// Versioned like push_prompt_shown_v2: v2 is the tab/swipe layout, so people
+// who took the old footer tour see the new one once.
+const TOUR_KEY = 'tour_done_v2';
 
 /**
  * First-run guided tour flag, same one-shot shape as push_prompt_shown in

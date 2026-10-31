@@ -10,6 +10,7 @@ const en = {
     // Shared
     'common.loading': 'Loading...',
     'common.logIn': 'Log In',
+    'common.back': 'Back',
     'common.signUp': 'Sign Up',
     'common.search': 'Search...',
     'common.noResults': 'No results',
@@ -84,7 +85,6 @@ const en = {
     'lake.day': 'Daytime on the lake',
     'lake.dusk': 'Sunset on the lake',
     'lake.night': 'Night on the lake',
-    'lake.today': '{n} today',
     'update.available': 'A new version of Atitlán Vibes is out',
     'update.downloading': 'Downloading the update…',
     'update.ready': 'Update ready',
@@ -102,9 +102,6 @@ const en = {
     'home.findVibes': 'Find your Vibes',
     'home.didYouKnow': 'Did you know?',
     'home.flipHint': 'Welcome card. Tap to flip it for a fun fact about Guatemala.',
-    'home.exploreByTown': 'Explore by Town',
-    'home.nextEvents': 'Next Events in the Lake',
-    'home.seeAll': 'See All',
     'home.loadingVibes': 'Loading vibes...',
     'home.noEvents': 'No upcoming events found.',
 
@@ -154,12 +151,10 @@ const en = {
     'sidebar.joinPrompt': 'Join the community to post events!',
     'sidebar.logInSignUp': 'Log In / Sign Up',
     'sidebar.profile': 'Profile',
-    'sidebar.favorites': 'Saved Events',
     'sidebar.settings': 'Settings',
     'sidebar.about': 'About Vibes',
     'sidebar.privacy': 'Privacy Policy',
     'sidebar.logOut': 'Log Out',
-    'sidebar.browseTowns': 'Browse Towns',
     'sidebar.admin': 'Review Events',
 
     // Admin panel
@@ -181,13 +176,9 @@ const en = {
     'admin.noPermission': 'Not saved: the database refused the change. Has the is_admin migration been run?',
 
     // Favorites
-    'favorites.title': 'Saved Events',
     'favorites.save': 'Save event',
-    'favorites.empty': 'Nothing saved yet',
-    'favorites.emptyHint': 'Tap the heart on any event to keep it here.',
 
     // Town picker
-    'picker.prompt': 'Where are you? Pick your town',
     'picker.notice': "We'll notify you about new events in {town}.",
 
     // Town detail
@@ -205,13 +196,15 @@ const en = {
     // Event detail
     'event.loading': 'Loading details...',
     'event.notFound': 'Event not found.',
-    'event.venue': 'Venue',
     'event.tba': 'TBA',
-    'event.cost': 'Cost',
     'event.free': 'Free',
     'event.whatsapp': 'Contact via WhatsApp',
     'event.instagram': 'View on Instagram',
     'event.website': 'Visit Website',
+    'event.takeMeThere': 'Take me there',
+    'event.share': 'Send to a friend',
+    'event.shareText': '{name} — on Atitlán Vibes',
+    'event.copied': 'Link copied',
 
     // Chat
     'chat.needLogin': 'You need to be logged in to access the chat.',
@@ -355,17 +348,17 @@ const en = {
     'tour.skip': 'Skip tour',
     'tour.finish': 'Finish',
     'tour.welcomeTitle': 'Welcome, Traveller',
-    'tour.welcomeBody': "This is Atitlán Vibes — find the latest events in the most touristy places, post your own, and chat with other travellers. Find your Vibes.",
-    'tour.menuTitle': 'Your menu',
-    'tour.menuBody': 'Everything about you lives behind this button: your profile, your saved events, notification and language settings, and the privacy policy.',
+    'tour.welcomeBody': "This is Atitlán Vibes — find what is on tonight around the lake, save it, and see who else is going. Find your Vibes.",
     'tour.pickerTitle': 'Where are you?',
-    'tour.pickerBody': 'Pick the town you are in right now. Tap it and choose — if you turn notifications on, this is the town you hear about when a new event drops.',
-    'tour.footerTitle': 'Hop between towns',
-    'tour.footerBody': 'This bar is always here. Tap any town to see its events. We are heading into one now.',
-    'tour.chatTitle': 'The community group',
-    'tour.chatBody': 'This button opens our WhatsApp community. Ask what is on tonight, find people to go with, share what you found.',
-    'tour.postTitle': 'Post your own vibe',
-    'tour.postBody': 'Hosting a jam, a workshop, a party? Tap here and upload it in 30 seconds. We review it, then the whole town sees it.',
+    'tour.pickerBody': 'Pick the town you are in right now. Everything you see follows it — and if notifications are on, this is the town you hear about when a new event drops.',
+    'tour.swipeTitle': 'Swipe the night',
+    'tour.swipeBody': 'One event at a time. Drag a card right to save it, left to pass. Tap it to see everything.',
+    'tour.plansTitle': 'Your plans live here',
+    'tour.plansBody': 'Everything you save or mark Going shows up in My Plans.',
+    'tour.goingTitle': "Show you're going",
+    'tour.goingBody': 'Tap Going and others see one more face. On the day, tap Check in when you get there.',
+    'tour.directionsTitle': 'Take me there',
+    'tour.directionsBody': 'Opens directions straight to the venue. Have a great night.',
 
     // About
     'about.title': 'About',
@@ -408,13 +401,13 @@ const en = {
     'privacy.promo': 'Promoted events',
     'privacy.promoBody': 'Local businesses can pay us to send a notification about an event or tour they have posted in the app to people in that town. We send the message ourselves — the business never receives your data, only how many people it reached. Every promoted item is a real event you can open in the app, and you can stop all notifications anytime in Settings.',
     'privacy.whoSees': 'Who can see your information',
-    'privacy.whoSeesBody': 'Your display name, avatar, and house affinity are visible to other signed-in users, since the app is a shared community space. Events you post are public once approved. Your email and phone number are never shown to other users.',
+    'privacy.whoSeesBody': 'Your display name, avatar, and house affinity are visible to other signed-in users, since the app is a shared community space. Events you post are public once approved. Your email and phone number are never shown to other users. If you mark an event Going or check in, other signed-in users see your first name and avatar on that event; logged-out visitors only see how many people are going.',
     'privacy.community': 'Community WhatsApp group',
     'privacy.communityBody': 'The app links out to our community group on WhatsApp. Joining is optional and takes you outside the app: the group runs on WhatsApp, so whatever you send there is handled by WhatsApp under its own privacy policy, not this one. Note that group members can see your phone number and WhatsApp profile name once you join. We do not copy anything from the group back into the app, and leaving the group does not affect your account.',
     'privacy.thirdParty': 'Third-party services',
     'privacy.thirdPartyA': 'We use ',
     'privacy.thirdPartyB': ' to host our database, authentication, and file storage (profile photos and event images) — your data is processed on their infrastructure. If you sign in with Google or Apple, they process your sign-in per their own privacy policies. The Android app is packaged with ',
-    'privacy.thirdPartyC': ', which does not itself collect or transmit data.',
+    'privacy.thirdPartyC': ', which does not itself collect or transmit data. Maps are drawn with tiles from OpenStreetMap, whose servers see your IP address like any website you load.',
     'privacy.retention': 'Data retention & deletion',
     'privacy.retentionBody': 'We keep your account and content for as long as your account is active. To delete your account and associated data, contact us using the details below — we do not currently offer automatic in-app deletion, but will process your request promptly.',
     'privacy.children': "Children's privacy",
@@ -429,6 +422,7 @@ const es = {
     // Compartido
     'common.loading': 'Cargando...',
     'common.logIn': 'Iniciar sesión',
+    'common.back': 'Volver',
     'common.signUp': 'Registrarse',
     'common.search': 'Buscar...',
     'common.noResults': 'Sin resultados',
@@ -503,7 +497,6 @@ const es = {
     'lake.day': 'De día en el lago',
     'lake.dusk': 'Atardece en el lago',
     'lake.night': 'Noche en el lago',
-    'lake.today': '{n} hoy',
     'update.available': 'Hay una nueva versión de Atitlán Vibes',
     'update.downloading': 'Descargando la actualización…',
     'update.ready': 'Actualización lista',
@@ -521,9 +514,6 @@ const es = {
     'home.findVibes': 'Encuentra tu vibra',
     'home.didYouKnow': '¿Sabías que…?',
     'home.flipHint': 'Tarjeta de bienvenida. Tócala para voltearla y ver un dato curioso de Guatemala.',
-    'home.exploreByTown': 'Explora por pueblo',
-    'home.nextEvents': 'Próximos eventos en el Lago',
-    'home.seeAll': 'Ver todo',
     'home.loadingVibes': 'Cargando vibras...',
     'home.noEvents': 'No hay eventos próximos.',
 
@@ -573,12 +563,10 @@ const es = {
     'sidebar.joinPrompt': '¡Únete a la comunidad para publicar eventos!',
     'sidebar.logInSignUp': 'Iniciar sesión / Registrarse',
     'sidebar.profile': 'Perfil',
-    'sidebar.favorites': 'Eventos guardados',
     'sidebar.settings': 'Ajustes',
     'sidebar.about': 'Acerca de Vibes',
     'sidebar.privacy': 'Política de privacidad',
     'sidebar.logOut': 'Cerrar sesión',
-    'sidebar.browseTowns': 'Explorar pueblos',
     'sidebar.admin': 'Revisar eventos',
 
     // Admin panel
@@ -600,13 +588,9 @@ const es = {
     'admin.noPermission': 'No se guardó: la base de datos rechazó el cambio. ¿Ya corriste la migración de is_admin?',
 
     // Favoritos
-    'favorites.title': 'Eventos guardados',
     'favorites.save': 'Guardar evento',
-    'favorites.empty': 'Aún no guardas nada',
-    'favorites.emptyHint': 'Toca el corazón en cualquier evento para tenerlo aquí.',
 
     // Selector de pueblo
-    'picker.prompt': '¿Dónde estás? Elige tu pueblo',
     'picker.notice': 'Te avisaremos de nuevos eventos en {town}.',
 
     // Detalle del pueblo
@@ -624,13 +608,15 @@ const es = {
     // Detalle del evento
     'event.loading': 'Cargando detalles...',
     'event.notFound': 'Evento no encontrado.',
-    'event.venue': 'Lugar',
     'event.tba': 'Por confirmar',
-    'event.cost': 'Costo',
     'event.free': 'Gratis',
     'event.whatsapp': 'Contactar por WhatsApp',
     'event.instagram': 'Ver en Instagram',
     'event.website': 'Visitar sitio web',
+    'event.takeMeThere': 'Llévame ahí',
+    'event.share': 'Enviar a un amigo',
+    'event.shareText': '{name} — en Atitlán Vibes',
+    'event.copied': 'Enlace copiado',
 
     // Chat
     'chat.needLogin': 'Necesitas iniciar sesión para entrar al chat.',
@@ -774,17 +760,17 @@ const es = {
     'tour.skip': 'Saltar el tour',
     'tour.finish': 'Terminar',
     'tour.welcomeTitle': 'Bienvenido, viajero',
-    'tour.welcomeBody': 'Esto es Atitlán Vibes: encontrá los últimos eventos de los lugares más turísticos, publicá los tuyos y chateá con otros viajeros. Encontrá tu vibra.',
-    'tour.menuTitle': 'Tu menú',
-    'tour.menuBody': 'Todo lo tuyo vive detrás de este botón: tu perfil, tus eventos guardados, los ajustes de notificaciones e idioma, y la política de privacidad.',
+    'tour.welcomeBody': 'Esto es Atitlán Vibes: encontrá qué hay esta noche en el lago, guardalo y mirá quién más va. Encontrá tu vibra.',
     'tour.pickerTitle': '¿Dónde estás?',
-    'tour.pickerBody': 'Elegí el pueblo en el que estás ahora. Tocá y seleccioná: si activás las notificaciones, este es el pueblo del que te vamos a avisar cuando haya un evento nuevo.',
-    'tour.footerTitle': 'Saltá entre pueblos',
-    'tour.footerBody': 'Esta barra siempre está ahí. Tocá cualquier pueblo para ver sus eventos. Vamos a entrar a uno.',
-    'tour.chatTitle': 'La comunidad',
-    'tour.chatBody': 'Este botón abre nuestra comunidad de WhatsApp. Preguntá qué hay esta noche, buscá con quién ir, contá lo que encontraste.',
-    'tour.postTitle': 'Publicá tu vibra',
-    'tour.postBody': '¿Organizás una tocada, un taller, una fiesta? Tocá aquí y súbelo en 30 segundos. Lo revisamos y lo ve todo el pueblo.',
+    'tour.pickerBody': 'Elegí el pueblo en el que estás ahora. Todo lo que ves lo sigue, y si activás las notificaciones, es el pueblo del que te avisamos cuando haya un evento nuevo.',
+    'tour.swipeTitle': 'Deslizá la noche',
+    'tour.swipeBody': 'Un evento a la vez. Arrastrá una tarjeta a la derecha para guardarla, a la izquierda para pasar. Tocala para ver todo.',
+    'tour.plansTitle': 'Tus planes viven aquí',
+    'tour.plansBody': 'Todo lo que guardás o marcás Voy aparece en Mis planes.',
+    'tour.goingTitle': 'Contá que vas',
+    'tour.goingBody': 'Tocá Voy y los demás ven una cara más. El día del evento, tocá Estoy aquí al llegar.',
+    'tour.directionsTitle': 'Llevame ahí',
+    'tour.directionsBody': 'Abre la ruta directo al lugar. Que tengás una gran noche.',
 
     // Acerca de
     'about.title': 'Acerca de',
@@ -827,13 +813,13 @@ const es = {
     'privacy.promo': 'Eventos promocionados',
     'privacy.promoBody': 'Los negocios locales pueden pagarnos para enviar una notificación sobre un evento o tour que hayan publicado en la app a las personas que están en ese pueblo. La enviamos nosotros — el negocio nunca recibe tus datos, solo a cuántas personas llegó. Todo lo promocionado es un evento real que puedes abrir en la app, y puedes desactivar todas las notificaciones cuando quieras en Ajustes.',
     'privacy.whoSees': 'Quién puede ver tu información',
-    'privacy.whoSeesBody': 'Tu nombre visible, foto de perfil y afinidad de casa son visibles para otros usuarios registrados, ya que la app es un espacio comunitario. Los eventos que publicas son públicos una vez aprobados. Tu correo y número de teléfono nunca se muestran a otros usuarios.',
+    'privacy.whoSeesBody': 'Tu nombre visible, foto de perfil y afinidad de casa son visibles para otros usuarios registrados, ya que la app es un espacio comunitario. Los eventos que publicas son públicos una vez aprobados. Tu correo y número de teléfono nunca se muestran a otros usuarios. Si marcas Voy o haces check-in en un evento, otros usuarios registrados ven tu nombre y foto en ese evento; los visitantes sin sesión solo ven cuántas personas van.',
     'privacy.community': 'Grupo de WhatsApp de la comunidad',
     'privacy.communityBody': 'La app enlaza a nuestro grupo de comunidad en WhatsApp. Unirse es opcional y te saca de la app: el grupo funciona en WhatsApp, así que todo lo que envíes ahí lo maneja WhatsApp según su propia política de privacidad, no esta. Ten en cuenta que los miembros del grupo pueden ver tu número de teléfono y tu nombre de perfil de WhatsApp cuando te unes. No copiamos nada del grupo hacia la app, y salir del grupo no afecta tu cuenta.',
     'privacy.thirdParty': 'Servicios de terceros',
     'privacy.thirdPartyA': 'Usamos ',
     'privacy.thirdPartyB': ' para alojar nuestra base de datos, autenticación y almacenamiento de archivos (fotos de perfil e imágenes de eventos) — tus datos se procesan en su infraestructura. Si inicias sesión con Google o Apple, ellos procesan tu inicio de sesión según sus propias políticas de privacidad. La app de Android está empaquetada con ',
-    'privacy.thirdPartyC': ', que por sí mismo no recopila ni transmite datos.',
+    'privacy.thirdPartyC': ', que por sí mismo no recopila ni transmite datos. Los mapas se dibujan con mosaicos de OpenStreetMap, cuyos servidores ven tu dirección IP como cualquier sitio web que abras.',
     'privacy.retention': 'Retención y eliminación de datos',
     'privacy.retentionBody': 'Conservamos tu cuenta y contenido mientras tu cuenta esté activa. Para eliminar tu cuenta y los datos asociados, contáctanos por los medios de abajo — por ahora no ofrecemos eliminación automática dentro de la app, pero atenderemos tu solicitud pronto.',
     'privacy.children': 'Privacidad de menores',

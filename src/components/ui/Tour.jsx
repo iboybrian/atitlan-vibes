@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { fetchTowns } from '../../lib/towns'
+import { fetchEvents } from '../../lib/events'
 import { getCurrentTown, markTourDone } from '../../lib/utils'
 import { useT } from '../../lib/i18n'
 
@@ -11,15 +11,16 @@ import { useT } from '../../lib/i18n'
  * real controls in place and walks across routes to do it.
  *
  * target: the data-tour attribute to cut out of the dim. null = centered card.
- * route:  where the step lives. {town} resolves to the user's picked town.
+ * route:  where the step lives. {event} resolves to the first event on the
+ *         user's deck, so the Going and directions steps land on a real page.
  */
 const STEPS = [
     { route: '/', target: null, title: 'tour.welcomeTitle', body: 'tour.welcomeBody' },
-    { route: '/', target: 'menu', title: 'tour.menuTitle', body: 'tour.menuBody' },
     { route: '/', target: 'town-picker', title: 'tour.pickerTitle', body: 'tour.pickerBody' },
-    { route: '/', target: 'town-footer', title: 'tour.footerTitle', body: 'tour.footerBody' },
-    { route: '/town/{town}', target: 'town-chat', title: 'tour.chatTitle', body: 'tour.chatBody' },
-    { route: '/town/{town}', target: 'post-vibe', title: 'tour.postTitle', body: 'tour.postBody' }
+    { route: '/', target: 'swipe-deck', title: 'tour.swipeTitle', body: 'tour.swipeBody' },
+    { route: '/', target: 'plans-tab', title: 'tour.plansTitle', body: 'tour.plansBody' },
+    { route: '/event/{event}', target: 'going', title: 'tour.goingTitle', body: 'tour.goingBody' },
+    { route: '/event/{event}', target: 'take-me-there', title: 'tour.directionsTitle', body: 'tour.directionsBody' }
 ]
 
 const PAD = 8 // breathing room around the highlighted element
@@ -29,33 +30,39 @@ export default function Tour({ isOpen, onClose }) {
     const navigate = useNavigate()
     const location = useLocation()
     const [index, setIndex] = useState(0)
-    const [fallbackTown, setFallbackTown] = useState(null)
+    const [events, setEvents] = useState(null)
     const [rect, setRect] = useState(null)
 
     const step = STEPS[index]
     // Read straight from localStorage every render: the user may pick their town
-    // during step 3, and the town steps have to follow that choice.
-    const townId = getCurrentTown()?.id ?? fallbackTown
+    // during step 2, and the event steps have to follow that choice.
+    const townId = getCurrentTown()?.id
+    const eventId = events && (events.find(e => e.town_id === townId) ?? events[0])?.id
 
-    // Nothing picked yet — Antigua if it exists, else whatever comes first.
     useEffect(() => {
-        if (!isOpen || getCurrentTown()?.id) return
-        fetchTowns().then(list => {
-            setFallbackTown((list.find(x => /antigua/i.test(x.name)) || list[0])?.id ?? null)
-        })
+        if (isOpen) fetchEvents().then(setEvents)
     }, [isOpen])
 
     // Put the app on the route this step talks about.
     useEffect(() => {
         if (!isOpen || !step) return
-        const needsTown = step.route.includes('{town}')
-        if (needsTown && !townId) return // still resolving, or no towns at all
-        const path = step.route.replace('{town}', townId)
+        const needsEvent = step.route.includes('{event}')
+        if (needsEvent && !eventId) {
+            // No events anywhere: nothing to point at, and the event steps are the
+            // last ones, so the tour ends here.
+            if (events) {
+                markTourDone()
+                setIndex(0)
+                onClose()
+            }
+            return
+        }
+        const path = step.route.replace('{event}', eventId)
         if (location.pathname !== path) navigate(path)
         // location is read, not tracked: re-running on every navigation would fight
         // the user's own taps inside the spotlight.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isOpen, index, townId])
+    }, [isOpen, index, eventId, events])
 
     // Follow the target: it can arrive late after a route change, move while the
     // page smooth-scrolls, or grow when a dropdown inside it opens.
