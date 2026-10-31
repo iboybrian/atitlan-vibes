@@ -342,3 +342,74 @@ export function categoriesIn(events) {
 export function activeCategory(categories, selected) {
     return categories.length >= 2 && categories.includes(selected) ? selected : null;
 }
+
+const eventMinuteFormat = new Intl.DateTimeFormat('en-GB', {
+    timeZone: EVENT_TIMEZONE, hour: 'numeric', minute: 'numeric', hourCycle: 'h23'
+});
+
+// ponytail: there is no end time column, so "live" is a fixed window after the
+// start. Add events.end_time if a 3h guess starts lying about long events.
+const LIVE_MINUTES = 180;
+
+/**
+ * Where tonight's event is in time, for the "Live now" / "In 6 h" line.
+ *
+ * 'live' from start_time until LIVE_MINUTES after it, minutes until the start
+ * while it is still ahead, and null otherwise: not on today, no start_time, or
+ * already over. Clock is Guatemala's, never the phone's — same reason as
+ * todayInGuatemala().
+ */
+export function startsIn(event, now = new Date()) {
+    if (!event.start_time || !happeningToday(event, todayInGuatemala(now))) return null;
+    const [h, m] = eventMinuteFormat.format(now).split(':').map(Number);
+    const [sh, sm] = event.start_time.split(':').map(Number);
+    const diff = sh * 60 + sm - (h * 60 + m);
+    if (diff > 0) return diff;
+    return -diff < LIVE_MINUTES ? 'live' : null;
+}
+
+/** Next occurrence falls inside [from, to], both YYYY-MM-DD inclusive. */
+function occursBetween(event, from, to) {
+    const next = nextOccurrence(event, from);
+    return next != null && next >= from && next <= to;
+}
+
+/**
+ * The time chips on Now's list view. Goes through nextOccurrence(), so a weekly
+ * Saturday class counts for "this weekend" even when its series started in May.
+ * Undated evergreens match no date chip; they have no date to be inside.
+ *
+ * Weekend = the coming Friday to Sunday, or what is left of it if it has started.
+ */
+export function timeFilter(event, key, today = todayInGuatemala()) {
+    if (key === 'today') return occursBetween(event, today, today);
+    if (key === 'week') return occursBetween(event, today, addDays(today, 6));
+    if (key === 'weekend') {
+        const w = weekdayOf(today);
+        const start = w === 0 || w >= 5 ? today : addDays(today, 5 - w);
+        return occursBetween(event, start, addDays(start, (7 - weekdayOf(start)) % 7));
+    }
+    // cost is English text: 'Free', 'Contact Venue', 'GTQ 50' (see EventDetail).
+    if (key === 'free') return !event.cost || ['free', 'gtq 0'].includes(event.cost.trim().toLowerCase());
+    return true;
+}
+
+/**
+ * Section an event sits under in a day-grouped list: 'today', 'tomorrow', a
+ * YYYY-MM-DD, 'past', or 'ongoing' for the undated evergreens.
+ */
+export function dayGroup(event, today = todayInGuatemala()) {
+    const next = nextOccurrence(event, today);
+    if (!next) return 'ongoing';
+    if (next === today) return 'today';
+    if (next === addDays(today, 1)) return 'tomorrow';
+    return next < today ? 'past' : next;
+}
+
+/** Case-insensitive search across the fields a person would remember. */
+export function matchesSearch(event, query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    return [event.name, event.venue, event.description, event.event_date_label, event.contact_link]
+        .some(field => field?.toLowerCase().includes(q));
+}

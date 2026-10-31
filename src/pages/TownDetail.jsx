@@ -4,7 +4,7 @@ import { useParams, useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, ChevronDown, Ship, Search, X, Star } from 'lucide-react'
 import WhatsAppIcon from '../components/ui/WhatsAppIcon'
-import { getDirectImageUrl, compareEventsByWhen, categoriesIn, activeCategory, isTodayOrTomorrow, ongoingEventsOr } from '../lib/utils'
+import { getDirectImageUrl, compareEventsByWhen, categoriesIn, activeCategory, isTodayOrTomorrow, ongoingEventsOr, matchesSearch } from '../lib/utils'
 import { useAuth } from '../context/AuthContext'
 import AddEventModal from '../components/ui/AddEventModal'
 import EventCard from '../components/ui/EventCard'
@@ -105,29 +105,9 @@ export default function TownDetail() {
     const visible = user ? events : events.filter(e => isTodayOrTomorrow(e))
     const categories = categoriesIn(visible)
     const active = activeCategory(categories, category)
-    const filteredEvents = visible.filter(event => {
-        if (active && event.category !== active) return false
-        if (!searchQuery.trim()) return true
-
-        const query = searchQuery.toLowerCase().trim()
-
-        // Check name
-        if (event.name?.toLowerCase().includes(query)) return true
-
-        // Check venue
-        if (event.venue?.toLowerCase().includes(query)) return true
-
-        // Check description
-        if (event.description?.toLowerCase().includes(query)) return true
-
-        // Check event_date_label
-        if (event.event_date_label?.toLowerCase().includes(query)) return true
-
-        // Check contact_link
-        if (event.contact_link?.toLowerCase().includes(query)) return true
-
-        return false
-    }).sort(compareEventsByWhen)
+    const filteredEvents = visible
+        .filter(event => (!active || event.category === active) && matchesSearch(event, searchQuery))
+        .sort(compareEventsByWhen)
 
     if (loading) return <PigeonLoading label={t('common.loading')} />
 
