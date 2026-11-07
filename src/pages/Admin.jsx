@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ClipboardCheck, Check, Pencil, Trash2, Mail, Phone } from 'lucide-react'
+import { ClipboardCheck, Check, Pencil, Trash2, Mail, Phone, Star } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useTowns } from '../lib/towns'
@@ -130,8 +130,11 @@ export default function Admin() {
         setVersion(v => v + 1)
     }
 
-    // Approving fires the existing trigger, which pushes the event to its town.
-    const approve = (id) => write(supabase.from('events').update({ is_approved: true }).eq('id', id))
+    // Approving fires the existing trigger, which pushes the event to its town and
+    // emails the organizer. Approving with is_feature in the same write sends the
+    // organizer one "live and featured" email instead of two.
+    const approve = (id, feature = false) =>
+        write(supabase.from('events').update(feature ? { is_approved: true, is_feature: true } : { is_approved: true }).eq('id', id))
 
     const remove = (id) => {
         if (!confirm(t('admin.confirmDelete'))) return
@@ -262,12 +265,19 @@ export default function Admin() {
                                                 ))}
                                             </dl>
                                             {e.description && <p className="whitespace-pre-line text-gray-600 dark:text-gray-300">{e.description}</p>}
-                                            <div className="flex gap-2 pt-2">
-                                                {!e.is_approved && (
+                                            {!e.is_approved && (
+                                                <div className="flex gap-2 pt-2">
                                                     <button onClick={() => approve(e.id)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl bg-turquoise text-white font-bold">
                                                         <Check size={16} /> {t('admin.approve')}
                                                     </button>
-                                                )}
+                                                    {!e.is_feature && (
+                                                        <button onClick={() => approve(e.id, true)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl bg-sunflower text-black font-bold">
+                                                            <Star size={16} fill="currentColor" /> {t('admin.approveFeature')}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                            <div className="flex gap-2 pt-2">
                                                 <button onClick={() => edit(e)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl bg-gray-100 dark:bg-slate-700 font-bold">
                                                     <Pencil size={16} /> {t('admin.edit')}
                                                 </button>

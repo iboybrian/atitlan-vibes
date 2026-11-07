@@ -40,6 +40,27 @@ npx supabase secrets set NOTIFY_TOWN_SECRET="<una cadena larga al azar que inven
 
 `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` los inyecta la plataforma sola.
 
+### Correos (Resend)
+
+La función manda dos tipos de correo, los dos por Resend:
+
+- **A los admins**, cuando alguien envía un evento por revisar.
+- **Al organizador**, cuando su evento se aprueba, se aprueba y destaca a la vez, o
+  se destaca después ([creatorEmail.js](creatorEmail.js), en español o inglés según
+  `users.lang`). Un solo correo si se aprueba y destaca de una vez.
+
+```bash
+npx supabase secrets set RESEND_API_KEY="re_..."
+npx supabase secrets set RESEND_FROM="Atitlán Vibes <hola@atitlanvibes.com>"
+```
+
+**`RESEND_FROM` es obligatorio para que le llegue a alguien más que a ti.** Sin él
+el remitente es `onboarding@resend.dev`, que Resend solo entrega al correo de la
+cuenta dueña: tú lo recibes en pruebas, los organizadores nunca. El dominio de
+`RESEND_FROM` tiene que estar verificado en Resend (Domains → Add Domain → los
+registros DNS que te pida → Verify). Si algo falla, Resend lo dice en los logs de
+la función (`Resend 403: ...`) y en resend.com/emails.
+
 ## 4. Desplegar
 
 ```bash

@@ -6,6 +6,9 @@
  *      announces an event once, when it becomes approved. A new row that is NOT
  *      approved is a user submission: that goes to the admins (users.is_admin)
  *      instead, by email and push, so someone reviews it in /admin.
+ *      The same webhook emails the ORGANIZER when their event is approved
+ *      and/or featured (creatorEmail.js), including when is_feature flips on
+ *      later for an event that was already approved.
  *   2. A manual POST of { "eventId": 123 } with the same secret — the paid
  *      promotion path. Deliberate, so it skips the announce-once gate.
  *
@@ -21,13 +24,16 @@
  * Secrets (supabase secrets set):
  *   FCM_SERVICE_ACCOUNT  the whole service-account JSON, one line
  *   NOTIFY_TOWN_SECRET   shared with the webhook's x-notify-secret header
- *   RESEND_API_KEY       for the admin "new submission" email; without it only the push goes
- *   RESEND_FROM          optional sender on a verified domain, e.g. "Atitlán Vibes <hola@atitlanvibes.com>"
+ *   RESEND_API_KEY       for the admin and organizer emails; without it only the push goes
+ *   RESEND_FROM          sender on a domain verified in Resend, e.g. "Atitlán Vibes <hola@atitlanvibes.com>".
+ *                        Unset, mail goes from onboarding@resend.dev, which Resend only delivers
+ *                        to the account owner's own address: organizers will not get theirs.
  * SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are injected by the platform.
  */
 
 import { createClient, type SupabaseClient } from 'jsr:@supabase/supabase-js@2'
 import { isInTown } from './targeting.js'
+import { creatorEmail } from './creatorEmail.js'
 
 interface ServiceAccount {
     client_email: string
@@ -179,17 +185,43 @@ const esc = (v: unknown) =>
     String(v ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 
 /**
- * Email every admin the whole submission via Resend. Returns how many it went
- * to. Never throws: a broken email setup must not also stop the push.
+ * One Resend call. Returns whether it went. Never throws: a broken email setup
+ * must not also stop the push.
  */
-async function emailAdmins(emails: string[], subject: string, rows: [string, unknown][]) {
+async function resend(to: string[], subject: string, html: string) {
     const key = Deno.env.get('RESEND_API_KEY')
     if (!key) {
-        console.error('RESEND_API_KEY not set; admin email skipped')
-        return 0
+        console.error('RESEND_API_KEY not set; email skipped')
+        return false
     }
-    if (!emails.length) return 0
+    if (!to.length) return false
 
+    try {
+        const res = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                // onboarding@resend.dev only delivers to the Resend account's own
+                // address. To email anyone else, verify a domain and set RESEND_FROM.
+                from: Deno.env.get('RESEND_FROM') ?? 'Atitlán Vibes <onboarding@resend.dev>',
+                to,
+                subject,
+                html
+            })
+        })
+        if (!res.ok) {
+            console.error(`Resend ${res.status}:`, await res.text())
+            return false
+        }
+        return true
+    } catch (err) {
+        console.error('Resend request failed:', err)
+        return false
+    }
+}
+
+/** Email every admin the whole submission. Returns how many it went to. */
+async function emailAdmins(emails: string[], subject: string, rows: [string, unknown][]) {
     const html = `
         <h2>${esc(subject)}</h2>
         <table cellpadding="6" style="border-collapse:collapse;font-family:sans-serif;font-size:14px">
@@ -199,28 +231,37 @@ async function emailAdmins(emails: string[], subject: string, rows: [string, unk
         </table>
         <p><a href="${APP_URL}/admin">Open the review panel</a></p>`
 
-    try {
-        const res = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                // onboarding@resend.dev only delivers to the Resend account's own
-                // address. To email other admins, verify a domain and set RESEND_FROM.
-                from: Deno.env.get('RESEND_FROM') ?? 'Atitlán Vibes <onboarding@resend.dev>',
-                to: emails,
-                subject,
-                html
-            })
-        })
-        if (!res.ok) {
-            console.error(`Resend ${res.status}:`, await res.text())
-            return 0
-        }
-        return emails.length
-    } catch (err) {
-        console.error('Resend request failed:', err)
-        return 0
-    }
+    return (await resend(emails, subject, html)) ? emails.length : 0
+}
+
+/**
+ * Tell the organizer their event is live and/or featured. kind says which news
+ * it is. No creator_id (an event an admin entered by hand) means nobody to tell.
+ */
+async function emailCreator(
+    supabase: SupabaseClient,
+    record: Record<string, unknown>,
+    kind: 'approved' | 'featured' | 'approved_featured'
+) {
+    const creatorId = typeof record.creator_id === 'string' ? record.creator_id : null
+    if (!creatorId) return false
+
+    const [{ data: owner }, { data: town }, address] = await Promise.all([
+        supabase.from('users').select('name, lang').eq('id', creatorId).maybeSingle(),
+        supabase.from('towns').select('name').eq('id', record.town_id).maybeSingle(),
+        supabase.auth.admin.getUserById(creatorId).then((r) => r.data.user?.email ?? null, () => null)
+    ])
+    if (!address) return false
+
+    const { subject, html } = creatorEmail({
+        kind,
+        lang: owner?.lang === 'es' ? 'es' : 'en',
+        event: record as { id: number; name: string },
+        townName: town?.name,
+        firstName: String(owner?.name ?? '').trim().split(/\s+/)[0],
+        appUrl: APP_URL
+    })
+    return resend([address], subject, html)
 }
 
 /**
@@ -301,6 +342,7 @@ Deno.serve(async (req) => {
     // A webhook payload always carries `record`; a manual blast posts { eventId }.
     let event: { id: number; name: string; town_id: number }
     let manual = false
+    let emailedCreator: boolean | undefined
 
     if (payload.record) {
         // Announce once, when the event actually becomes visible: a new row that
@@ -311,8 +353,19 @@ Deno.serve(async (req) => {
             if (payload.type === 'INSERT') return notifyAdmins(supabase, payload.record)
             return Response.json({ skipped: 'not approved' })
         }
+        // The organizer hears about it on the approval, and again if it is
+        // featured later. Awaited, or the runtime may stop before Resend answers.
+        // Only UPDATEs: an INSERT that arrives already approved was entered by an
+        // admin, and the admin is not waiting on news of their own entry.
+        if (payload.type === 'UPDATE') {
+            const wasApproved = !!payload.old_record?.is_approved
+            const kind = !wasApproved
+                ? (payload.record.is_feature ? 'approved_featured' : 'approved')
+                : (payload.record.is_feature && !payload.old_record?.is_feature ? 'featured' : null)
+            if (kind) emailedCreator = await emailCreator(supabase, payload.record, kind)
+        }
         if (payload.type === 'UPDATE' && payload.old_record?.is_approved) {
-            return Response.json({ skipped: 'already announced' })
+            return Response.json({ skipped: 'already announced', emailedCreator })
         }
 
         event = payload.record
@@ -383,5 +436,5 @@ Deno.serve(async (req) => {
 
     // event/manual echoed back so whoever fired a blast by hand can see what went
     // out and to how many people
-    return Response.json({ sent, stale, town: town?.name, event: event.name, manual })
+    return Response.json({ sent, stale, town: town?.name, event: event.name, manual, emailedCreator })
 })
