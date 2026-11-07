@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.atitlanvibes",
+      "sha256_cert_fingerprints": [
+        "96:B3:07:C2:03:48:6E:74:88:45:58:51:6E:21:F7:6F:2B:0F:21:82:72:D8:40:DA:59:0E:87:99:F8:F3:E6:1B"
+      ]
+    }
+  }
+]
