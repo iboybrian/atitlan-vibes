@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App as CapacitorApp } from '@capacitor/app'
+import { inject } from '@vercel/analytics'
 import './index.css'
 import App from './App.jsx'
 import { supabase } from './lib/supabase'
@@ -51,6 +52,10 @@ if (isNative()) {
     })
   })
 }
+
+// Visitor counts for the web (Vercel Web Analytics: no cookies, no personal data).
+// Off in the APK, where the app's own origin isn't the site and nothing should leave.
+if (!isNative()) inject()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
