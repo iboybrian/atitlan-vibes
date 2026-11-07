@@ -19,7 +19,6 @@
     "@capacitor/share": "^8.0.3",
     "@capawesome/capacitor-app-update": "8.1.0",
     "@supabase/supabase-js": "^2.90.1",
-    "@vercel/og": "^1.0.3",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.562.0",
     "react": "^19.2.0",

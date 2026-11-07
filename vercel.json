@@ -1,18 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/event/:id",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": ".*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|TelegramBot|Slackbot|LinkedInBot|Discordbot|Pinterest).*"
-        }
-      ],
-      "destination": "/api/event-page?id=:id"
-    },
-    {
-      "source": "/((?!api/).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
