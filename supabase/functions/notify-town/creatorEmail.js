@@ -37,9 +37,11 @@ const COPY = {
         open: 'Open it in Atitlán Vibes',
         share_title: 'Spread the word',
         share_body: 'The more people you tell, the fuller it gets.',
+        whatsapp: 'Share on WhatsApp',
+        whatsapp_text: (n) => `Come with me! ${n} on Atitlán Vibes`,
         facebook: 'Share on Facebook',
-        instagram: 'Open Instagram',
-        instagram_hint: 'Instagram has no share button for links: copy the link below and paste it in your story, post or bio.',
+        story: 'Image for your story',
+        story_hint: 'Instagram and Facebook cannot start a story from a link. Tap “Image for your story”, save the picture, and post it as a story. Add the link below as a link sticker.',
         link_label: 'Your event link',
         footer: 'Atitlán Vibes · Lake Atitlán, Guatemala'
     },
@@ -65,9 +67,11 @@ const COPY = {
         open: 'Ábrelo en Atitlán Vibes',
         share_title: 'Corre la voz',
         share_body: 'Entre más gente lo sepa, más lleno estará.',
+        whatsapp: 'Compartir por WhatsApp',
+        whatsapp_text: (n) => `¡Vamos! ${n} en Atitlán Vibes`,
         facebook: 'Compartir en Facebook',
-        instagram: 'Abrir Instagram',
-        instagram_hint: 'Instagram no tiene botón para compartir enlaces: copia el enlace de abajo y pégalo en tu historia, publicación o bio.',
+        story: 'Imagen para tu historia',
+        story_hint: 'Instagram y Facebook no pueden crear una historia desde un enlace. Toca “Imagen para tu historia”, guarda la imagen y publícala como historia. Agrega el enlace de abajo con el sticker de enlace.',
         link_label: 'El enlace de tu evento',
         footer: 'Atitlán Vibes · Lago de Atitlán, Guatemala'
     }
@@ -115,6 +119,11 @@ export function creatorEmail({ kind, lang, event, townName, firstName, appUrl })
     const when = [event.event_date_label, event.start_time?.slice(0, 5)].filter(Boolean).join(' · ')
     const place = [event.venue, townName].filter(Boolean).join(' · ')
     const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`
+    // WhatsApp can't attach a picture from a link, but it builds a preview card from
+    // the page's Open Graph tags: the framed event image and title (api/event-page.js).
+    const wa = `https://wa.me/?text=${encodeURIComponent(`${c.whatsapp_text(oneLine(event.name))}
+${link}`)}`
+    const storyImage = `${appUrl}/api/og?id=${encodeURIComponent(event.id)}&format=story`
 
     const button = (href, label, bg, fg) =>
         `<a href="${esc(href)}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:${bg};color:${fg};font-weight:700;font-size:14px;text-decoration:none">${esc(label)}</a>`
@@ -169,8 +178,8 @@ export function creatorEmail({ kind, lang, event, townName, firstName, appUrl })
 <tr><td align="center" style="padding:20px 28px 4px">
   <div style="font-size:18px;font-weight:800;color:#111827">${esc(c.share_title)}</div>
   <div style="margin-top:4px;font-size:14px;color:#6B7280">${esc(c.share_body)}</div>
-  <div style="margin-top:14px">${button(fb, c.facebook, '#1877F2', '#ffffff')}&nbsp;${button('https://www.instagram.com/', c.instagram, '#E1306C', '#ffffff')}</div>
-  <div style="margin-top:10px;font-size:12px;line-height:1.5;color:#9CA3AF">${esc(c.instagram_hint)}</div>
+  <div style="margin-top:14px;line-height:2.9">${button(wa, c.whatsapp, '#128C7E', '#ffffff')}&nbsp;${button(fb, c.facebook, '#1877F2', '#ffffff')}&nbsp;${button(storyImage, c.story, '#E1306C', '#ffffff')}</div>
+  <div style="margin-top:10px;font-size:12px;line-height:1.5;color:#9CA3AF">${esc(c.story_hint)}</div>
 </td></tr>
 
 <tr><td style="padding:16px 28px 28px">

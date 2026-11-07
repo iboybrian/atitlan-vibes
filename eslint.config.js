@@ -27,4 +27,10 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    // Vercel Functions (api/): not browser code. process is Node's, and the edge
+    // runtime brings fetch, Request and Response, which globals.node also has.
+    files: ['api/**/*.js'],
+    languageOptions: { globals: { ...globals.node } },
+  },
 ])

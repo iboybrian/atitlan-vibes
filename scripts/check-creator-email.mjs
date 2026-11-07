@@ -41,7 +41,11 @@ const { html } = make()
 assert.ok(html.includes('src="https://x.supabase.co/storage/v1/object/public/events/a.jpg"'))
 assert.ok(html.includes(`href="${APP}/event/42"`))
 assert.ok(html.includes(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${APP}/event/42`)}`))
-assert.ok(html.includes('https://www.instagram.com/'))
+// WhatsApp carries the message and the link; the story picture is the 1080x1920 render.
+assert.ok(html.includes(`https://wa.me/?text=${encodeURIComponent(`Come with me! Yoga at the lake on Atitlán Vibes
+${APP}/event/42`)}`))
+assert.ok(make({ lang: 'es' }).html.includes(encodeURIComponent('¡Vamos! Yoga at the lake en Atitlán Vibes')))
+assert.ok(html.includes(`${APP}/api/og?id=42&amp;format=story`.replace('&amp;', '&#38;')))
 assert.ok(html.includes('Hi Ana,'))
 assert.ok(make({ firstName: '' }).html.includes('Hi,'))
 
@@ -66,6 +70,10 @@ assert.ok(make({ event: { cover_image: 'https://www.dropbox.com/s/x/a.jpg?dl=0' 
 
 // A subject is one line even if the name has a newline in it.
 assert.equal(make({ event: { name: 'Two\nlines' } }).subject, 'Your event is live on Atitlán Vibes: Two lines')
+
+// A name with URL-breaking characters stays inside the WhatsApp text parameter.
+const tricky = make({ event: { name: 'Rock & Roll #1?' } }).html
+assert.ok(tricky.includes(encodeURIComponent('Come with me! Rock & Roll #1? on Atitlán Vibes')))
 
 // Missing optional fields don't print "undefined" or empty chips.
 const bare = creatorEmail({ kind: 'approved', lang: 'en', appUrl: APP, event: { id: 1, name: 'Bare' } })
