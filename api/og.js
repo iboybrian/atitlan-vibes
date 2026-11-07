@@ -62,6 +62,8 @@ export default async function handler(request) {
     return new Response(png, {
         headers: {
             'Content-Type': 'image/png',
+            // The share page fetches this as a File (also from preview domains).
+            'Access-Control-Allow-Origin': '*',
             // Crawlers keep their own copy anyway; this keeps repeat hits off the renderer.
             'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800'
         }

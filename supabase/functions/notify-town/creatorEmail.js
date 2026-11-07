@@ -40,8 +40,8 @@ const COPY = {
         whatsapp: 'Share on WhatsApp',
         whatsapp_text: (n) => `Come with me! ${n} on Atitlán Vibes`,
         facebook: 'Share on Facebook',
-        story: 'Image for your story',
-        story_hint: 'Instagram and Facebook cannot start a story from a link. Tap “Image for your story”, save the picture, and post it as a story. Add the link below as a link sticker.',
+        story: 'Share the image',
+        story_hint: 'Open this on your phone. “Share the image” opens your share menu with the picture ready: pick WhatsApp, Instagram (story) or Facebook. The link below is yours to paste.',
         link_label: 'Your event link',
         footer: 'Atitlán Vibes · Lake Atitlán, Guatemala'
     },
@@ -70,8 +70,8 @@ const COPY = {
         whatsapp: 'Compartir por WhatsApp',
         whatsapp_text: (n) => `¡Vamos! ${n} en Atitlán Vibes`,
         facebook: 'Compartir en Facebook',
-        story: 'Imagen para tu historia',
-        story_hint: 'Instagram y Facebook no pueden crear una historia desde un enlace. Toca “Imagen para tu historia”, guarda la imagen y publícala como historia. Agrega el enlace de abajo con el sticker de enlace.',
+        story: 'Compartir la imagen',
+        story_hint: 'Ábrelo en tu celular. “Compartir la imagen” abre tu menú de compartir con la imagen lista: elige WhatsApp, Instagram (historia) o Facebook. El enlace de abajo es tuyo para pegarlo.',
         link_label: 'El enlace de tu evento',
         footer: 'Atitlán Vibes · Lago de Atitlán, Guatemala'
     }
@@ -123,7 +123,8 @@ export function creatorEmail({ kind, lang, event, townName, firstName, appUrl })
     // the page's Open Graph tags: the framed event image and title (api/event-page.js).
     const wa = `https://wa.me/?text=${encodeURIComponent(`${c.whatsapp_text(oneLine(event.name))}
 ${link}`)}`
-    const storyImage = `${appUrl}/api/og?id=${encodeURIComponent(event.id)}&format=story`
+    // A page on the phone, because only that can hand the PICTURE to the share menu.
+    const storyImage = `${appUrl}/share/${encodeURIComponent(event.id)}`
 
     const button = (href, label, bg, fg) =>
         `<a href="${esc(href)}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:${bg};color:${fg};font-weight:700;font-size:14px;text-decoration:none">${esc(label)}</a>`

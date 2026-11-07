@@ -41,11 +41,11 @@ const { html } = make()
 assert.ok(html.includes('src="https://x.supabase.co/storage/v1/object/public/events/a.jpg"'))
 assert.ok(html.includes(`href="${APP}/event/42"`))
 assert.ok(html.includes(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${APP}/event/42`)}`))
-// WhatsApp carries the message and the link; the story picture is the 1080x1920 render.
+// WhatsApp carries the message and the link; the picture goes through the /share page.
 assert.ok(html.includes(`https://wa.me/?text=${encodeURIComponent(`Come with me! Yoga at the lake on Atitlán Vibes
 ${APP}/event/42`)}`))
 assert.ok(make({ lang: 'es' }).html.includes(encodeURIComponent('¡Vamos! Yoga at the lake en Atitlán Vibes')))
-assert.ok(html.includes(`${APP}/api/og?id=42&amp;format=story`.replace('&amp;', '&#38;')))
+assert.ok(html.includes(`href="${APP}/share/42"`))
 assert.ok(html.includes('Hi Ana,'))
 assert.ok(make({ firstName: '' }).html.includes('Hi,'))
 

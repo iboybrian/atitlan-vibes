@@ -17,6 +17,7 @@ const Settings = lazy(() => import('./pages/Settings'))
 const MapPage = lazy(() => import('./pages/MapPage'))
 const Plans = lazy(() => import('./pages/Plans'))
 const Alerts = lazy(() => import('./pages/Alerts'))
+const Share = lazy(() => import('./pages/Share'))
 const About = lazy(() => import('./pages/About'))
 const Admin = lazy(() => import('./pages/Admin'))
 const Privacy = lazy(() => import('./pages/Privacy'))
@@ -43,6 +44,8 @@ function App() {
             <Route path="/town/:id" element={<TownDetail />} />
             <Route path="/town/:townId/chat" element={<RequireAuth><ChatRoom /></RequireAuth>} />
             <Route path="/event/:id" element={<EventDetail />} />
+            {/* Public: the link in the organizer's email, opened on whatever phone they have. */}
+            <Route path="/share/:id" element={<Share />} />
             <Route path="/auth" element={<Auth />} />
             {/* Public: the recovery session may not be in place the instant this
                 renders, and RequireAuth would bounce the user to /auth. The page

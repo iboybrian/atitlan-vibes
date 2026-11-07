@@ -206,6 +206,14 @@ const en = {
     'event.share': 'Send to a friend',
     'event.shareText': '{name} — on Atitlán Vibes',
     'event.copied': 'Link copied',
+    'share.title': 'Share your event',
+    'share.hint': 'Tap the button and pick WhatsApp, Instagram (story) or Facebook. The picture goes with it.',
+    'share.button': 'Share the image',
+    'share.download': 'Save the image',
+    'share.preparing': 'Preparing the image…',
+    'share.failed': 'Could not load the image',
+    'share.link': 'Your event link',
+    'share.text': 'Come with me! {name} on Atitlán Vibes',
 
     // Chat
     'chat.needLogin': 'You need to be logged in to access the chat.',
@@ -621,6 +629,14 @@ const es = {
     'event.share': 'Enviar a un amigo',
     'event.shareText': '{name} — en Atitlán Vibes',
     'event.copied': 'Enlace copiado',
+    'share.title': 'Comparte tu evento',
+    'share.hint': 'Toca el botón y elige WhatsApp, Instagram (historia) o Facebook. La imagen se va con él.',
+    'share.button': 'Compartir la imagen',
+    'share.download': 'Guardar la imagen',
+    'share.preparing': 'Preparando la imagen…',
+    'share.failed': 'No se pudo cargar la imagen',
+    'share.link': 'El enlace de tu evento',
+    'share.text': '¡Vamos! {name} en Atitlán Vibes',
 
     // Chat
     'chat.needLogin': 'Necesitas iniciar sesión para entrar al chat.',
