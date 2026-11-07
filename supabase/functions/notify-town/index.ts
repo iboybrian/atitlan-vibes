@@ -188,7 +188,14 @@ const esc = (v: unknown) =>
  * One Resend call. Returns whether it went. Never throws: a broken email setup
  * must not also stop the push.
  */
-async function resend(to: string[], subject: string, html: string) {
+interface Attachment {
+    filename: string
+    content: string
+    content_id: string
+    content_type: string
+}
+
+async function resend(to: string[], subject: string, html: string, attachments?: Attachment[]) {
     const key = Deno.env.get('RESEND_API_KEY')
     if (!key) {
         console.error('RESEND_API_KEY not set; email skipped')
@@ -206,7 +213,8 @@ async function resend(to: string[], subject: string, html: string) {
                 from: Deno.env.get('RESEND_FROM') ?? 'Atitlán Vibes <onboarding@resend.dev>',
                 to,
                 subject,
-                html
+                html,
+                ...(attachments?.length ? { attachments } : {})
             })
         })
         if (!res.ok) {
@@ -235,6 +243,34 @@ async function emailAdmins(emails: string[], subject: string, rows: [string, unk
 }
 
 /**
+ * An image fetched and ready to attach inline (cid:), or null. Inline images show
+ * in mail clients that block remote ones until the reader allows them. https only,
+ * a few seconds, 3 MB at most; on any failure the email just links the image.
+ */
+async function inlineImage(url: unknown, id: string): Promise<Attachment | null> {
+    if (typeof url !== 'string' || !/^https:\/\//i.test(url)) return null
+    const ctl = new AbortController()
+    const timer = setTimeout(() => ctl.abort(), 6000)
+    try {
+        const res = await fetch(url, { signal: ctl.signal })
+        const type = (res.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase()
+        if (!res.ok || !['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(type)) return null
+        const bytes = new Uint8Array(await res.arrayBuffer())
+        if (bytes.length > 3 * 1024 * 1024) return null
+
+        let binary = ''
+        for (let i = 0; i < bytes.length; i += 0x8000) {
+            binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+        }
+        return { filename: `${id}.${type.split('/')[1]}`, content: btoa(binary), content_id: id, content_type: type }
+    } catch {
+        return null
+    } finally {
+        clearTimeout(timer)
+    }
+}
+
+/**
  * Tell the organizer their event is live and/or featured. kind says which news
  * it is. No creator_id (an event an admin entered by hand) means nobody to tell.
  */
@@ -253,15 +289,24 @@ async function emailCreator(
     ])
     if (!address) return false
 
+    // Uploads live in Supabase Storage and fetch fine. An older Drive/Dropbox link
+    // that doesn't come back as an image just stays a remote link in the email.
+    const [cover, logo] = await Promise.all([
+        inlineImage(record.cover_image, 'cover'),
+        inlineImage(`${APP_URL}/logo.png`, 'logo')
+    ])
+    const attachments = [cover, logo].filter((a): a is Attachment => !!a)
+
     const { subject, html } = creatorEmail({
         kind,
         lang: owner?.lang === 'es' ? 'es' : 'en',
         event: record as { id: number; name: string },
         townName: town?.name,
         firstName: String(owner?.name ?? '').trim().split(/\s+/)[0],
-        appUrl: APP_URL
+        appUrl: APP_URL,
+        cid: { cover: cover ? 'cover' : undefined, logo: logo ? 'logo' : undefined }
     })
-    return resend([address], subject, html)
+    return resend([address], subject, html, attachments)
 }
 
 /**

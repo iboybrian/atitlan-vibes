@@ -36,12 +36,9 @@ const COPY = {
         featured_badge: 'Featured',
         open: 'Open it in Atitlán Vibes',
         share_title: 'Spread the word',
-        share_body: 'The more people you tell, the fuller it gets.',
-        whatsapp: 'Share on WhatsApp',
+        share_on: 'Share on:',
         whatsapp_text: (n) => `Come with me! ${n} on Atitlán Vibes`,
-        facebook: 'Share on Facebook',
-        story: 'Share the image',
-        story_hint: 'Open this on your phone. “Share the image” opens your share menu with the picture ready: pick WhatsApp, Instagram (story) or Facebook. The link below is yours to paste.',
+        story_hint: 'On your phone, Instagram opens your share menu with the picture ready for your story.',
         link_label: 'Your event link',
         footer: 'Atitlán Vibes · Lake Atitlán, Guatemala'
     },
@@ -66,12 +63,9 @@ const COPY = {
         featured_badge: 'Destacado',
         open: 'Ábrelo en Atitlán Vibes',
         share_title: 'Corre la voz',
-        share_body: 'Entre más gente lo sepa, más lleno estará.',
-        whatsapp: 'Compartir por WhatsApp',
+        share_on: 'Comparte en:',
         whatsapp_text: (n) => `¡Vamos! ${n} en Atitlán Vibes`,
-        facebook: 'Compartir en Facebook',
-        story: 'Compartir la imagen',
-        story_hint: 'Ábrelo en tu celular. “Compartir la imagen” abre tu menú de compartir con la imagen lista: elige WhatsApp, Instagram (historia) o Facebook. El enlace de abajo es tuyo para pegarlo.',
+        story_hint: 'En tu celular, Instagram abre tu menú de compartir con la imagen lista para tu historia.',
         link_label: 'El enlace de tu evento',
         footer: 'Atitlán Vibes · Lago de Atitlán, Guatemala'
     }
@@ -109,12 +103,16 @@ const oneLine = (s) => String(s ?? '').replace(/\s+/g, ' ').trim()
  * @param {string} [o.townName]
  * @param {string} [o.firstName]
  * @param {string} o.appUrl  no trailing slash
+ * @param {{cover?: string, logo?: string}} [o.cid]  content ids of images attached
+ *        to the message. Where given, the card uses cid:<id> instead of a remote
+ *        URL: many mail clients block remote images until the reader allows
+ *        them, and an inline attachment shows without that.
  * @returns {{subject: string, html: string}}
  */
-export function creatorEmail({ kind, lang, event, townName, firstName, appUrl }) {
+export function creatorEmail({ kind, lang, event, townName, firstName, appUrl, cid = {} }) {
     const c = COPY[lang === 'es' ? 'es' : 'en']
     const link = `${appUrl}/event/${event.id}`
-    const image = directImage(event.cover_image)
+    const image = cid.cover ? `cid:${cid.cover}` : directImage(event.cover_image)
     const featured = kind !== 'approved'
     const when = [event.event_date_label, event.start_time?.slice(0, 5)].filter(Boolean).join(' · ')
     const place = [event.venue, townName].filter(Boolean).join(' · ')
@@ -124,7 +122,12 @@ export function creatorEmail({ kind, lang, event, townName, firstName, appUrl })
     const wa = `https://wa.me/?text=${encodeURIComponent(`${c.whatsapp_text(oneLine(event.name))}
 ${link}`)}`
     // A page on the phone, because only that can hand the PICTURE to the share menu.
-    const storyImage = `${appUrl}/share/${encodeURIComponent(event.id)}`
+    const shareImage = `${appUrl}/share/${encodeURIComponent(event.id)}`
+
+    // A round brand icon over its name: the name stays readable and tappable when
+    // the reader hasn't allowed remote images (public/email/*.png).
+    const icon = (href, file, label) =>
+        `<td align="center" style="padding:0 16px"><a href="${esc(href)}" style="text-decoration:none;color:#374151"><img src="${esc(appUrl)}/email/${file}.png" width="56" height="56" alt="" style="display:block;border:0;margin:0 auto"><span style="display:block;margin-top:8px;font-size:12px;font-weight:700">${esc(label)}</span></a></td>`
 
     const button = (href, label, bg, fg) =>
         `<a href="${esc(href)}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:${bg};color:${fg};font-weight:700;font-size:14px;text-decoration:none">${esc(label)}</a>`
@@ -137,7 +140,7 @@ ${link}`)}`
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:24px;overflow:hidden">
 
 <tr><td align="center" style="background:${TEAL};background-image:linear-gradient(135deg,${TEAL},#0AA7C2);padding:28px 24px 22px">
-  <img src="${esc(appUrl)}/logo.png" width="64" height="64" alt="Atitlán Vibes" style="display:block;border:0;border-radius:16px;background:#ffffff;margin:0 auto 12px">
+  <img src="${cid.logo ? `cid:${cid.logo}` : `${esc(appUrl)}/logo.png`}" width="64" height="64" alt="Atitlán Vibes" style="display:block;border:0;border-radius:16px;background:#ffffff;margin:0 auto 12px">
   <div style="font-size:26px;line-height:1.2;font-weight:800;color:#ffffff">${esc(c.headline[kind])}${featured ? ' ⭐' : ''}</div>
 </td></tr>
 
@@ -176,11 +179,13 @@ ${link}`)}`
 
 <tr><td style="padding:24px 28px 0"><div style="border-top:1px solid #E5E7EB"></div></td></tr>
 
-<tr><td align="center" style="padding:20px 28px 4px">
-  <div style="font-size:18px;font-weight:800;color:#111827">${esc(c.share_title)}</div>
-  <div style="margin-top:4px;font-size:14px;color:#6B7280">${esc(c.share_body)}</div>
-  <div style="margin-top:14px;line-height:2.9">${button(wa, c.whatsapp, '#128C7E', '#ffffff')}&nbsp;${button(fb, c.facebook, '#1877F2', '#ffffff')}&nbsp;${button(storyImage, c.story, '#E1306C', '#ffffff')}</div>
-  <div style="margin-top:10px;font-size:12px;line-height:1.5;color:#9CA3AF">${esc(c.story_hint)}</div>
+<tr><td align="center" style="padding:24px 28px 6px">
+  <div style="font-size:22px;font-weight:800;color:#111827">${esc(c.share_title)}</div>
+  <div style="margin-top:6px;font-size:15px;color:#6B7280">${esc(c.share_on)}</div>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px auto 0"><tr>
+    ${icon(wa, 'whatsapp', 'WhatsApp')}${icon(fb, 'facebook', 'Facebook')}${icon(shareImage, 'instagram', 'Instagram')}
+  </tr></table>
+  <div style="margin-top:18px;font-size:12px;line-height:1.5;color:#9CA3AF">${esc(c.story_hint)}</div>
 </td></tr>
 
 <tr><td style="padding:16px 28px 28px">

@@ -71,6 +71,19 @@ assert.ok(make({ event: { cover_image: 'https://www.dropbox.com/s/x/a.jpg?dl=0' 
 // A subject is one line even if the name has a newline in it.
 assert.equal(make({ event: { name: 'Two\nlines' } }).subject, 'Your event is live on Atitlán Vibes: Two lines')
 
+// The share row: a heading, "Share on:", and the three app icons with their names.
+assert.ok(html.includes('Spread the word') && html.includes('Share on:'))
+assert.ok(make({ lang: 'es' }).html.includes('Corre la voz') && make({ lang: 'es' }).html.includes('Comparte en:'))
+for (const f of ['whatsapp', 'facebook', 'instagram']) assert.ok(html.includes(`${APP}/email/${f}.png`), f)
+assert.ok(['WhatsApp', 'Facebook', 'Instagram'].every((n) => html.includes(`>${n}</span>`)))
+
+// With attached images (cid), the card and the logo don't depend on remote loading.
+const inline = make({ cid: { cover: 'cover', logo: 'logo' } }).html
+assert.ok(inline.includes('src="cid:cover"') && inline.includes('src="cid:logo"'))
+assert.ok(!inline.includes('storage/v1/object/public/events') && !inline.includes('/logo.png'))
+// No attachment for one of them: that one falls back to its URL.
+assert.ok(make({ cid: { logo: 'logo' } }).html.includes('storage/v1/object/public/events'))
+
 // A name with URL-breaking characters stays inside the WhatsApp text parameter.
 const tricky = make({ event: { name: 'Rock & Roll #1?' } }).html
 assert.ok(tricky.includes(encodeURIComponent('Come with me! Rock & Roll #1? on Atitlán Vibes')))
