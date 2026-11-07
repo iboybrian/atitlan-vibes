@@ -38,7 +38,8 @@ const COPY = {
         share_title: 'Spread the word',
         share_on: 'Share on:',
         whatsapp_text: (n) => `Come with me! ${n} on Atitlán Vibes`,
-        story_hint: 'On your phone, Instagram opens your share menu with the picture ready for your story.',
+        share_more: 'More',
+        story_hint: 'The share button opens the share menu on your phone with the picture ready: Instagram, Facebook, stories and more.',
         link_label: 'Your event link',
         footer: 'Atitlán Vibes · Lake Atitlán, Guatemala'
     },
@@ -65,7 +66,8 @@ const COPY = {
         share_title: 'Corre la voz',
         share_on: 'Comparte en:',
         whatsapp_text: (n) => `¡Vamos! ${n} en Atitlán Vibes`,
-        story_hint: 'En tu celular, Instagram abre tu menú de compartir con la imagen lista para tu historia.',
+        share_more: 'Más',
+        story_hint: 'El botón de compartir abre el menú de tu celular con la imagen lista: Instagram, Facebook, historias y más.',
         link_label: 'El enlace de tu evento',
         footer: 'Atitlán Vibes · Lago de Atitlán, Guatemala'
     }
@@ -103,7 +105,7 @@ const oneLine = (s) => String(s ?? '').replace(/\s+/g, ' ').trim()
  * @param {string} [o.townName]
  * @param {string} [o.firstName]
  * @param {string} o.appUrl  no trailing slash
- * @param {{cover?: string, logo?: string}} [o.cid]  content ids of images attached
+ * @param {{cover?: string, logo?: string, whatsapp?: string, share?: string}} [o.cid]  content ids of images attached
  *        to the message. Where given, the card uses cid:<id> instead of a remote
  *        URL: many mail clients block remote images until the reader allows
  *        them, and an inline attachment shows without that.
@@ -116,7 +118,6 @@ export function creatorEmail({ kind, lang, event, townName, firstName, appUrl, c
     const featured = kind !== 'approved'
     const when = [event.event_date_label, event.start_time?.slice(0, 5)].filter(Boolean).join(' · ')
     const place = [event.venue, townName].filter(Boolean).join(' · ')
-    const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`
     // WhatsApp can't attach a picture from a link, but it builds a preview card from
     // the page's Open Graph tags: the framed event image and title (api/event-page.js).
     const wa = `https://wa.me/?text=${encodeURIComponent(`${c.whatsapp_text(oneLine(event.name))}
@@ -127,7 +128,7 @@ ${link}`)}`
     // A round brand icon over its name: the name stays readable and tappable when
     // the reader hasn't allowed remote images (public/email/*.png).
     const icon = (href, file, label) =>
-        `<td align="center" style="padding:0 16px"><a href="${esc(href)}" style="text-decoration:none;color:#374151"><img src="${esc(appUrl)}/email/${file}.png" width="56" height="56" alt="" style="display:block;border:0;margin:0 auto"><span style="display:block;margin-top:8px;font-size:12px;font-weight:700">${esc(label)}</span></a></td>`
+        `<td align="center" style="padding:0 20px"><a href="${esc(href)}" style="text-decoration:none;color:#374151"><img src="${cid[file] ? `cid:${cid[file]}` : `${esc(appUrl)}/email/${file}.png`}" width="56" height="56" alt="" style="display:block;border:0;margin:0 auto"><span style="display:block;margin-top:8px;font-size:12px;font-weight:700">${esc(label)}</span></a></td>`
 
     const button = (href, label, bg, fg) =>
         `<a href="${esc(href)}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:${bg};color:${fg};font-weight:700;font-size:14px;text-decoration:none">${esc(label)}</a>`
@@ -183,7 +184,7 @@ ${link}`)}`
   <div style="font-size:22px;font-weight:800;color:#111827">${esc(c.share_title)}</div>
   <div style="margin-top:6px;font-size:15px;color:#6B7280">${esc(c.share_on)}</div>
   <table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px auto 0"><tr>
-    ${icon(wa, 'whatsapp', 'WhatsApp')}${icon(fb, 'facebook', 'Facebook')}${icon(shareImage, 'instagram', 'Instagram')}
+    ${icon(wa, 'whatsapp', 'WhatsApp')}${icon(shareImage, 'share', c.share_more)}
   </tr></table>
   <div style="margin-top:18px;font-size:12px;line-height:1.5;color:#9CA3AF">${esc(c.story_hint)}</div>
 </td></tr>

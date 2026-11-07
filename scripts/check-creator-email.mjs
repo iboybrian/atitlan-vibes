@@ -40,7 +40,6 @@ assert.ok(make({ lang: 'es' }, 'approved_featured').html.includes('★ Destacado
 const { html } = make()
 assert.ok(html.includes('src="https://x.supabase.co/storage/v1/object/public/events/a.jpg"'))
 assert.ok(html.includes(`href="${APP}/event/42"`))
-assert.ok(html.includes(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${APP}/event/42`)}`))
 // WhatsApp carries the message and the link; the picture goes through the /share page.
 assert.ok(html.includes(`https://wa.me/?text=${encodeURIComponent(`Come with me! Yoga at the lake on Atitlán Vibes
 ${APP}/event/42`)}`))
@@ -71,16 +70,18 @@ assert.ok(make({ event: { cover_image: 'https://www.dropbox.com/s/x/a.jpg?dl=0' 
 // A subject is one line even if the name has a newline in it.
 assert.equal(make({ event: { name: 'Two\nlines' } }).subject, 'Your event is live on Atitlán Vibes: Two lines')
 
-// The share row: a heading, "Share on:", and the three app icons with their names.
+// The share row: a heading, "Share on:", and the WhatsApp and share icons with their names.
 assert.ok(html.includes('Spread the word') && html.includes('Share on:'))
 assert.ok(make({ lang: 'es' }).html.includes('Corre la voz') && make({ lang: 'es' }).html.includes('Comparte en:'))
-for (const f of ['whatsapp', 'facebook', 'instagram']) assert.ok(html.includes(`${APP}/email/${f}.png`), f)
-assert.ok(['WhatsApp', 'Facebook', 'Instagram'].every((n) => html.includes(`>${n}</span>`)))
+for (const f of ['whatsapp', 'share']) assert.ok(html.includes(`${APP}/email/${f}.png`), f)
+assert.ok(['WhatsApp', 'More'].every((n) => html.includes(`>${n}</span>`)))
+assert.ok(make({ lang: 'es' }).html.includes('>Más</span>'))
+assert.ok(!html.includes('facebook.com'))
 
 // With attached images (cid), the card and the logo don't depend on remote loading.
-const inline = make({ cid: { cover: 'cover', logo: 'logo' } }).html
-assert.ok(inline.includes('src="cid:cover"') && inline.includes('src="cid:logo"'))
-assert.ok(!inline.includes('storage/v1/object/public/events') && !inline.includes('/logo.png'))
+const inline = make({ cid: { cover: 'cover', logo: 'logo', whatsapp: 'whatsapp', share: 'share' } }).html
+assert.ok(['cover', 'logo', 'whatsapp', 'share'].every((id) => inline.includes(`src="cid:${id}"`)))
+assert.ok(!inline.includes('storage/v1/object/public/events') && !inline.includes('/logo.png') && !inline.includes('/email/'))
 // No attachment for one of them: that one falls back to its URL.
 assert.ok(make({ cid: { logo: 'logo' } }).html.includes('storage/v1/object/public/events'))
 

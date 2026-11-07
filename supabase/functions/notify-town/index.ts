@@ -291,11 +291,13 @@ async function emailCreator(
 
     // Uploads live in Supabase Storage and fetch fine. An older Drive/Dropbox link
     // that doesn't come back as an image just stays a remote link in the email.
-    const [cover, logo] = await Promise.all([
+    const [cover, logo, whatsapp, share] = await Promise.all([
         inlineImage(record.cover_image, 'cover'),
-        inlineImage(`${APP_URL}/logo.png`, 'logo')
+        inlineImage(`${APP_URL}/logo.png`, 'logo'),
+        inlineImage(`${APP_URL}/email/whatsapp.png`, 'whatsapp'),
+        inlineImage(`${APP_URL}/email/share.png`, 'share')
     ])
-    const attachments = [cover, logo].filter((a): a is Attachment => !!a)
+    const attachments = [cover, logo, whatsapp, share].filter((a): a is Attachment => !!a)
 
     const { subject, html } = creatorEmail({
         kind,
@@ -304,7 +306,12 @@ async function emailCreator(
         townName: town?.name,
         firstName: String(owner?.name ?? '').trim().split(/\s+/)[0],
         appUrl: APP_URL,
-        cid: { cover: cover ? 'cover' : undefined, logo: logo ? 'logo' : undefined }
+        cid: {
+            cover: cover ? 'cover' : undefined,
+            logo: logo ? 'logo' : undefined,
+            whatsapp: whatsapp ? 'whatsapp' : undefined,
+            share: share ? 'share' : undefined
+        }
     })
     return resend([address], subject, html, attachments)
 }
