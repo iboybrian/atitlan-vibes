@@ -19,6 +19,14 @@ startPushTapListener()
 // using the code_verifier signInWithOAuth stashed in this WebView's localStorage.
 if (isNative()) {
   CapacitorApp.addListener('appUrlOpen', ({ url }) => {
+    // An https event link the OS routed here (App Links, see the manifest).
+    const event = url.match(/^https:\/\/app\.atitlanvibes\.com(\/event\/\d+)/)
+    if (event) {
+      // ponytail: full reload, same hand-off as the recovery link below; swap for
+      // the router's navigate() if the reload ever feels slow on a warm app.
+      window.location.replace(event[1])
+      return
+    }
     const code = new URLSearchParams(url.split('?')[1] || '').get('code')
     if (!code) return
     // onAuthStateChange in AuthContext takes it from here.

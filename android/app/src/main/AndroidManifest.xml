@@ -35,6 +35,18 @@
                 <data android:scheme="com.atitlanvibes" />
             </intent-filter>
 
+            <!-- App Links: an event link (email, WhatsApp, a friend's message) opens the
+                 installed app instead of the browser. Only /event/ on purpose: /share
+                 hands a picture to the share menu, which works in Chrome but not in the
+                 Android WebView. autoVerify needs https://app.atitlanvibes.com/.well-known/assetlinks.json
+                 listing this app's signing certificate (public/.well-known/). -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="app.atitlanvibes.com" android:pathPrefix="/event/" />
+            </intent-filter>
+
         </activity>
 
         <!-- FCM: without this the tray icon renders as a white square on some launchers.
